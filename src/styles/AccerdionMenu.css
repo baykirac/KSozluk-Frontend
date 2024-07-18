@@ -1,0 +1,131 @@
+.accordion-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.p-accordion-header-link {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 1rem;
+    padding: 6px;
+    background-color: #192857;
+    color: white;
+    border-bottom-right-radius: 40px;
+    border-top-right-radius: 40px;
+}
+
+.accordion-tab {
+    margin-top: 5px;
+    width: 150px;
+    text-align: center;
+    margin-left: -45px;
+    transition: all 0.3s ease;
+}
+
+.accordion-tab.hovered {
+    margin-top: 5px;
+    text-align: center;
+    margin-left: -10px;
+    padding-right: 20px;
+    width: 200px;
+}
+
+.accordion-words {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.accordion-word {
+    margin-bottom: 8px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.accordion-word:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.p-accordion-content {
+    display: flex;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    flex-direction: column;
+    margin-left: 0.5rem;
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: 15px;
+    width: 100%;
+}
+
+.accordion-header span {
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .accordion-container {
+        max-width: 100%;
+    }
+
+    .p-accordion-header-link {
+        gap: 15px;
+        font-size: 0.9rem;
+        padding: 4px;
+    }
+
+    .accordion-tab {
+        margin-left: -10px;
+        width: 160px;
+    }
+
+    .accordion-tab.hovered {
+        margin-left: 0;
+        padding-right: 15px;
+        width: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .accordion-header span {
+        font-size: 14px;
+    }
+
+    .p-accordion .p-accordion-header-link .pi {
+        font-size: 1.2rem;
+        transform: scale(1.2);
+    }
+
+    .accordion-tab {
+        width: 100%;
+        margin-left: 0;
+        margin-left: -10px;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .accordion-tab.hovered {
+        margin-left: 0;
+        padding-right: 20px;
+        width: 100%;
+    }
+
+    .accordion-words {
+        flex-direction: column;
+    }
+
+    .accordion-word {
+        margin-bottom: 8px;
+        padding: 10px;
+    }
+}

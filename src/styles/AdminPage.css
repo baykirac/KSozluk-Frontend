@@ -1,0 +1,143 @@
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar-wrapper {
+    flex: 0 0 auto;
+    width: 250px;
+}
+
+.tabs {
+    flex-grow: 1;
+    background-color: #ffffff;
+    padding-left: 150px;
+    padding-top: 100px;
+    padding-right: 45px;
+    background-color: transparent;
+}
+
+.sidebar {
+    margin-top: 100px;
+    margin-left: -20px;
+    position: fixed;
+    z-index: 1
+}
+
+.datatable-for-edit {
+    background: var(--surface-card);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.ps-menuitem-root.sidebar-menu-item {
+    max-width: 80px;
+    width: 80px;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    background-color: #192857;
+    color: white;
+    border-top-right-radius: 15px;
+    border-end-end-radius: 15px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.ps-menuitem-root.sidebar-menu-item.hovered {
+    max-width: 250px;
+    width: 250px;
+    border-top-right-radius: 50px;
+    border-end-end-radius: 50px;
+}
+
+.ps-menuitem-root.sidebar-menu-item.notification.hovered {
+    max-width: 250px;
+    width: 250px;
+    border-top-right-radius: 50px;
+    border-end-end-radius: 50px;
+    
+}
+
+.ps-menuitem-root.sidebar-menu-item.hovered .notification-badge {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: white;
+    color: #192857;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 1rem;
+  }
+
+
+.ps-sidebar-container {
+    background-color: transparent !important;
+}
+
+.ps-sidebar-root {
+    border: none !important;
+}
+
+.sidebar-menu-item:hover {
+    background-color: #1D91D0;
+    cursor: pointer;
+}
+
+.ps-menu-button:hover {
+    background-color: inherit !important;
+    color: inherit !important;
+}
+
+.ps-menu-label {
+    white-space: unset !important;
+    text-align: center;
+    line-height: 28px;
+}
+
+.ps-menu-icon {
+    padding: 0;
+}
+
+.p-tabview-nav {
+    display: none;
+}
+
+.p-datatable-header {
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.p-row-editor-init-icon {
+    color: #1D91D0;
+}
+
+.p-datatable .p-datatable-thead > tr > th{
+    text-align: left;
+    padding: 1rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-width: 0 0 1px 0;
+    font-weight: 700;
+    color: #374151;
+    background: #f9fafb;
+    transition: box-shadow 0.2s;
+}
+
+.p-row-odd{
+    background-color: #F9FAFB;
+}
+
+.p-orderlist-list-container{
+    height: 25rem;
+}
+
+.p-orderlist-list{
+    height: 25rem;
+}

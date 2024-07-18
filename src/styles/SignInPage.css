@@ -1,0 +1,145 @@
+/* Genel Container ve Arka Plan Stili */
+
+.signin-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+/* Floating Elementler */
+
+.floating-element {
+    position: absolute;
+    opacity: 0.2;
+    color: #333;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+
+.floating-letter {
+    font-family: 'Pacifico', cursive;
+    opacity: 0.25;
+}
+
+.floating-icon {
+    opacity: 0.15;
+}
+
+/* Login Sayfa Stilleri */
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    display: flex;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.9);
+    overflow: hidden;
+    position: relative;
+    flex-direction: row;
+    margin: 20px;
+}
+
+.left-section, .right-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.left-section {
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(to top, #1D91D0, #FFFFFF);
+    clip-path: polygon(0 0, 100% 0, 70% 100%, 0 100%);
+    flex: 1;
+}
+
+.right-section {
+    width: 60%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    flex: 1;
+}
+
+.signin-form {
+    max-width: 90%;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.signin-form .p-field {
+    margin-bottom: 1rem;
+}
+
+.signin-form .p-input-icon-left .p-inputtext {
+    padding-left: 2.25rem;
+}
+
+.signin-form .p-input-icon-left .pi {
+    font-size: 1rem;
+    margin-left: 0.5rem;
+}
+
+.signin-form .p-button {
+    width: 100%;
+}
+
+@media (max-width: 992px) {
+    .login-card {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left-section, .right-section {
+        width: 100%;
+        clip-path: none;
+    }
+
+    .signin-form {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        margin: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-card {
+        margin: 5px;
+    }
+
+    .signin-form {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .left-section {
+        display: none;
+    }
+
+    .right-section {
+        width: 100%;
+    }
+}

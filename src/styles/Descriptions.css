@@ -1,0 +1,138 @@
+.descriptions {
+  margin-left: 250px;
+  margin-top: 2%;
+}
+
+.description-sentence {
+  padding-left: 5%;
+  padding-top: 2%;
+}
+
+.description-field {
+  padding: 5px;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.custom-card {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-right: 70px;
+  transition: all 0.3s ease;
+}
+
+.custom-card:hover {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.45);
+}
+
+.card-content {
+  display: flex;
+  align-items: stretch;
+}
+
+.text-content {
+  flex: 1;
+  padding: 1rem;
+}
+
+.ReactRibbons_leftLargeRibbon_gKkDpYQyfk5jpV4ST8hM{
+  z-index: 1;
+}
+
+.custom-button {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+.custom-button .p-button-icon {
+  margin-right: 0.5rem;
+}
+
+.first-letter {
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+.tip-section {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-left: 16rem;
+  margin-top: 3rem;
+}
+
+.card-sss {
+  width: 30rem;
+  margin-left: 1rem;
+}
+
+@media only screen and (max-width: 1200px) {
+  .descriptions {
+      margin-left: 200px;
+  }
+  .custom-card {
+      margin-right: 50px;
+  }
+  .tip-section {
+      margin-left: 200px;
+  }
+}
+
+@media only screen and (max-width: 992px) {
+  .descriptions {
+      margin-left: 150px;
+  }
+  .tip-section {
+      margin-left: 150px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .descriptions {
+      margin-left: 50px;
+  }
+  .custom-card {
+      margin-right: 30px;
+  }
+  .tip-section {
+      margin-left: 50px;
+      flex-direction: column;
+  }
+  .card-content {
+      flex-direction: column;
+  }
+  .number-box {
+      font-size: 1.2rem;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  .descriptions {
+      margin-left: 20px;
+  }
+  .tip-section {
+      margin-left: 20px;
+  }
+  .number-box {
+      padding: 0.5rem;
+      font-size: 1rem;
+  }
+  .first-letter {
+      font-size: 3rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .descriptions {
+      margin-left: 10px;
+  }
+  .tip-section {
+      margin-left: 10px;
+  }
+  .description-sentence {
+      padding-left: 2%;
+  }
+}

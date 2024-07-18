@@ -1,0 +1,108 @@
+/* Modal Dialog Stilleri */
+
+.modal-dialog .p-dialog-content {
+  padding: 2rem;
+}
+
+.modal-dialog .user {
+  margin-top: 1rem;
+}
+
+.modal-searcher {
+  width: 100px;
+  margin-left: 10px;
+}
+
+.p-inputtext {
+  margin-left: 10px;
+}
+
+.p-field {
+  margin-top: 20px;
+}
+
+.description-area {
+  padding: 5px;
+}
+
+.p-dialog-title {
+  margin: 7px;
+}
+
+/* Responsive Düzenlemeler */
+
+@media (max-width: 768px) {
+  .modal-dialog .p-dialog-content {
+    padding: 1.5rem;
+  }
+
+  .modal-dialog .user {
+    margin-top: 0.5rem;
+  }
+
+  .modal-searcher {
+    width: 80px;
+    margin-left: 5px;
+  }
+
+  .p-inputtext {
+    margin-left: 5px;
+  }
+
+  .p-field {
+    margin-top: 15px;
+  }
+
+  .description-area {
+    padding: 3px;
+  }
+
+  .add-button {
+    padding: 3px;
+    margin-top: 3px;
+  }
+
+  .p-dialog-title {
+    margin: 5px;
+  }
+
+  .add-button .p-button .p-component {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-dialog .p-dialog-content {
+    padding: 1rem;
+  }
+
+  .modal-searcher {
+    width: 60px;
+    margin-left: 3px;
+  }
+
+  .p-inputtext {
+    margin-left: 3px;
+  }
+
+  .p-field {
+    margin-top: 10px;
+  }
+
+  .description-area {
+    padding: 2px;
+  }
+
+  .add-button {
+    padding: 2px;
+    margin-top: 2px;
+  }
+
+  .p-dialog-title {
+    margin: 3px;
+  }
+
+  .add-button .p-button .p-component {
+    padding: 20px;
+  }
+}

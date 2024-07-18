@@ -1,0 +1,66 @@
+.custom-header {
+  background-color: rgb(255,255,255,0.5);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  backdrop-filter: blur(3px);
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  height: 50px;
+  margin-right: 15px;
+}
+
+.title {
+  width: 216px;
+  padding-left: 32px;
+  padding-bottom: 6px;
+}
+
+.user-info-button {
+  background-color: #192857 !important;
+  border-radius: 50% !important;
+  width: 3rem !important;
+  height: 3rem !important;
+  border: none !important;
+}
+
+.user-info-button .p-button-icon {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.user-info-button:hover {
+  background-color: #2a3d7d !important;
+}
+
+.user-info-button:focus {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #192857 !important;
+}
+
+.header-right .user-icon {
+  background-color: #2494d1;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+main {
+  margin-top: 80px;
+  padding: 1em;
+}
