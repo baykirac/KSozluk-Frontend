@@ -1,46 +1,26 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Accordion, AccordionTab } from "primereact/accordion";
-import { Button } from "primereact/button";
-import DescriptionField from "./DescriptionField";
+import { VirtualScroller } from "primereact/virtualscroller";
+import { Skeleton } from "primereact/skeleton";
+
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentWords } from "../data/wordSlice";
+
+import wordApi from "../api/wordApi";
 
 import "../styles/AccerdionMenu.css";
 
-function AccerdionMenu({ isSearched, searchedWordF }) {
-  const alphabet = [
-    { letter: "A", words: ["Araba", "Ayva", "Ateş", "Aslan", "Anne", "Adak", "Arı", "Adana", "Ankara", "Afyon", "Aydın", "Arkadaş"] },
-    { letter: "B", words: ["Balık", "Bahar", "Bulut", "Böcek"] },
-    { letter: "C", words: ["Ceviz", "Ceylan", "Cam", "Ceket"] },
-    { letter: "Ç", words: ["Çiçek", "Çanta", "Çocuk", "Çimen"] },
-    { letter: "D", words: ["Deniz", "Dağ", "Defter", "Deve"] },
-    { letter: "E", words: ["Elma", "Ev", "Ekmek", "Erik"] },
-    { letter: "F", words: ["Fındık", "Fare", "Fırın", "Fırtına"] },
-    { letter: "G", words: ["Güneş", "Gemi", "Gül", "Göl"] },
-    { letter: "Ğ", words: ["Ğüneş", "Yoğurt", "Soğan", "Doğa"] },
-    { letter: "H", words: ["Hayat", "Hilal", "Hava", "Harita"] },
-    { letter: "I", words: ["Işık", "Isı", "Ilık", "Islak"] },
-    { letter: "İ", words: ["İnek", "İp", "İğne", "İnci"] },
-    { letter: "J", words: ["Japon", "Jaguar", "Jeton", "Jandarma"] },
-    { letter: "K", words: ["Kedi", "Kuş", "Kale", "Kalem"] },
-    { letter: "L", words: ["Limon", "Lale", "Lamba", "Leylek"] },
-    { letter: "M", words: ["Mavi", "Mum", "Meyve", "Maymun"] },
-    { letter: "N", words: ["Nar", "Nergis", "Nehir", "Nane"] },
-    { letter: "O", words: ["Orman", "Oda", "Ocak", "Okyanus"] },
-    { letter: "Ö", words: ["Ördek", "Öküz", "Örtü", "Ömür"] },
-    { letter: "P", words: ["Papatya", "Pazar", "Pencere", "Patlıcan"] },
-    { letter: "R", words: ["Rüzgar", "Renk", "Radyo", "Resim"] },
-    { letter: "S", words: ["Sarı", "Su", "Saat", "Sinek"] },
-    { letter: "Ş", words: ["Şeker", "Şemsiye", "Şapka", "Şeftali"] },
-    { letter: "T", words: ["Tavşan", "Top", "Tren", "Taş"] },
-    { letter: "U", words: ["Uçak", "Uyku", "Uğur", "Uzay"] },
-    { letter: "Ü", words: ["Üzüm", "Ütü", "Ülke", "Üçgen"] },
-    { letter: "V", words: ["Vazo", "Vatan", "Valiz", "Volkan"] },
-    { letter: "Y", words: ["Yol", "Yıldız", "Yemek", "Yaprak"] },
-    { letter: "Z", words: ["Zürafa", "Zeytin", "Zaman", "Zebra"] },
-  ];
+function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
+  const dispatch = useDispatch();
 
   const [hoveredTab, setHoveredTab] = useState(null);
-  const [visibleWords, setVisibleWords] = useState({});
+  const [pageNumber, setPageNumber] = useState(2);
+  const [currentLetter, setCurrentLetter] = useState("");
+  const [allWords, setAllWords] = useState([]);
+  const [loadedAllWords, setLoadedAllWords] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const words = useSelector((state) => state.words.paginatedWords);
 
   const handleMouseEnter = (index) => {
     setHoveredTab(index);
@@ -50,50 +30,113 @@ function AccerdionMenu({ isSearched, searchedWordF }) {
     setHoveredTab(null);
   };
 
-  const loadMoreWords = (letter) => {
-    setVisibleWords(prev => ({
-      ...prev,
-      [letter]: (prev[letter] || 5) + 5
-    }));
+  const handleScroll = async (event, letter) => {
+    if (!loadedAllWords) {
+      const bottom =
+        event.target.clientHeight + event.target.scrollTop + 0.5 >
+        event.target.scrollHeight;
+      if (bottom) {
+        setPageNumber(pageNumber + 1);
+        setLoading(true);
+        const response = await wordApi.GetWordsByLetter(letter, pageNumber, 5);
+
+        if (response.isSuccess) {
+          setLoading(false);
+          const { body } = response;
+          const newWordContents = body
+            .filter((wordObj) => wordObj.status === 1)
+            .map((wordObj) => ({
+              id: wordObj.id,
+              wordContent: wordObj.wordContent,
+            }));
+          setAllWords((prevWords) => [...prevWords, ...newWordContents]);
+          if (newWordContents.length < 5) {
+            setLoadedAllWords(true);
+            return;
+          }
+        }
+      }
+    }
   };
 
+  const handleAccordionTabClick = async (letter) => {
+    setLoading(true);
+    const response = await wordApi.GetWordsByLetter(letter, 1, 5);
+    if (response.isSuccess) {
+      setAllWords([]);
+      setPageNumber(2);
+      setLoadedAllWords(false);
+      setLoading(false);
+      const { body } = response;
+      const newWordContents = body
+        .filter((wordObj) => wordObj.status === 1)
+        .map((wordObj) => ({
+          id: wordObj.id,
+          wordContent: wordObj.wordContent,
+        }));
+
+      setAllWords((prevWords) => [...prevWords, ...newWordContents]);
+
+      setCurrentLetter(letter);
+    }
+  };
+
+  const itemTemplate = (word, options) => {
+    return (
+      <>
+        {loading ? (
+          <>
+            <Skeleton width="100%" height="2rem" />
+          </>
+        ) : (
+          <>
+            <div
+              key={options.index}
+              className="accordion-word"
+              onClick={() => {
+                isSearched();
+                searchedWordF(word.wordContent);
+                searchedWordIdF(word.id);
+              }}
+            >
+              {word.wordContent}
+            </div>
+          </>
+        )}
+      </>
+    );
+  };
+
+  useEffect(() => {
+    dispatch(setCurrentWords({ currentLetter, allWords }));
+  }, [allWords]);
   return (
     <div className="accordion-container animate__animated animate__fadeInLeft">
       <Accordion>
-      {alphabet.map((item, index) => (
-        <AccordionTab
-          className={`accordion-tab ${hoveredTab === index ? "hovered" : ""}`}
-          key={item.letter}
-          header={<div className="accordion-header">{item.letter}</div>}
-          onMouseEnter={() => handleMouseEnter(index)}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div className="accordion-content">
-            <div className="accordion-words">
-              {item.words.slice(0, visibleWords[item.letter] || 5).map((word, wordIndex) => (
-                <div
-                  key={wordIndex}
-                  className="accordion-word"
-                  onClick={() => {
-                    isSearched();
-                    searchedWordF(word);
-                  }}
-                >
-                  {word}
-                </div>
-              ))}
-            </div>
-            {item.words.length > (visibleWords[item.letter] || 5) && (
-              <Button 
-                icon="pi pi-plus" 
-                className="p-button-rounded p-button-text"
-                onClick={() => loadMoreWords(item.letter)}
+        {words.map((item, index) => (
+          <AccordionTab
+            className={`accordion-tab ${hoveredTab === index ? "hovered" : ""}`}
+            key={item.letter}
+            header={<div className="accordion-header">{item.letter}</div>}
+            onMouseEnter={() => handleMouseEnter(index)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleAccordionTabClick(item.letter)}
+          >
+            <div className="accordion-content">
+              <VirtualScroller
+                items={item.wordContents}
+                onScroll={(e) => handleScroll(e, item.letter)}
+                autoSize={true}
+                itemSize={50}
+                itemTemplate={itemTemplate}
+                className="custom-virtual-scroller"
+                style={{ height: "200px" }}
+                orientation="vertical"
               />
-            )}
-          </div>
-        </AccordionTab>
-      ))}
-    </Accordion>
+            </div>
+          </AccordionTab>
+        ))}
+      </Accordion>
     </div>
   );
 }

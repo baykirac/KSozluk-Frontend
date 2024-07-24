@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
@@ -13,15 +13,32 @@ import {
   faPen,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { signIn } from "../services/userService";
+import { useAuth } from "../contexts/AuthContext";
+
 import "../styles/SignInPage.css";
+import { useNavigate, Navigate } from "react-router-dom";
 
 function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // giriş yapma işlemleri
-  };
+  const { isAuthenticated ,authenticate} = useAuth();
+
+  const navigate = useNavigate();
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const response = await signIn(username, password);
+    if(response.isSuccess){
+      navigate("/");
+      authenticate();
+    }
+  }
+
+  useEffect(() => {
+    {isAuthenticated && <Navigate to= '/'/>}
+  }, []);
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const icons = [faMap, faMapMarkerAlt, faBook, faPen];
@@ -92,8 +109,13 @@ function SignInPage() {
                   Email
                 </label>
                 <span className="p-input-icon-left">
-                  <i className="pi pi-envelope" style={{marginLeft:20}} />
-                  <InputText style={{width: '17rem'}} id="email" type="email" />
+                  <i className="pi pi-envelope" style={{ marginLeft: 20 }} />
+                  <InputText
+                    style={{ width: "17rem" }}
+                    id="email"
+                    type="email"
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                 </span>
               </div>
               <div className="p-field">
@@ -101,17 +123,30 @@ function SignInPage() {
                   Password
                 </label>
                 <span className="p-input-icon-left">
-                  <i className="pi pi-lock" style={{zIndex:1, marginLeft:20}}  />
-                  <Password toggleMask id="password" feedback={false} />
+                  <i
+                    className="pi pi-lock"
+                    style={{ zIndex: 1, marginLeft: 20 }}
+                  />
+                  <Password
+                    toggleMask
+                    id="password"
+                    feedback={false}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </span>
               </div>
               <div className="p-field">
-                <Button label="Sign In" className="p-mt-2" />
+                <Button
+                  label="Giriş Yap"
+                  className="p-mt-2"
+                  onClick={handleLogin}
+                />
               </div>
             </form>
           </div>
         </div>
       </div>
+      {isAuthenticated && <Navigate to= '/'/>}
     </div>
   );
 }

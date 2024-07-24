@@ -65,9 +65,31 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    margin-left: 15px;
+    margin-left: 25px;
     width: 100%;
 }
+
+.custom-virtual-scroller {
+    overflow-y: auto;
+}
+
+.custom-virtual-scroller::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-virtual-scroller::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.custom-virtual-scroller::-webkit-scrollbar-thumb {
+    background: #06B6D4;
+    border-radius: 6px;
+}
+
+.custom-virtual-scroller::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 
 .accordion-header span {
     text-align: left;

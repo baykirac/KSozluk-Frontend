@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
@@ -11,16 +11,28 @@ import Joyride, { ACTIONS, EVENTS, ORIGIN, STATUS } from "react-joyride";
 
 import { RibbonContainer, Ribbon } from "react-ribbons";
 
+import descriptionApi from "../api/descriptionApi";
+
+import { useDispatch, useSelector } from "react-redux";
+import { setDescriptions } from "../data/descriptionSlice";
+
 import "../styles/Descriptions.css";
 
-function DescriptionField({ isSelected, searchedWord }) {
+function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState("");
   const [runTips, setRunTips] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
+  const [descriptionArray, setDescriptionArray] = useState([]);
+  const dispatch = useDispatch();
 
   const closingModalF = () => {
     setOpenModal(false);
+  };
+
+  const GetDescriptionContent = async (wordId) => {
+    const response = await descriptionApi.GetDescriptions(wordId);
+    return response;
   };
 
   const steps = [
@@ -67,11 +79,28 @@ function DescriptionField({ isSelected, searchedWord }) {
     }
   };
 
+  useEffect(() => {
+    const fetchDescription = async () => {
+      if (searchedWord) {
+        const response = await GetDescriptionContent(searchedWordId);
+        const { body } = response;
+        setDescriptionArray(
+          body.map((descriptions) => ({
+            id: descriptions.id,
+            descriptionContent: descriptions.descriptionContent,
+          }))
+        );
+        console.log(descriptionArray);
+      }
+    };
+
+    fetchDescription();
+  }, [searchedWord]);
   return (
     <div>
       {isSelected ? (
         <div className="descriptions">
-          <div className="card-list">
+          <div className="card-list animate__animated animate__fadeIn">
             <div>
               <span
                 style={{ fontSize: 24, fontWeight: "bold", display: "inline" }}
@@ -97,8 +126,8 @@ function DescriptionField({ isSelected, searchedWord }) {
                 {searchedWord} kelimesi için öneride bulun
               </span>
             </Button>
-            {[...Array(5)].map((_, index) => (
-              <div className="animate__animated animate__fadeIn">
+            {descriptionArray.map((descriptions, index) => (
+              <div>
                 <RibbonContainer>
                   <Ribbon
                     side="left"
@@ -115,10 +144,7 @@ function DescriptionField({ isSelected, searchedWord }) {
                     <div className="card-content">
                       <div className="text-content">
                         <p>
-                          <span className="first-letter">L</span>orem ipsum
-                          dolor sit amet, consectetur adipiscing elit. Sed do
-                          eiusmod tempor incididunt ut labore et dolore magna
-                          aliqua.
+                          <span className="first-letter">{descriptions.descriptionContent[0]}</span>{descriptions.descriptionContent.slice(1,descriptions.descriptionContent.length)}
                         </p>
                         <Button
                           tooltip="Kelimeye yeni anlam öner"
@@ -180,7 +206,7 @@ function DescriptionField({ isSelected, searchedWord }) {
                 src="soru_isareti.png"
                 style={{
                   padding: 10,
-                  paddingTop: '2.1rem',
+                  paddingTop: "2.1rem",
                   width: 90,
                   display: "block",
                   marginLeft: "auto",
@@ -204,7 +230,7 @@ function DescriptionField({ isSelected, searchedWord }) {
                 src="dict.png"
                 style={{
                   padding: 10,
-                  paddingTop: '2rem',
+                  paddingTop: "2rem",
                   width: 110,
                   display: "block",
                   marginLeft: "auto",

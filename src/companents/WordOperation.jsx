@@ -12,7 +12,7 @@ function WordOperation({ visible, closingModal, word, description, isAdd }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = () => {
-    console.log("Kaydedildi");
+    //console.log("Kaydedildi");
   };
 
   const load = () => {

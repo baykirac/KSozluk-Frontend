@@ -13,21 +13,28 @@ import { Button } from "primereact/button";
 import WordOperation from "../companents/WordOperation";
 import DescriptionField from "../companents/DescriptionField";
 
+import { useAuth } from "../contexts/AuthContext";
+
 import "../App.css";
-import { Password } from 'primereact/password';
+
 
 function HomePage() {
   const [openModal, setOpenModal] = useState(false);
   const [openDescriptions, setOpenDescriptions] = useState(false);
   const [searchedWord, setSearchedWord] = useState("");
+  const [searchedWordId, setSearchedWordId] = useState("");
+  const {revoke, user} = useAuth();
+
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
     }).then(() => {});
+
+    //console.log(user);
   }, []);
 
   const particlesLoaded = (container) => {
-    console.log(container);
+
   };
 
   const closingModalF = () => {
@@ -42,11 +49,14 @@ function HomePage() {
     setSearchedWord(word);
   }
 
+  const setTheSearchedWordId = (id) => {
+    setSearchedWordId(id);
+  }
   return (
     <>
       <Header />
       <div className="align-left">
-        <AccerdionMenu isSearched = {openDescription} forModal={false} searchedWordF = {setTheSearchedWord} />
+        <AccerdionMenu isSearched = {openDescription} forModal={false} searchedWordF = {setTheSearchedWord}  searchedWordIdF = {setTheSearchedWordId}/>
       </div>
       <div>
         <Searcher isSearched = {openDescription} forModal={false} searchedWordF = {setTheSearchedWord}/>
@@ -58,7 +68,7 @@ function HomePage() {
         className="particles-background"
       />
       <Button tooltip="Yeni kelime öner" tooltipOptions={{showDelay:250, position: 'left' }} className = "pi pi-plus floating-button" onClick={() => setOpenModal(true)}></Button>
-      <DescriptionField isSelected={openDescriptions} searchedWord={searchedWord}/>
+      <DescriptionField isSelected={openDescriptions} searchedWord={searchedWord} searchedWordId = {searchedWordId}/>
       <WordOperation visible={openModal} closingModal = {closingModalF}/>
     </>
   );
