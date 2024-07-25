@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 
 import { TabView, TabPanel } from "primereact/tabview";
 import { InputText } from "primereact/inputtext";
-import { classNames } from "primereact/utils";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -27,10 +26,8 @@ import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { MdOutlineEdit } from "react-icons/md";
 import { AiOutlineOrderedList } from "react-icons/ai";
 import { GiTeamIdea } from "react-icons/gi";
-import { FaPencilAlt } from "react-icons/fa";
 
 import { WordsService } from "./WordsService";
-import { TbABOff } from "react-icons/tb";
 
 import WordOperation from "../companents/WordOperation";
 

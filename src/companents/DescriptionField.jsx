@@ -7,14 +7,13 @@ import { Card } from "primereact/card";
 
 import WordOperation from "./WordOperation";
 
-import Joyride, { ACTIONS, EVENTS, ORIGIN, STATUS } from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 
 import { RibbonContainer, Ribbon } from "react-ribbons";
 
 import descriptionApi from "../api/descriptionApi";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setDescriptions } from "../data/descriptionSlice";
 
 import "../styles/Descriptions.css";
 
@@ -24,7 +23,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [runTips, setRunTips] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [descriptionArray, setDescriptionArray] = useState([]);
-  const dispatch = useDispatch();
 
   const closingModalF = () => {
     setOpenModal(false);
@@ -90,7 +88,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             descriptionContent: descriptions.descriptionContent,
           }))
         );
-        console.log(descriptionArray);
+
       }
     };
 

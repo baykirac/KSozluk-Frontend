@@ -29,8 +29,6 @@ function HomePage() {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
     }).then(() => {});
-
-    //console.log(user);
   }, []);
 
   const particlesLoaded = (container) => {

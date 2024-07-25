@@ -44,7 +44,6 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
           setLoading(false);
           const { body } = response;
           const newWordContents = body
-            .filter((wordObj) => wordObj.status === 1)
             .map((wordObj) => ({
               id: wordObj.id,
               wordContent: wordObj.wordContent,
@@ -69,7 +68,6 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
       setLoading(false);
       const { body } = response;
       const newWordContents = body
-        .filter((wordObj) => wordObj.status === 1)
         .map((wordObj) => ({
           id: wordObj.id,
           wordContent: wordObj.wordContent,

@@ -1,15 +1,10 @@
 import { AutoComplete } from "primereact/autocomplete";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useState } from "react";
-import { classNames } from "primereact/utils";
-import { IconField } from "primereact/iconfield";
-import { InputIcon } from "primereact/inputicon";
-
 import "../styles/Searcher.css";
 
-import DescriptionField from "./DescriptionField";
-
-import { WordsService } from "../pages/WordsService";
+import wordApi from "../api/wordApi";
+import _, { filter } from "lodash";
 
 function Searcher({ isSearched, forModal, searchedWordF, word }) {
   const [value, setValue] = useState(word);
@@ -17,28 +12,28 @@ function Searcher({ isSearched, forModal, searchedWordF, word }) {
   const [filteredItems, setfilteredItems] = useState([]);
 
   const [words, setWords] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
 
   const search = (e) => {
     setfilteredItems(
-      words.filter((item) =>
-        item.toLowerCase().startsWith(e.query.toLowerCase())
-      )
+      words.filter((item) => item.toLowerCase().includes(e.query.toLowerCase()))
     );
   };
 
-  const getWords = (data) => {
-    return [...(data || [])].map((d) => {
-      d.date = new Date(d.date);
+  const debounceSearch = useCallback(
+    _.debounce(async (query) => {
+      const response = await wordApi.GetWordsByContains(query);
+      const { body } = response;
+      setWords(body.map((item) => item.wordContent));
+    }, 500),
+    []
+  );
 
-      return d.word;
-    });
+  const handleChange = (e) => {
+    setWords([]);
+    setValue(e.target.value);
+    debounceSearch(e.target.value);
   };
-
-  useEffect(() => {
-    WordsService.getWordsMedium().then((data) => {
-      setWords(getWords(data));
-    });
-  }, []);
 
   return (
     <>
@@ -46,10 +41,12 @@ function Searcher({ isSearched, forModal, searchedWordF, word }) {
         <AutoComplete
           className="modal-searcher"
           value={value}
-          suggestions={filteredItems}
-          style={{fontSize: "16px !important" }}
+          suggestions={words}
+          style={{ fontSize: "16px !important" }}
           completeMethod={search}
-          onChange={(e) => setValue(e.value)}
+          onChange={(e) => {
+            handleChange(e);
+          }}
           onSelect={(e) => {
             searchedWordF(e.value);
             isSearched();
@@ -60,14 +57,17 @@ function Searcher({ isSearched, forModal, searchedWordF, word }) {
         <div className="searcher">
           <AutoComplete
             value={value}
-            suggestions={filteredItems}
-            completeMethod={search}
-            onChange={(e) => setValue(e.value)}
+            suggestions={suggestions}
+            onChange={(e) => {
+              handleChange(e);
+            }}
+            max={10}
             placeholder="Kelime Arayın"
             onSelect={(e) => {
               searchedWordF(e.value);
               isSearched();
             }}
+            completeMethod={search}
           />
         </div>
       )}
