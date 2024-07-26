@@ -176,7 +176,6 @@ function AdminPage() {
       setLoading(false);
     });
 
-    //console.log(user);
   }, []);
 
   useEffect(() => {

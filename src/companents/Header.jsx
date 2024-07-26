@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 function Header() {
   const { isAuthenticated, user, revoke } = useAuth();
-  
+
   const navigate = useNavigate();
 
   function handleSignOut() {
@@ -22,11 +22,13 @@ function Header() {
     navigate("/SignIn");
   }
 
+  function handleGoToAdmin(){
+    navigate("/AdminPage");
+  }
   function handleLogin() {
     navigate("/SignIn");
   }
   const op = useRef(null);
-
 
   return (
     <header className="custom-header">
@@ -59,6 +61,16 @@ function Header() {
                   <strong>Yetki:</strong>{" "}
                   {user.role === "2" ? "Admin" : "Kullanıcı"}
                 </p>
+                {user.role === "2" ? (
+                  <Button
+                    label="Admin Paneli"
+                    icon="pi pi-cog"
+                    style={{marginRight: '1rem'}}
+                    onClick={handleGoToAdmin}
+                  />
+                ) : (
+                  <></>
+                )}
                 <Button
                   label="Çıkış Yap"
                   icon="pi pi-sign-out"

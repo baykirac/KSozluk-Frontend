@@ -95,6 +95,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
                 isSearched();
                 searchedWordF(word.wordContent);
                 searchedWordIdF(word.id);
+
               }}
             >
               {word.wordContent}

@@ -6,7 +6,7 @@ import "../styles/Searcher.css";
 import wordApi from "../api/wordApi";
 import _, { filter } from "lodash";
 
-function Searcher({ isSearched, forModal, searchedWordF, word }) {
+function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word }) {
   const [value, setValue] = useState(word);
 
   const [filteredItems, setfilteredItems] = useState([]);
@@ -20,14 +20,28 @@ function Searcher({ isSearched, forModal, searchedWordF, word }) {
     );
   };
 
+  const wordIdSetter = (wordToFind) => {
+    const id = words.find(w => w.wordContent === wordToFind).id;
+    searchedWordIdF(id);
+  }
+
   const debounceSearch = useCallback(
     _.debounce(async (query) => {
       const response = await wordApi.GetWordsByContains(query);
       const { body } = response;
-      setWords(body.map((item) => item.wordContent));
+      setWords(
+        body.map((item) => ({ id: item.id, wordContent: item.wordContent }))
+      );
     }, 500),
     []
   );
+  
+  const handleSelect = (e) => {
+    searchedWordF(e.value);
+    wordIdSetter(e.value);
+    isSearched();
+    wordIdSetter();
+  }
 
   const handleChange = (e) => {
     setWords([]);
@@ -35,22 +49,23 @@ function Searcher({ isSearched, forModal, searchedWordF, word }) {
     debounceSearch(e.target.value);
   };
 
+  useEffect(() => {
+    setSuggestions(words.map((item) => item.wordContent));
+  }, [words]);
+
   return (
     <>
       {forModal ? (
         <AutoComplete
           className="modal-searcher"
           value={value}
-          suggestions={words}
+          suggestions={suggestions}
           style={{ fontSize: "16px !important" }}
           completeMethod={search}
           onChange={(e) => {
             handleChange(e);
           }}
-          onSelect={(e) => {
-            searchedWordF(e.value);
-            isSearched();
-          }}
+          onSelect={(e) => handleSelect(e)}
           placeholder="Kelime Arayın"
         />
       ) : (
@@ -63,10 +78,7 @@ function Searcher({ isSearched, forModal, searchedWordF, word }) {
             }}
             max={10}
             placeholder="Kelime Arayın"
-            onSelect={(e) => {
-              searchedWordF(e.value);
-              isSearched();
-            }}
+            onSelect={(e) => handleSelect(e)}
             completeMethod={search}
           />
         </div>

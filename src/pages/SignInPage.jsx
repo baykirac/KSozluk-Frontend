@@ -36,10 +36,6 @@ function SignInPage() {
     }
   }
 
-  useEffect(() => {
-    {isAuthenticated && <Navigate to= '/'/>}
-  }, []);
-
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const icons = [faMap, faMapMarkerAlt, faBook, faPen];
 
@@ -138,6 +134,7 @@ function SignInPage() {
               <div className="p-field">
                 <Button
                   label="Giriş Yap"
+                  loading={isAuthenticated}
                   className="p-mt-2"
                   onClick={handleLogin}
                 />
