@@ -85,7 +85,6 @@ const api = {
   post: async function (path, body) {
     try {
       const response = await ax.post(path, body);
-
       return parseApiResponse(response);
     } catch (e) {
       console.error(e);

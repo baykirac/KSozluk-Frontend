@@ -202,7 +202,6 @@ function AdminPage() {
     const pendingC = newTransferedData.filter(
       (item) => item.status === "pending"
     ).length;
-
     setPendingCount(pendingC);
     setStatusApprovedWords(activeWordsData);
     setTransformedData(newTransferedData);
@@ -412,11 +411,30 @@ function AdminPage() {
                       filterPlaceholder="Açıklamaya göre ara"
                     />
                     <Column
+                      header="Son Düzenleme Tarihi"
+                      field="description"
+                      filterField="description"
+                      style={{ minWidth: "12rem" }}
+                      editor={(options) => textEditor(options)}
+                      filter
+                      filterPlaceholder="Açıklamaya göre ara"
+                    />
+                    <Column
+                      header="Anlamı Öneren"
+                      field="description"
+                      filterField="description"
+                      style={{ minWidth: "12rem" }}
+                      editor={(options) => textEditor(options)}
+                      filter
+                      filterPlaceholder="Açıklamaya göre ara"
+                    />
+                    <Column
                       rowEditor={true}
                       headerStyle={{ width: "10%", minWidth: "8rem" }}
                       bodyStyle={{ textAlign: "center" }}
                       style={{ borderTopRightRadius: 15 }}
                     ></Column>
+                    
                     <Column
                       body={
                         <Button

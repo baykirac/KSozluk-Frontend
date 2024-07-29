@@ -6,7 +6,7 @@ import "../styles/Searcher.css";
 import wordApi from "../api/wordApi";
 import _, { filter } from "lodash";
 
-function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word }) {
+function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word, setTheWordF, setTheDescriptionF }) {
   const [value, setValue] = useState(word);
 
   const [filteredItems, setfilteredItems] = useState([]);
@@ -60,13 +60,14 @@ function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word }
           className="modal-searcher"
           value={value}
           suggestions={suggestions}
-          style={{ fontSize: "16px !important" }}
+          style={{ fontSize: "32px !important" }}
           completeMethod={search}
           onChange={(e) => {
             handleChange(e);
+            setTheWordF(e.target.value);
           }}
           onSelect={(e) => handleSelect(e)}
-          placeholder="Kelime Arayın"
+          placeholder="Kelime Girin"
         />
       ) : (
         <div className="searcher">

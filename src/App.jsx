@@ -15,20 +15,20 @@ import "animate.css";
 import { Provider } from "react-redux";
 import { store } from "./data/store";
 
-function App() {
-  return (
-    <AuthProvider>
-      <PrimeReactProvider>
-        <Provider store={store}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/AdminPage" element={<AdminPage />} />
-            <Route path="/SignIn" element={<SignInPage />} />
-          </Routes>
-        </Provider>
-      </PrimeReactProvider>
-    </AuthProvider>
-  );
-}
+  function App() {
+    return (
+      <AuthProvider>
+        <PrimeReactProvider>
+          <Provider store={store}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/AdminPage" element={<AdminPage />} />
+              <Route path="/SignIn" element={<SignInPage />} />
+            </Routes>
+          </Provider>
+        </PrimeReactProvider>
+      </AuthProvider>
+    );
+  }
 
 export default App;
