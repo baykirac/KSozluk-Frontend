@@ -23,14 +23,19 @@ function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const { isAuthenticated ,authenticate} = useAuth();
+  const [elements, setElements] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const { isAuthenticated, authenticate } = useAuth();
 
   const navigate = useNavigate();
 
   async function handleLogin(e) {
     e.preventDefault();
+    setLoading(true);
     const response = await signIn(username, password);
-    if(response.isSuccess){
+    if (response.isSuccess) {
+      setLoading(false);
       navigate("/");
       authenticate();
     }
@@ -77,13 +82,17 @@ function SignInPage() {
         </div>
       );
     }
-    return elements;
+    setElements(elements);
   };
+
+  useEffect(() => {
+    generateElements();
+  }, []);
 
   return (
     <div className="content-signin-div">
       <Header />
-      <div className="signin-background">{generateElements(200)}</div>
+      <div className="signin-background">{elements}</div>
       <div className="login-page">
         <div className="login-card animate__animated animate__fadeInLeft">
           <div className="left-section">
@@ -99,7 +108,7 @@ function SignInPage() {
             </div>
           </div>
           <div className="right-section">
-            <form className="signin-form">
+            <form className="signin-form" onSubmit={handleLogin}>
               <div className="p-field">
                 <label htmlFor="email" className="p-d-block">
                   Email
@@ -134,7 +143,7 @@ function SignInPage() {
               <div className="p-field">
                 <Button
                   label="Giriş Yap"
-                  loading={isAuthenticated}
+                  loading={loading}
                   className="p-mt-2"
                   onClick={handleLogin}
                 />
@@ -143,7 +152,7 @@ function SignInPage() {
           </div>
         </div>
       </div>
-      {isAuthenticated && <Navigate to= '/'/>}
+      {isAuthenticated && <Navigate to="/" />}
     </div>
   );
 }

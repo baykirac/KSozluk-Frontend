@@ -13,7 +13,7 @@ import { OrderList } from "primereact/orderlist";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { ContextMenu } from "primereact/contextmenu";
-
+import { Toast } from "primereact/toast";
 import Header from "../companents/Header";
 import "../styles/AdminPage.css";
 
@@ -36,6 +36,9 @@ import { Navigate } from "react-router-dom";
 
 import Searcher from "../companents/Searcher";
 
+import wordApi from "../api/wordApi";
+import descriptionApi from "../api/descriptionApi";
+
 function AdminPage() {
   const [page, setPage] = useState(0);
 
@@ -43,25 +46,33 @@ function AdminPage() {
 
   const [wordsArray, setWordsArray] = useState([]);
 
+  const [editedWordsArray, setEditedWordsArray] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const [openModal, setOpenModal] = useState(false);
 
   const [filteredWordArray, setFilteredWordArray] = useState([]);
 
-  const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
-
   const [isWordSearched, setIsWordSearched] = useState(false);
-
-  const [transformedData, setTransformedData] = useState([]);
-
-  const [statusApprovedWords, setStatusApprovedWords] = useState([]);
 
   const [pendingCount, setPendingCount] = useState(0);
 
+  const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
+
+  const [visible, setVisible] = useState(false);
+
+  const [descriptionId, setDescriptionId] = useState("");
+
   const [statuses] = useState(["approved", "pending", "rejected"]);
 
+  const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
+
+  const [wordId, setTheWordId] = useState("");
+
   const { isAuthenticated, user } = useAuth();
+
+  const toast = useRef(null);
 
   const getSeverity = (status) => {
     switch (status) {
@@ -76,7 +87,7 @@ function AdminPage() {
     }
   };
 
-  const toast = useRef(null);
+  const toastForNotification = useRef(null);
 
   const cm = useRef(null); // context menu için
 
@@ -87,12 +98,13 @@ function AdminPage() {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    description: {
+    descriptionContent: {
       value: null,
-      matchMode: FilterMatchMode.STARTS_WITH,
+      matchMode: FilterMatchMode.CONTAINS,
     },
-    word: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    status: { value: null, matchMode: FilterMatchMode.EQUALS },
+    wordContent: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    lastEditedDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    recommender: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
 
   const handleMouseEnter = (index) => {
@@ -104,14 +116,8 @@ function AdminPage() {
     setHoveredTab(null);
   };
 
-  const onRowEditComplete = (e) => {
-    // row edit işlemleri
-    let _wordsArray = [...transformedData];
-    let { newData, index } = e;
-
-    _wordsArray[index] = newData;
-
-    setTransformedData(_wordsArray);
+  const wordIdSetter = (id) => {
+    setTheWordId(id);
   };
 
   const textEditor = (options) => {
@@ -124,6 +130,18 @@ function AdminPage() {
     );
   };
 
+  const accept = async () => {
+    var response = await descriptionApi.DeleteDescription(deletedDescriptionId);
+    if (response.isSuccess) {
+      toast.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+        life: 3000,
+      });
+    }
+  };
+
   const onGlobalFilterChange = (e) => {
     // datatable filtreleme işlemleri
     const value = e.target.value;
@@ -133,6 +151,19 @@ function AdminPage() {
 
     setFilters(_filters);
     setGlobalFilterValue(value);
+  };
+
+  const fetchData = async () => {
+    const response = await wordApi.GetAllWords();
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "info",
+        summary: "Info",
+        detail: response.message,
+      });
+      const { body } = response;
+      setWordsArray(body);
+    }
   };
 
   const renderHeader = () => {
@@ -167,52 +198,62 @@ function AdminPage() {
   const header = renderHeader();
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {});
-
-    WordsService.getWordsMedium().then((data) => {
-      setWordsArray(data);
-      setLoading(false);
-    });
-
+    fetchData();
   }, []);
 
   useEffect(() => {
-    if (isWordSearched) {
-      filterArray(transformedData, searchedWordforFilter);
-    }
-  }, [isWordSearched, searchedWordforFilter]);
-
-  useEffect(() => {
-    const newTransferedData = wordsArray.flatMap((item) =>
-      item.descriptions.map((description) => ({
+    const x = wordsArray.flatMap((item) =>
+      item.descriptions.map((desc) => ({
         wordId: item.id,
-        word: item.word,
-        descriptionId: description.id,
-        description: description.text,
-        status: description.status,
+        descriptionId: desc.id,
+        wordContent: item.wordContent,
+        descriptionContent: desc.descriptionContent,
+        recommender:
+          desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        lastEditedDate:
+          item.lastEditedDate !== null
+            ? item.lastEditedDate.split("T")[0]
+            : "Boş",
       }))
     );
-
-    const activeWordsData = newTransferedData.filter(
-      (description) => description.status === "approved"
-    );
-
-    const pendingC = newTransferedData.filter(
-      (item) => item.status === "pending"
-    ).length;
-    setPendingCount(pendingC);
-    setStatusApprovedWords(activeWordsData);
-    setTransformedData(newTransferedData);
+    setEditedWordsArray(x);
   }, [wordsArray]);
 
   const itemTemplate = (item) => {
+    debugger;
     return (
-      <div className="p-clearfix">
-        <div style={{ fontSize: "1.2em" }}>{item.description}</div>
+      <div className="flex align-items-center gap-2">
+        <i className="pi pi-tag text-sm"></i>
+        <span>{item.descriptionContent}</span>
       </div>
     );
+  };
+
+  const onRowEditComplete = async (e) => {
+    let _wordsArray = [...editedWordsArray];
+    let { newData, index } = e;
+
+    _wordsArray[index] = newData;
+
+    const response = await wordApi.UpdateWord(
+      newData.wordId,
+      newData.descriptionId,
+      newData.wordContent,
+      newData.descriptionContent
+    );
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+      setEditedWordsArray(_wordsArray);
+    }
+  };
+
+  const dragDropHandler = (e) => {
+    //debugger;
   };
 
   const searchedWordF = (word) => {
@@ -255,44 +296,6 @@ function AdminPage() {
     return <Tag value={option} severity={getSeverity(option)} />;
   };
 
-  const filterArray = (array, searchString) => {
-    setFilteredWordArray(
-      array.filter((item) =>
-        item.word.toLowerCase().includes(searchString.toLowerCase())
-      )
-    );
-  };
-
-  const accept = () => {
-    toast.current.show({
-      severity: "info",
-      summary: "Confirmed",
-      detail: "You have accepted",
-      life: 3000,
-    });
-  };
-
-  const reject = () => {
-    toast.current.show({
-      severity: "warn",
-      summary: "Rejected",
-      detail: "You have rejected",
-      life: 3000,
-    });
-  };
-
-  const confirm2 = () => {
-    confirmDialog({
-      message: "Bu satırı silmek istediğinize emin misiniz?",
-      header: "Silmeyi Onayla",
-      icon: "pi pi-info-circle",
-      defaultFocus: "reject",
-      acceptClassName: "p-button-danger",
-      accept,
-      reject,
-    });
-  };
-
   const items = [
     {
       label: "Rejected",
@@ -311,12 +314,31 @@ function AdminPage() {
     },
   ];
 
+  useEffect(() => {
+    debugger;
+    setFilteredWordArray(
+      editedWordsArray.filter(
+        (item) => item.wordContent == searchedWordforFilter
+      )
+    );
+  }, [searchedWordforFilter]);
   return (
     <>
       {isAuthenticated && user.role === "2" ? (
         <>
+          <Toast ref={toastForNotification} />
+          <Toast ref={toast} />
+          <ConfirmDialog
+            group="declarative"
+            visible={visible}
+            onHide={() => setVisible(false)}
+            message="Bu kelimeye bağlı açıklamayı silmek istediğinize emin misiniz?"
+            header="Silmeyi Onayla"
+            acceptClassName="p-button-danger"
+            icon="pi pi-exclamation-triangle"
+            accept={accept}
+          />
           <Header />
-          <ConfirmDialog />
           <ContextMenu model={items} ref={cm} breakpoint="767px" />
           <WordOperation
             visible={openModal}
@@ -379,21 +401,26 @@ function AdminPage() {
                 <div className="datatable-for-edit">
                   <h2>Kelime Ekle Veya Düzenle</h2>
                   <DataTable
-                    value={statusApprovedWords}
+                    value={editedWordsArray}
                     paginator
                     rows={10}
-                    dataKey="id"
+                    dataKey="descriptionId"
                     editMode="row"
                     onRowEditComplete={onRowEditComplete}
                     filters={filters}
                     filterDisplay="row"
-                    loading={loading}
-                    globalFilterFields={["word", "description"]}
+                    //loading={loading}
+                    globalFilterFields={[
+                      "wordContent",
+                      "descriptionContent",
+                      "lastEditedDate",
+                      "recommender",
+                    ]}
                     header={header}
                     emptyMessage="Kelime bulunamadı."
                   >
                     <Column
-                      field="word"
+                      field="wordContent"
                       header="Kelimeler"
                       filter
                       editor={(options) => textEditor(options)}
@@ -403,8 +430,8 @@ function AdminPage() {
                     />
                     <Column
                       header="Açıklama"
-                      field="description"
-                      filterField="description"
+                      field="descriptionContent"
+                      filterField="descriptionContent"
                       style={{ minWidth: "12rem" }}
                       editor={(options) => textEditor(options)}
                       filter
@@ -412,21 +439,19 @@ function AdminPage() {
                     />
                     <Column
                       header="Son Düzenleme Tarihi"
-                      field="description"
-                      filterField="description"
+                      field="lastEditedDate"
+                      filterField="lastEditedDate"
                       style={{ minWidth: "12rem" }}
-                      editor={(options) => textEditor(options)}
                       filter
-                      filterPlaceholder="Açıklamaya göre ara"
+                      filterPlaceholder="Son düzenlenme tarihine göre ara"
                     />
                     <Column
                       header="Anlamı Öneren"
-                      field="description"
-                      filterField="description"
+                      field="recommender"
+                      filterField="recommender"
                       style={{ minWidth: "12rem" }}
-                      editor={(options) => textEditor(options)}
                       filter
-                      filterPlaceholder="Açıklamaya göre ara"
+                      filterPlaceholder="Önerene göre ara"
                     />
                     <Column
                       rowEditor={true}
@@ -434,15 +459,18 @@ function AdminPage() {
                       bodyStyle={{ textAlign: "center" }}
                       style={{ borderTopRightRadius: 15 }}
                     ></Column>
-                    
+
                     <Column
-                      body={
+                      body={(rowData) => (
                         <Button
                           icon="pi pi-trash"
                           className="p-button-rounded p-button-danger"
-                          onClick={confirm2}
+                          onClick={(e) => {
+                            setVisible(true);
+                            setDeletedDescriptionId(rowData.descriptionId);
+                          }}
                         />
-                      }
+                      )}
                       headerStyle={{ width: "10%", minWidth: "8rem" }}
                       bodyStyle={{ textAlign: "center" }}
                     ></Column>
@@ -454,18 +482,20 @@ function AdminPage() {
                   <h2>Anlam Sıralarını Değiştir</h2>
                   <div className="card xl:flex xl:justify-content-center">
                     <OrderList
-                      dataKey="id"
+                      dataKey="descriptionId"
                       value={filteredWordArray}
-                      onChange={(e) => setFilteredWordArray(e.value)}
+                      onChange={(e) => {
+                        setFilteredWordArray(e.value);
+                      }}
                       itemTemplate={itemTemplate}
                       header={
-                        <div className="header-order-list">
-                          <Searcher
-                            forModal={true}
-                            searchedWordF={searchedWordF}
-                            isSearched={isSearched}
-                          />
-                        </div>
+                        <Searcher
+                          forModal={true}
+                          forAdmin={true}
+                          searchedWordF={searchedWordF}
+                          isSearched={isSearched}
+                          setTheWordF={searchedWordF}
+                        />
                       }
                       dragdrop
                     ></OrderList>
@@ -476,12 +506,12 @@ function AdminPage() {
                 <p className="m-0">
                   <h2>Önerileri Değerlendir</h2>
                   <DataTable
-                    value={transformedData}
+                    //value={transformedData}
                     paginator
                     rows={10}
                     dataKey="id"
                     editMode="row"
-                    onRowEditComplete={onRowEditComplete}
+                    //onRowEditComplete={onRowEditComplete}
                     filters={filters}
                     filterDisplay="row"
                     loading={loading}

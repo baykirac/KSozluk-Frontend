@@ -23,10 +23,9 @@ function WordOperation({ visible, closingModal, word, description, isAdd }) {
   const handleSubmit = async () => {
     setLoading(true);
     const response = await wordApi.AddWord(newWord, newDescription);
-    debugger;
     if(response.isSuccess){ 
       setLoading(false);
-      toast.current.show({ severity: 'info', summary: 'Info', detail: response.message })
+      toast.current.show({ severity: 'success', summary: 'Başarılı', detail: response.message })
     }
   };
 

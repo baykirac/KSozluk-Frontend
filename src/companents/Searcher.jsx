@@ -6,7 +6,15 @@ import "../styles/Searcher.css";
 import wordApi from "../api/wordApi";
 import _, { filter } from "lodash";
 
-function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word, setTheWordF, setTheDescriptionF }) {
+function Searcher({
+  isSearched,
+  forModal,
+  searchedWordF,
+  searchedWordIdF,
+  word,
+  setTheWordF,
+  forAdmin,
+}) {
   const [value, setValue] = useState(word);
 
   const [filteredItems, setfilteredItems] = useState([]);
@@ -21,9 +29,9 @@ function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word, 
   };
 
   const wordIdSetter = (wordToFind) => {
-    const id = words.find(w => w.wordContent === wordToFind).id;
+    const id = words.find((w) => w.wordContent === wordToFind).id;
     searchedWordIdF(id);
-  }
+  };
 
   const debounceSearch = useCallback(
     _.debounce(async (query) => {
@@ -35,13 +43,15 @@ function Searcher({ isSearched, forModal, searchedWordF, searchedWordIdF, word, 
     }, 500),
     []
   );
-  
+
   const handleSelect = (e) => {
     searchedWordF(e.value);
-    wordIdSetter(e.value);
-    isSearched();
-    wordIdSetter();
-  }
+    if (!forAdmin) {
+      wordIdSetter(e.value);
+      isSearched();
+      wordIdSetter();
+    }
+  };
 
   const handleChange = (e) => {
     setWords([]);
