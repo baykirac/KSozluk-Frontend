@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
@@ -15,7 +15,7 @@ import {
 
 import { signIn } from "../services/userService";
 import { useAuth } from "../contexts/AuthContext";
-
+import { Toast } from "primereact/toast";
 import "../styles/SignInPage.css";
 import { useNavigate, Navigate } from "react-router-dom";
 
@@ -30,14 +30,25 @@ function SignInPage() {
 
   const navigate = useNavigate();
 
+  const toast = useRef(null);
+
   async function handleLogin(e) {
     e.preventDefault();
     setLoading(true);
     const response = await signIn(username, password);
+    debugger;
     if (response.isSuccess) {
       setLoading(false);
       navigate("/");
       authenticate();
+    } else {
+      toast.current.show({
+        severity: "error",
+        summary: "Hata",
+        detail: response.message,
+        life: 3000,
+      });
+      setLoading(false);
     }
   }
 
@@ -91,6 +102,7 @@ function SignInPage() {
 
   return (
     <div className="content-signin-div">
+      <Toast ref={toast} />
       <Header />
       <div className="signin-background">{elements}</div>
       <div className="login-page">

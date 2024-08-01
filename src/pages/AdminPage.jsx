@@ -60,15 +60,18 @@ function AdminPage() {
 
   const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
 
-  const [visible, setVisible] = useState(false);
+  const [visibleDeleteDescription, setVisibleDeleteDescription] =
+    useState(false);
 
-  const [descriptionId, setDescriptionId] = useState("");
+  const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
 
-  const [statuses] = useState(["approved", "pending", "rejected"]);
+  const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
 
   const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
 
-  const [wordId, setTheWordId] = useState("");
+  const [wordId, setWordId] = useState("");
+
+  const [descriptionId, setDescriptionId] = useState("");
 
   const { isAuthenticated, user } = useAuth();
 
@@ -76,13 +79,13 @@ function AdminPage() {
 
   const getSeverity = (status) => {
     switch (status) {
-      case "rejected":
+      case "Reddedildi":
         return "danger";
 
-      case "approved":
+      case "Onaylı":
         return "success";
 
-      case "pending":
+      case "Bekliyor":
         return "info";
     }
   };
@@ -90,12 +93,23 @@ function AdminPage() {
   const toastForNotification = useRef(null);
 
   const cm = useRef(null); // context menu için
+  const cm2 = useRef(null); // context menu2 için
 
   const closingModalF = () => {
     setOpenModal(false);
   };
 
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const statusFilter = (status) => {
+    const statusMap = {
+      1: "Onaylı",
+      2: "Bekliyor",
+      3: "Reddedildi",
+    };
+
+    return statusMap[status];
+  };
+
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     descriptionContent: {
@@ -105,6 +119,7 @@ function AdminPage() {
     wordContent: { value: null, matchMode: FilterMatchMode.CONTAINS },
     lastEditedDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
     recommender: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
 
   const handleMouseEnter = (index) => {
@@ -114,10 +129,6 @@ function AdminPage() {
 
   const handleMouseLeave = () => {
     setHoveredTab(null);
-  };
-
-  const wordIdSetter = (id) => {
-    setTheWordId(id);
   };
 
   const textEditor = (options) => {
@@ -130,7 +141,7 @@ function AdminPage() {
     );
   };
 
-  const accept = async () => {
+  const acceptDeleteDescription = async () => {
     var response = await descriptionApi.DeleteDescription(deletedDescriptionId);
     if (response.isSuccess) {
       toast.current.show({
@@ -139,6 +150,8 @@ function AdminPage() {
         detail: response.message,
         life: 3000,
       });
+
+      fetchData();
     }
   };
 
@@ -203,7 +216,8 @@ function AdminPage() {
 
   useEffect(() => {
     const x = wordsArray.flatMap((item) =>
-      item.descriptions.map((desc) => ({
+      item.descriptions.map((desc, index) => ({
+        index: index,
         wordId: item.id,
         descriptionId: desc.id,
         wordContent: item.wordContent,
@@ -214,16 +228,19 @@ function AdminPage() {
           item.lastEditedDate !== null
             ? item.lastEditedDate.split("T")[0]
             : "Boş",
+        order: desc.order,
+        status: statusFilter(desc.status),
       }))
     );
     setEditedWordsArray(x);
   }, [wordsArray]);
 
   const itemTemplate = (item) => {
-    debugger;
     return (
       <div className="flex align-items-center gap-2">
-        <i className="pi pi-tag text-sm"></i>
+        <span style={{ fontWeight: "bold", marginRight: "1rem" }}>
+          {item.index + 1}-
+        </span>
         <span>{item.descriptionContent}</span>
       </div>
     );
@@ -252,8 +269,36 @@ function AdminPage() {
     }
   };
 
-  const dragDropHandler = (e) => {
-    //debugger;
+  const deleteWordHandler = () => {
+    setVisibleDeleteWord(true);
+  };
+
+  const updateDescriptionStatusHandler = async (status) => {
+    const response = await descriptionApi.UpdateStatus(descriptionId, status);
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+
+      fetchData();
+    }
+  };
+
+  const acceptDeleteWord = async () => {
+    const response = await wordApi.DeleteWord(wordId);
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+
+      fetchData();
+    }
   };
 
   const searchedWordF = (word) => {
@@ -271,7 +316,7 @@ function AdminPage() {
         options={statuses}
         onChange={(e) => options.filterApplyCallback(e.value)}
         itemTemplate={statusItemTemplate}
-        placeholder="Select One"
+        placeholder="Duruma göre ara"
         className="p-column-filter"
         showClear
         style={{ minWidth: "12rem" }}
@@ -286,6 +331,7 @@ function AdminPage() {
         style={{ cursor: "pointer" }}
         severity={getSeverity(rowData.status)}
         onClick={(e) => {
+          setDescriptionId(rowData.descriptionId);
           cm.current.show(e);
         }}
       />
@@ -293,29 +339,77 @@ function AdminPage() {
   };
 
   const statusItemTemplate = (option) => {
+    debugger;
     return <Tag value={option} severity={getSeverity(option)} />;
+  };
+
+  const changeOrder = async (e) => {
+    const values = e.value;
+    let isSucceded = true;
+    let message = "";
+    for (let i = 0; i < values.length; i++) {
+      var response = await descriptionApi.UpdateOrder(
+        values[i].descriptionId,
+        i
+      );
+      if (!response.isSuccess) {
+        isSucceded = false;
+        break;
+      }
+      message = response.message;
+    }
+    if (isSucceded) {
+      toast.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: message,
+        life: 3000,
+      });
+
+      setFilteredWordArray(values);
+
+      fetchData();
+    }
   };
 
   const items = [
     {
-      label: "Rejected",
-      icon: "pi pi-times",
-      className: `p-error-${getSeverity("rejected")}`,
-    },
-    {
-      label: "Approved",
+      label: "Onaylı",
       icon: "pi pi-check",
-      className: `p-success-${getSeverity("approved")}`,
+      className: `p-success-${getSeverity("Onaylı")}`,
+      command: () => {
+        updateDescriptionStatusHandler(1);
+      },
     },
     {
-      label: "Pending",
+      label: "Bekliyor",
       icon: "pi pi-spin pi-spinner",
-      className: `p-info-${getSeverity("pending")}`,
+      className: `p-info-${getSeverity("Bekliyor")}`,
+      command: () => {
+        updateDescriptionStatusHandler(2);
+      },
+    },
+    {
+      label: "Reddedildi",
+      icon: "pi pi-times",
+      className: `p-error-${getSeverity("Reddedildi")}`,
+      command: () => {
+        updateDescriptionStatusHandler(3);
+      },
     },
   ];
 
+  const items2 = [
+    {
+      label: "Kelimeyi Sil",
+      icon: "pi pi-times",
+      className: `p-error-deleteWord`,
+      command: () => {
+        deleteWordHandler();
+      },
+    },
+  ];
   useEffect(() => {
-    debugger;
     setFilteredWordArray(
       editedWordsArray.filter(
         (item) => item.wordContent == searchedWordforFilter
@@ -330,15 +424,26 @@ function AdminPage() {
           <Toast ref={toast} />
           <ConfirmDialog
             group="declarative"
-            visible={visible}
-            onHide={() => setVisible(false)}
+            visible={visibleDeleteDescription}
+            onHide={() => setVisibleDeleteDescription(false)}
             message="Bu kelimeye bağlı açıklamayı silmek istediğinize emin misiniz?"
             header="Silmeyi Onayla"
             acceptClassName="p-button-danger"
             icon="pi pi-exclamation-triangle"
-            accept={accept}
+            accept={acceptDeleteDescription}
+          />
+          <ConfirmDialog
+            group="declarative"
+            visible={visibleDeleteWord}
+            onHide={() => setVisibleDeleteWord(false)}
+            message="Bu kelimeyi tamamıyla silmek istediğinize emin misiniz?"
+            header="Silmeyi Onayla"
+            acceptClassName="p-button-danger"
+            icon="pi pi-exclamation-triangle"
+            accept={acceptDeleteWord}
           />
           <Header />
+          <ContextMenu model={items2} ref={cm2} breakpoint="767px" />
           <ContextMenu model={items} ref={cm} breakpoint="767px" />
           <WordOperation
             visible={openModal}
@@ -422,6 +527,16 @@ function AdminPage() {
                     <Column
                       field="wordContent"
                       header="Kelimeler"
+                      body={(rowData) => (
+                        <div
+                          onContextMenu={(e) => {
+                            setWordId(rowData.wordId);
+                            cm2.current.show(e);
+                          }}
+                        >
+                          {rowData.wordContent}
+                        </div>
+                      )}
                       filter
                       editor={(options) => textEditor(options)}
                       filterPlaceholder="Kelimeye göre ara"
@@ -466,7 +581,7 @@ function AdminPage() {
                           icon="pi pi-trash"
                           className="p-button-rounded p-button-danger"
                           onClick={(e) => {
-                            setVisible(true);
+                            setVisibleDeleteDescription(true);
                             setDeletedDescriptionId(rowData.descriptionId);
                           }}
                         />
@@ -485,7 +600,7 @@ function AdminPage() {
                       dataKey="descriptionId"
                       value={filteredWordArray}
                       onChange={(e) => {
-                        setFilteredWordArray(e.value);
+                        changeOrder(e);
                       }}
                       itemTemplate={itemTemplate}
                       header={
@@ -506,20 +621,23 @@ function AdminPage() {
                 <p className="m-0">
                   <h2>Önerileri Değerlendir</h2>
                   <DataTable
-                    //value={transformedData}
+                    value={editedWordsArray}
                     paginator
                     rows={10}
-                    dataKey="id"
-                    editMode="row"
-                    //onRowEditComplete={onRowEditComplete}
+                    dataKey="descriptionId"
                     filters={filters}
                     filterDisplay="row"
-                    loading={loading}
-                    globalFilterFields={["word", "description", "status"]}
+                    //loading={loading}
+                    globalFilterFields={[
+                      "wordContent",
+                      "descriptionContent",
+                      "status",
+                      "recommender",
+                    ]}
                     emptyMessage="Kelime bulunamadı."
                   >
                     <Column
-                      field="word"
+                      field="wordContent"
                       header="Kelimeler"
                       filter
                       editor={(options) => textEditor(options)}
@@ -529,19 +647,27 @@ function AdminPage() {
                     />
                     <Column
                       header="Açıklama"
-                      field="description"
-                      filterField="description"
+                      field="descriptionContent"
+                      filterField="descriptionContent"
                       style={{ minWidth: "12rem" }}
                       editor={(options) => textEditor(options)}
                       filter
                       filterPlaceholder="Açıklamaya göre ara"
                     />
                     <Column
+                      header="Öneren"
+                      field="recommender"
+                      filterField="recommender"
+                      style={{ minWidth: "12rem" }}
+                      editor={(options) => textEditor(options)}
+                      filter
+                      filterPlaceholder="Önerene göre ara"
+                    />
+                    <Column
                       header="Durum"
                       field="status"
                       filterField="status"
                       style={{ minWidth: "12rem" }}
-                      editor={(options) => textEditor(options)}
                       body={statusBodyTemplate}
                       showFilterMenu={false}
                       filterMenuStyle={{ width: "14rem" }}
@@ -555,9 +681,7 @@ function AdminPage() {
           </div>
         </>
       ) : (
-        <>
-          {!isAuthenticated && user.role !== "2" && <Navigate to="/SignIn" />}
-        </>
+        <>{<Navigate to="/SignIn" />}</>
       )}
     </>
   );

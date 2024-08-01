@@ -18,6 +18,7 @@ const wordApi = {
       wordContent,
       descriptionContent,
     }),
+  DeleteWord: async (wordId) => await api.post("Word/DeleteWord", { wordId }),
 };
 
 export default wordApi;

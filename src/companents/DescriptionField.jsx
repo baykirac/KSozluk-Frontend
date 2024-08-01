@@ -82,6 +82,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       if (searchedWord) {
         const response = await GetDescriptionContent(searchedWordId);
         const { body } = response;
+        debugger;
         setDescriptionArray(
           body.map((descriptions) => ({
             id: descriptions.id,

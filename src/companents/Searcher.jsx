@@ -38,7 +38,7 @@ function Searcher({
       const response = await wordApi.GetWordsByContains(query);
       const { body } = response;
       setWords(
-        body.map((item) => ({ id: item.id, wordContent: item.wordContent }))
+        body.map((item) => ({ id: item.id, wordContent: item.wordContent.charAt(0).toUpperCase() + item.wordContent.slice(1).toLowerCase() }))
       );
     }, 500),
     []

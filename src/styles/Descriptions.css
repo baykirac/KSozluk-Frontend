@@ -54,10 +54,10 @@
 }
 
 .tip-section {
+  justify-content: center;
   display: flex;
   flex-direction: row;
   gap: 1rem;
-  margin-left: 16rem;
   margin-top: 3rem;
 }
 
