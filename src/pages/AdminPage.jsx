@@ -73,6 +73,8 @@ function AdminPage() {
 
   const [descriptionId, setDescriptionId] = useState("");
 
+  const [wordAddedSuccessfully, setWordAddedSuccessfully] = useState(false);
+
   const { isAuthenticated, user } = useAuth();
 
   const toast = useRef(null);
@@ -170,6 +172,7 @@ function AdminPage() {
     const response = await wordApi.GetAllWords();
     if (response.isSuccess) {
       toastForNotification.current.show({
+        life:750,
         severity: "info",
         summary: "Info",
         detail: response.message,
@@ -177,6 +180,10 @@ function AdminPage() {
       const { body } = response;
       setWordsArray(body);
     }
+  };
+
+  const WordAddedHandle = (status) => {
+    setWordAddedSuccessfully(status);
   };
 
   const renderHeader = () => {
@@ -416,6 +423,13 @@ function AdminPage() {
       )
     );
   }, [searchedWordforFilter]);
+
+  useEffect(() => {
+    if (wordAddedSuccessfully) {
+      fetchData();
+      setWordAddedSuccessfully(false);
+    }
+  }, [wordAddedSuccessfully]);
   return (
     <>
       {isAuthenticated && user.role === "2" ? (
@@ -449,6 +463,7 @@ function AdminPage() {
             visible={openModal}
             closingModal={closingModalF}
             isAdd={true}
+            isSuccessfull={WordAddedHandle}
           />
           <Particles
             id="tsparticles"
@@ -504,7 +519,7 @@ function AdminPage() {
             <TabView activeIndex={page} onTabChange={(e) => setPage(e.index)}>
               <TabPanel>
                 <div className="datatable-for-edit">
-                  <h2>Kelime Ekle Veya Düzenle</h2>
+                  <h2>Kelime Ekle veya Düzenle</h2>
                   <DataTable
                     value={editedWordsArray}
                     paginator

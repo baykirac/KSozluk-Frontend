@@ -14,6 +14,7 @@ function Searcher({
   word,
   setTheWordF,
   forAdmin,
+  isDisabled
 }) {
   const [value, setValue] = useState(word);
 
@@ -78,6 +79,7 @@ function Searcher({
           }}
           onSelect={(e) => handleSelect(e)}
           placeholder="Kelime Girin"
+          disabled={isDisabled}
         />
       ) : (
         <div className="searcher">

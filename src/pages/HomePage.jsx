@@ -47,6 +47,7 @@ function HomePage() {
   const setTheSearchedWordId = (id) => {
     setSearchedWordId(id);
   };
+
   return (
     <>
       {isAuthenticated ? (
@@ -85,12 +86,10 @@ function HomePage() {
             searchedWord={searchedWord}
             searchedWordId={searchedWordId}
           />
-          <WordOperation visible={openModal} closingModal={closingModalF} />
+          <WordOperation visible={openModal} closingModal={closingModalF} isDisabled={false} wordId = {searchedWordId}/>
         </>
       ) : (
-        <>
-          {!isAuthenticated && <Navigate to="/SignIn" />}
-        </>
+        <>{!isAuthenticated && <Navigate to="/SignIn" />}</>
       )}
     </>
   );
