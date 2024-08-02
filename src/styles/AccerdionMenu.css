@@ -71,6 +71,7 @@
 
 .custom-virtual-scroller {
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .custom-virtual-scroller::-webkit-scrollbar {
@@ -149,5 +150,10 @@
     .accordion-word {
         margin-bottom: 8px;
         padding: 10px;
+    }
+    .custom-virtual-scroller {
+        overflow-y: auto;
+        overflow-x: hidden;
+        width: 150px;
     }
 }

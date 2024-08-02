@@ -13,7 +13,7 @@ import { OrderList } from "primereact/orderlist";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { ContextMenu } from "primereact/contextmenu";
-
+import { Toast } from "primereact/toast";
 import Header from "../companents/Header";
 import "../styles/AdminPage.css";
 
@@ -36,6 +36,9 @@ import { Navigate } from "react-router-dom";
 
 import Searcher from "../companents/Searcher";
 
+import wordApi from "../api/wordApi";
+import descriptionApi from "../api/descriptionApi";
+
 function AdminPage() {
   const [page, setPage] = useState(0);
 
@@ -43,55 +46,81 @@ function AdminPage() {
 
   const [wordsArray, setWordsArray] = useState([]);
 
+  const [editedWordsArray, setEditedWordsArray] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const [openModal, setOpenModal] = useState(false);
 
   const [filteredWordArray, setFilteredWordArray] = useState([]);
 
-  const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
-
   const [isWordSearched, setIsWordSearched] = useState(false);
-
-  const [transformedData, setTransformedData] = useState([]);
-
-  const [statusApprovedWords, setStatusApprovedWords] = useState([]);
 
   const [pendingCount, setPendingCount] = useState(0);
 
-  const [statuses] = useState(["approved", "pending", "rejected"]);
+  const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
+
+  const [visibleDeleteDescription, setVisibleDeleteDescription] =
+    useState(false);
+
+  const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
+
+  const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
+
+  const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
+
+  const [wordId, setWordId] = useState("");
+
+  const [descriptionId, setDescriptionId] = useState("");
+
+  const [wordAddedSuccessfully, setWordAddedSuccessfully] = useState(false);
 
   const { isAuthenticated, user } = useAuth();
 
+  const toast = useRef(null);
+
   const getSeverity = (status) => {
     switch (status) {
-      case "rejected":
+      case "Reddedildi":
         return "danger";
 
-      case "approved":
+      case "Onaylı":
         return "success";
 
-      case "pending":
+      case "Bekliyor":
         return "info";
     }
   };
 
-  const toast = useRef(null);
+  const toastForNotification = useRef(null);
 
   const cm = useRef(null); // context menu için
+  const cm2 = useRef(null); // context menu2 için
 
   const closingModalF = () => {
     setOpenModal(false);
   };
 
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const statusFilter = (status) => {
+    const statusMap = {
+      1: "Onaylı",
+      2: "Bekliyor",
+      3: "Reddedildi",
+    };
+
+    return statusMap[status];
+  };
+
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    description: {
+    descriptionContent: {
       value: null,
-      matchMode: FilterMatchMode.STARTS_WITH,
+      matchMode: FilterMatchMode.CONTAINS,
     },
-    word: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    wordContent: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    lastEditedDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    recommender: { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
 
@@ -104,16 +133,6 @@ function AdminPage() {
     setHoveredTab(null);
   };
 
-  const onRowEditComplete = (e) => {
-    // row edit işlemleri
-    let _wordsArray = [...transformedData];
-    let { newData, index } = e;
-
-    _wordsArray[index] = newData;
-
-    setTransformedData(_wordsArray);
-  };
-
   const textEditor = (options) => {
     return (
       <InputText
@@ -122,6 +141,20 @@ function AdminPage() {
         onChange={(e) => options.editorCallback(e.target.value)}
       />
     );
+  };
+
+  const acceptDeleteDescription = async () => {
+    var response = await descriptionApi.DeleteDescription(deletedDescriptionId);
+    if (response.isSuccess) {
+      toast.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+        life: 3000,
+      });
+
+      fetchData();
+    }
   };
 
   const onGlobalFilterChange = (e) => {
@@ -133,6 +166,24 @@ function AdminPage() {
 
     setFilters(_filters);
     setGlobalFilterValue(value);
+  };
+
+  const fetchData = async () => {
+    const response = await wordApi.GetAllWords();
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        life:750,
+        severity: "info",
+        summary: "Info",
+        detail: response.message,
+      });
+      const { body } = response;
+      setWordsArray(body);
+    }
+  };
+
+  const WordAddedHandle = (status) => {
+    setWordAddedSuccessfully(status);
   };
 
   const renderHeader = () => {
@@ -167,53 +218,94 @@ function AdminPage() {
   const header = renderHeader();
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {});
-
-    WordsService.getWordsMedium().then((data) => {
-      setWordsArray(data);
-      setLoading(false);
-    });
-
+    fetchData();
   }, []);
 
   useEffect(() => {
-    if (isWordSearched) {
-      filterArray(transformedData, searchedWordforFilter);
-    }
-  }, [isWordSearched, searchedWordforFilter]);
-
-  useEffect(() => {
-    const newTransferedData = wordsArray.flatMap((item) =>
-      item.descriptions.map((description) => ({
+    const x = wordsArray.flatMap((item) =>
+      item.descriptions.map((desc, index) => ({
+        index: index,
         wordId: item.id,
-        word: item.word,
-        descriptionId: description.id,
-        description: description.text,
-        status: description.status,
+        descriptionId: desc.id,
+        wordContent: item.wordContent,
+        descriptionContent: desc.descriptionContent,
+        recommender:
+          desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        lastEditedDate:
+          item.lastEditedDate !== null
+            ? item.lastEditedDate.split("T")[0]
+            : "Boş",
+        order: desc.order,
+        status: statusFilter(desc.status),
       }))
     );
-
-    const activeWordsData = newTransferedData.filter(
-      (description) => description.status === "approved"
-    );
-
-    const pendingC = newTransferedData.filter(
-      (item) => item.status === "pending"
-    ).length;
-
-    setPendingCount(pendingC);
-    setStatusApprovedWords(activeWordsData);
-    setTransformedData(newTransferedData);
+    setEditedWordsArray(x);
   }, [wordsArray]);
 
   const itemTemplate = (item) => {
     return (
-      <div className="p-clearfix">
-        <div style={{ fontSize: "1.2em" }}>{item.description}</div>
+      <div className="flex align-items-center gap-2">
+        <span style={{ fontWeight: "bold", marginRight: "1rem" }}>
+          {item.index + 1}-
+        </span>
+        <span>{item.descriptionContent}</span>
       </div>
     );
+  };
+
+  const onRowEditComplete = async (e) => {
+    let _wordsArray = [...editedWordsArray];
+    let { newData, index } = e;
+
+    _wordsArray[index] = newData;
+
+    const response = await wordApi.UpdateWord(
+      newData.wordId,
+      newData.descriptionId,
+      newData.wordContent,
+      newData.descriptionContent
+    );
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+      setEditedWordsArray(_wordsArray);
+    }
+  };
+
+  const deleteWordHandler = () => {
+    setVisibleDeleteWord(true);
+  };
+
+  const updateDescriptionStatusHandler = async (status) => {
+    const response = await descriptionApi.UpdateStatus(descriptionId, status);
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+
+      fetchData();
+    }
+  };
+
+  const acceptDeleteWord = async () => {
+    const response = await wordApi.DeleteWord(wordId);
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+
+      fetchData();
+    }
   };
 
   const searchedWordF = (word) => {
@@ -231,7 +323,7 @@ function AdminPage() {
         options={statuses}
         onChange={(e) => options.filterApplyCallback(e.value)}
         itemTemplate={statusItemTemplate}
-        placeholder="Select One"
+        placeholder="Duruma göre ara"
         className="p-column-filter"
         showClear
         style={{ minWidth: "12rem" }}
@@ -246,6 +338,7 @@ function AdminPage() {
         style={{ cursor: "pointer" }}
         severity={getSeverity(rowData.status)}
         onClick={(e) => {
+          setDescriptionId(rowData.descriptionId);
           cm.current.show(e);
         }}
       />
@@ -253,76 +346,124 @@ function AdminPage() {
   };
 
   const statusItemTemplate = (option) => {
+    debugger;
     return <Tag value={option} severity={getSeverity(option)} />;
   };
 
-  const filterArray = (array, searchString) => {
-    setFilteredWordArray(
-      array.filter((item) =>
-        item.word.toLowerCase().includes(searchString.toLowerCase())
-      )
-    );
-  };
+  const changeOrder = async (e) => {
+    const values = e.value;
+    let isSucceded = true;
+    let message = "";
+    for (let i = 0; i < values.length; i++) {
+      var response = await descriptionApi.UpdateOrder(
+        values[i].descriptionId,
+        i
+      );
+      if (!response.isSuccess) {
+        isSucceded = false;
+        break;
+      }
+      message = response.message;
+    }
+    if (isSucceded) {
+      toast.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: message,
+        life: 3000,
+      });
 
-  const accept = () => {
-    toast.current.show({
-      severity: "info",
-      summary: "Confirmed",
-      detail: "You have accepted",
-      life: 3000,
-    });
-  };
+      setFilteredWordArray(values);
 
-  const reject = () => {
-    toast.current.show({
-      severity: "warn",
-      summary: "Rejected",
-      detail: "You have rejected",
-      life: 3000,
-    });
-  };
-
-  const confirm2 = () => {
-    confirmDialog({
-      message: "Bu satırı silmek istediğinize emin misiniz?",
-      header: "Silmeyi Onayla",
-      icon: "pi pi-info-circle",
-      defaultFocus: "reject",
-      acceptClassName: "p-button-danger",
-      accept,
-      reject,
-    });
+      fetchData();
+    }
   };
 
   const items = [
     {
-      label: "Rejected",
-      icon: "pi pi-times",
-      className: `p-error-${getSeverity("rejected")}`,
-    },
-    {
-      label: "Approved",
+      label: "Onaylı",
       icon: "pi pi-check",
-      className: `p-success-${getSeverity("approved")}`,
+      className: `p-success-${getSeverity("Onaylı")}`,
+      command: () => {
+        updateDescriptionStatusHandler(1);
+      },
     },
     {
-      label: "Pending",
+      label: "Bekliyor",
       icon: "pi pi-spin pi-spinner",
-      className: `p-info-${getSeverity("pending")}`,
+      className: `p-info-${getSeverity("Bekliyor")}`,
+      command: () => {
+        updateDescriptionStatusHandler(2);
+      },
+    },
+    {
+      label: "Reddedildi",
+      icon: "pi pi-times",
+      className: `p-error-${getSeverity("Reddedildi")}`,
+      command: () => {
+        updateDescriptionStatusHandler(3);
+      },
     },
   ];
 
+  const items2 = [
+    {
+      label: "Kelimeyi Sil",
+      icon: "pi pi-times",
+      className: `p-error-deleteWord`,
+      command: () => {
+        deleteWordHandler();
+      },
+    },
+  ];
+  useEffect(() => {
+    setFilteredWordArray(
+      editedWordsArray.filter(
+        (item) => item.wordContent == searchedWordforFilter
+      )
+    );
+  }, [searchedWordforFilter]);
+
+  useEffect(() => {
+    if (wordAddedSuccessfully) {
+      fetchData();
+      setWordAddedSuccessfully(false);
+    }
+  }, [wordAddedSuccessfully]);
   return (
     <>
       {isAuthenticated && user.role === "2" ? (
         <>
+          <Toast ref={toastForNotification} />
+          <Toast ref={toast} />
+          <ConfirmDialog
+            group="declarative"
+            visible={visibleDeleteDescription}
+            onHide={() => setVisibleDeleteDescription(false)}
+            message="Bu kelimeye bağlı açıklamayı silmek istediğinize emin misiniz?"
+            header="Silmeyi Onayla"
+            acceptClassName="p-button-danger"
+            icon="pi pi-exclamation-triangle"
+            accept={acceptDeleteDescription}
+          />
+          <ConfirmDialog
+            group="declarative"
+            visible={visibleDeleteWord}
+            onHide={() => setVisibleDeleteWord(false)}
+            message="Bu kelimeyi tamamıyla silmek istediğinize emin misiniz?"
+            header="Silmeyi Onayla"
+            acceptClassName="p-button-danger"
+            icon="pi pi-exclamation-triangle"
+            accept={acceptDeleteWord}
+          />
           <Header />
-          <ConfirmDialog />
+          <ContextMenu model={items2} ref={cm2} breakpoint="767px" />
           <ContextMenu model={items} ref={cm} breakpoint="767px" />
           <WordOperation
             visible={openModal}
             closingModal={closingModalF}
             isAdd={true}
+            isSuccessfull={WordAddedHandle}
           />
           <Particles
             id="tsparticles"
@@ -378,24 +519,39 @@ function AdminPage() {
             <TabView activeIndex={page} onTabChange={(e) => setPage(e.index)}>
               <TabPanel>
                 <div className="datatable-for-edit">
-                  <h2>Kelime Ekle Veya Düzenle</h2>
+                  <h2>Kelime Ekle veya Düzenle</h2>
                   <DataTable
-                    value={statusApprovedWords}
+                    value={editedWordsArray}
                     paginator
                     rows={10}
-                    dataKey="id"
+                    dataKey="descriptionId"
                     editMode="row"
                     onRowEditComplete={onRowEditComplete}
                     filters={filters}
                     filterDisplay="row"
-                    loading={loading}
-                    globalFilterFields={["word", "description"]}
+                    //loading={loading}
+                    globalFilterFields={[
+                      "wordContent",
+                      "descriptionContent",
+                      "lastEditedDate",
+                      "recommender",
+                    ]}
                     header={header}
                     emptyMessage="Kelime bulunamadı."
                   >
                     <Column
-                      field="word"
+                      field="wordContent"
                       header="Kelimeler"
+                      body={(rowData) => (
+                        <div
+                          onContextMenu={(e) => {
+                            setWordId(rowData.wordId);
+                            cm2.current.show(e);
+                          }}
+                        >
+                          {rowData.wordContent}
+                        </div>
+                      )}
                       filter
                       editor={(options) => textEditor(options)}
                       filterPlaceholder="Kelimeye göre ara"
@@ -404,12 +560,28 @@ function AdminPage() {
                     />
                     <Column
                       header="Açıklama"
-                      field="description"
-                      filterField="description"
+                      field="descriptionContent"
+                      filterField="descriptionContent"
                       style={{ minWidth: "12rem" }}
                       editor={(options) => textEditor(options)}
                       filter
                       filterPlaceholder="Açıklamaya göre ara"
+                    />
+                    <Column
+                      header="Son Düzenleme Tarihi"
+                      field="lastEditedDate"
+                      filterField="lastEditedDate"
+                      style={{ minWidth: "12rem" }}
+                      filter
+                      filterPlaceholder="Son düzenlenme tarihine göre ara"
+                    />
+                    <Column
+                      header="Anlamı Öneren"
+                      field="recommender"
+                      filterField="recommender"
+                      style={{ minWidth: "12rem" }}
+                      filter
+                      filterPlaceholder="Önerene göre ara"
                     />
                     <Column
                       rowEditor={true}
@@ -417,14 +589,18 @@ function AdminPage() {
                       bodyStyle={{ textAlign: "center" }}
                       style={{ borderTopRightRadius: 15 }}
                     ></Column>
+
                     <Column
-                      body={
+                      body={(rowData) => (
                         <Button
                           icon="pi pi-trash"
                           className="p-button-rounded p-button-danger"
-                          onClick={confirm2}
+                          onClick={(e) => {
+                            setVisibleDeleteDescription(true);
+                            setDeletedDescriptionId(rowData.descriptionId);
+                          }}
                         />
-                      }
+                      )}
                       headerStyle={{ width: "10%", minWidth: "8rem" }}
                       bodyStyle={{ textAlign: "center" }}
                     ></Column>
@@ -436,18 +612,20 @@ function AdminPage() {
                   <h2>Anlam Sıralarını Değiştir</h2>
                   <div className="card xl:flex xl:justify-content-center">
                     <OrderList
-                      dataKey="id"
+                      dataKey="descriptionId"
                       value={filteredWordArray}
-                      onChange={(e) => setFilteredWordArray(e.value)}
+                      onChange={(e) => {
+                        changeOrder(e);
+                      }}
                       itemTemplate={itemTemplate}
                       header={
-                        <div className="header-order-list">
-                          <Searcher
-                            forModal={true}
-                            searchedWordF={searchedWordF}
-                            isSearched={isSearched}
-                          />
-                        </div>
+                        <Searcher
+                          forModal={true}
+                          forAdmin={true}
+                          searchedWordF={searchedWordF}
+                          isSearched={isSearched}
+                          setTheWordF={searchedWordF}
+                        />
                       }
                       dragdrop
                     ></OrderList>
@@ -458,20 +636,23 @@ function AdminPage() {
                 <p className="m-0">
                   <h2>Önerileri Değerlendir</h2>
                   <DataTable
-                    value={transformedData}
+                    value={editedWordsArray}
                     paginator
                     rows={10}
-                    dataKey="id"
-                    editMode="row"
-                    onRowEditComplete={onRowEditComplete}
+                    dataKey="descriptionId"
                     filters={filters}
                     filterDisplay="row"
-                    loading={loading}
-                    globalFilterFields={["word", "description", "status"]}
+                    //loading={loading}
+                    globalFilterFields={[
+                      "wordContent",
+                      "descriptionContent",
+                      "status",
+                      "recommender",
+                    ]}
                     emptyMessage="Kelime bulunamadı."
                   >
                     <Column
-                      field="word"
+                      field="wordContent"
                       header="Kelimeler"
                       filter
                       editor={(options) => textEditor(options)}
@@ -481,19 +662,27 @@ function AdminPage() {
                     />
                     <Column
                       header="Açıklama"
-                      field="description"
-                      filterField="description"
+                      field="descriptionContent"
+                      filterField="descriptionContent"
                       style={{ minWidth: "12rem" }}
                       editor={(options) => textEditor(options)}
                       filter
                       filterPlaceholder="Açıklamaya göre ara"
                     />
                     <Column
+                      header="Öneren"
+                      field="recommender"
+                      filterField="recommender"
+                      style={{ minWidth: "12rem" }}
+                      editor={(options) => textEditor(options)}
+                      filter
+                      filterPlaceholder="Önerene göre ara"
+                    />
+                    <Column
                       header="Durum"
                       field="status"
                       filterField="status"
                       style={{ minWidth: "12rem" }}
-                      editor={(options) => textEditor(options)}
                       body={statusBodyTemplate}
                       showFilterMenu={false}
                       filterMenuStyle={{ width: "14rem" }}
@@ -507,9 +696,7 @@ function AdminPage() {
           </div>
         </>
       ) : (
-        <>
-          {!isAuthenticated && user.role !== "2" && <Navigate to="/SignIn" />}
-        </>
+        <>{<Navigate to="/SignIn" />}</>
       )}
     </>
   );

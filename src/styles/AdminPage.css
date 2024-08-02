@@ -141,3 +141,7 @@
 .p-orderlist-list{
     height: 25rem;
 }
+
+.p-orderlist-controls{
+    margin-top: 5rem;
+}

@@ -1,30 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { InputTextarea } from "primereact/inputtextarea";
-
+import { Toast } from "primereact/toast";
 import Searcher from "./Searcher";
 
 import "../styles/WordOperation.css";
+import wordApi from "../api/wordApi";
 
-function WordOperation({ visible, closingModal, word, description, isAdd }) {
+function WordOperation({
+  visible,
+  closingModal,
+  word,
+  description,
+  isAdd,
+  isSuccessfull,
+  isDisabled,
+  wordId,
+}) {
+  debugger;
   const [loading, setLoading] = useState(false);
+  const [newWord, setWord] = useState(word);
+  const [newDescription, setDescription] = useState(description);
+  const [searchedWordId, setSearchedWordId] = useState(wordId);
+  const toast = useRef(null);
 
-  const handleSubmit = () => {
-    //console.log("Kaydedildi");
+  const setTheWord = (wordParam) => {
+    setWord(wordParam);
   };
 
-  const load = () => {
+
+  const handleSubmit = async () => {
     setLoading(true);
-
-    setTimeout(() => {
+    const response = await wordApi.AddWord(newWord, newDescription);
+    if (response.isSuccess) {
       setLoading(false);
-    }, 2000);
+      toast.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+      isSuccessfull(true);
+    }
   };
 
+  const recommendWord = () => {
+    console.log(searchedWordId);
+  };
+
+  useEffect(() => {
+    if (wordId !== undefined) {
+      setSearchedWordId(wordId);
+      debugger;
+    }
+  },[wordId]);
   return isAdd ? (
     <div className="modal">
+      <Toast ref={toast} />
       <Dialog
         className="modal-dialog"
         header="Yeni Kelime Ekleyin"
@@ -39,7 +72,7 @@ function WordOperation({ visible, closingModal, word, description, isAdd }) {
         <form onSubmit={handleSubmit}>
           <div className="p-field">
             <label htmlFor="word">Kelime Girin:</label>
-            <Searcher word={word} forModal={true} />
+            <Searcher word={word} forModal={true} setTheWordF={setTheWord} />
           </div>
           <div className="p-field">
             <label htmlFor="description">Açıklama Girin:</label>
@@ -47,8 +80,11 @@ function WordOperation({ visible, closingModal, word, description, isAdd }) {
               className="description-area"
               autoResize
               rows={7}
-              cols={38}
-              value={description}
+              cols={34}
+              value={newDescription}
+              onChange={(e) => {
+                setDescription(e.target.value);
+              }}
             />
           </div>
           <div className="p-field">
@@ -56,10 +92,9 @@ function WordOperation({ visible, closingModal, word, description, isAdd }) {
               className="add-button"
               icon="pi pi-plus"
               loading={loading}
-              onClick={load}
-              label="Ekle"
-            >
-            </Button>
+              onClick={handleSubmit}
+              label="Kelime Ekle"
+            ></Button>
           </div>
         </form>
       </Dialog>
@@ -77,32 +112,34 @@ function WordOperation({ visible, closingModal, word, description, isAdd }) {
           closingModal();
         }}
       >
-        <form onSubmit={handleSubmit}>
-          <div className="p-field">
-            <label htmlFor="word">Kelime Girin:</label>
-            <Searcher word={word} forModal={true} />
-          </div>
-          <div className="p-field">
-            <label htmlFor="description">Açıklama Girin:</label>
-            <InputTextarea
-              className="description-area"
-              autoResize
-              rows={7}
-              cols={38}
-              value={description}
-            />
-          </div>
-          <div className="p-field">
-            <Button
-              className="add-button"
-              icon="pi pi-check"
-              loading={loading}
-              onClick={load}
-              label="Öner"
-            >
-            </Button>
-          </div>
-        </form>
+        <div className="p-field">
+          <label htmlFor="word">Kelime Girin:</label>
+          <Searcher
+            word={word}
+            forModal={true}
+            setTheWordF={setTheWord}
+            isDisabled={isDisabled}
+          />
+        </div>
+        <div className="p-field">
+          <label htmlFor="description">Açıklama Girin:</label>
+          <InputTextarea
+            className="description-area"
+            autoResize
+            rows={7}
+            cols={38}
+            value={description}
+          />
+        </div>
+        <div className="p-field">
+          <Button
+            className="add-button"
+            icon="pi pi-check"
+            loading={loading}
+            onClick={recommendWord}
+            label="Öner"
+          ></Button>
+        </div>
       </Dialog>
     </div>
   );

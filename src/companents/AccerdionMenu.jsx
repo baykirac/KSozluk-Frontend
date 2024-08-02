@@ -98,7 +98,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
 
               }}
             >
-              {word.wordContent}
+              {word.wordContent.charAt(0).toUpperCase() + word.wordContent.slice(1).toLowerCase()}
             </div>
           </>
         )}

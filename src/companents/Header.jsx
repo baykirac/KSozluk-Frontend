@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
-import { OverlayPanel } from "primereact/OverlayPanel";
+import { OverlayPanel } from "primereact/overlaypanel";
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 
@@ -33,8 +33,8 @@ function Header() {
   return (
     <header className="custom-header">
       <div className="header-left">
-        <img src="logo.png" alt="Logo" className="header-logo" />
-        <h2 style={{ color: "#192857" }}>Kavramlar Sözlüğü</h2>
+        <a href="/"><img src="logo.png" alt="Logo" className="header-logo" /></a>
+        <a href="/" style={{textDecoration: 'none'}}><h2 style={{ color: "#192857" }}>Kavramlar Sözlüğü</h2></a>
       </div>
       <div className="header-right">
         {isAuthenticated ? (
