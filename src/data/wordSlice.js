@@ -5,30 +5,33 @@ const initialState = {
     { letter: "A", wordContents: [] },
     { letter: "B", wordContents: [] },
     { letter: "C", wordContents: [] },
+    { letter: "Ç", wordContents: [] },
     { letter: "D", wordContents: [] },
     { letter: "E", wordContents: [] },
     { letter: "F", wordContents: [] },
     { letter: "G", wordContents: [] },
     { letter: "H", wordContents: [] },
     { letter: "I", wordContents: [] },
+    { letter: "İ", wordContents: [] },
     { letter: "J", wordContents: [] },
     { letter: "K", wordContents: [] },
     { letter: "L", wordContents: [] },
     { letter: "M", wordContents: [] },
     { letter: "N", wordContents: [] },
     { letter: "O", wordContents: [] },
+    { letter: "Ö", wordContents: [] },
     { letter: "P", wordContents: [] },
-    { letter: "Q", wordContents: [] },
     { letter: "R", wordContents: [] },
     { letter: "S", wordContents: [] },
+    { letter: "Ş", wordContents: [] },
     { letter: "T", wordContents: [] },
     { letter: "U", wordContents: [] },
+    { letter: "Ü", wordContents: [] },
     { letter: "V", wordContents: [] },
-    { letter: "W", wordContents: [] },
-    { letter: "X", wordContents: [] },
     { letter: "Y", wordContents: [] },
     { letter: "Z", wordContents: [] },
-  ]
+  ],
+  selectedWordId: ""
 };
 
 export const wordSlice = createSlice({
@@ -42,8 +45,12 @@ export const wordSlice = createSlice({
         letterItem.wordContents = allWords;
       }
     },
+    setSelectedWordId(state,action){
+      const wordId = action.payload;
+      state.selectedWordId = wordId;
+    }
   },
 });
 
-export const { setCurrentWords } = wordSlice.actions;
+export const { setCurrentWords, setSelectedWordId } = wordSlice.actions;
 export default wordSlice.reducer;

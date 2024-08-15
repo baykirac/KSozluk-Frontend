@@ -1,7 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  descriptions: []
+  descriptions: [],
+  selectedDescriptionId: "",
+  recommendMode: null,
+  selectedDescription: null,
 };
 
 export const descriptionSlice = createSlice({
@@ -11,8 +14,22 @@ export const descriptionSlice = createSlice({
     setDescriptions: (state, action) => {
       state.descriptions = action.payload.descriptions;
     },
+    setRecommendMode: (state, action) => {
+      state.recommendMode = action.payload;
+    },
+    setSelectedDescription: (state, action) => {
+      state.selectedDescription = action.payload;
+    },
+    setSelectedDescriptionId: (state, action) => {
+      state.selectedDescriptionId = action.payload;
+    },
   },
 });
 
-export const { setDescriptions } = descriptionSlice.actions;
+export const {
+  setDescriptions,
+  setRecommendMode,
+  setSelectedDescription,
+  setSelectedDescriptionId,
+} = descriptionSlice.actions;
 export default descriptionSlice.reducer;

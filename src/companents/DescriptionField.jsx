@@ -13,7 +13,8 @@ import { RibbonContainer, Ribbon } from "react-ribbons";
 
 import descriptionApi from "../api/descriptionApi";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setRecommendMode, setSelectedDescription, setSelectedDescriptionId } from "../data/descriptionSlice";
 
 import "../styles/Descriptions.css";
 
@@ -23,6 +24,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [runTips, setRunTips] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [descriptionArray, setDescriptionArray] = useState([]);
+
+  const dispatch = useDispatch();
 
   const closingModalF = () => {
     setOpenModal(false);
@@ -117,6 +120,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               onClick={() => {
                 setOpenModal(true);
                 setDescription("");
+                dispatch(setRecommendMode(1));
+                dispatch(setSelectedDescription(""));
               }}
             >
               <span style={{ marginLeft: 10, fontSize: 18 }}>
@@ -151,10 +156,14 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                             setDescription(
                               "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmodtempor incididunt ut labore et dolore magna aliqua."
                             );
+                            dispatch(setRecommendMode(2));
+                            dispatch(setSelectedDescription(descriptions.descriptionContent));
+                            dispatch(setSelectedDescriptionId(descriptions.id));
                           }}
                           label="Öner"
                           icon="pi pi-pencil"
                           className="custom-button"
+                          
                         />
                       </div>
                     </div>

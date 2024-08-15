@@ -5,7 +5,7 @@ import { VirtualScroller } from "primereact/virtualscroller";
 import { Skeleton } from "primereact/skeleton";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentWords } from "../data/wordSlice";
+import { setCurrentWords, setSelectedWordId } from "../data/wordSlice";
 
 import wordApi from "../api/wordApi";
 
@@ -95,7 +95,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
                 isSearched();
                 searchedWordF(word.wordContent);
                 searchedWordIdF(word.id);
-
+                dispatch(setSelectedWordId(word.id));
               }}
             >
               {word.wordContent.charAt(0).toUpperCase() + word.wordContent.slice(1).toLowerCase()}

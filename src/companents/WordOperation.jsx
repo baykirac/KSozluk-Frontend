@@ -6,55 +6,79 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 import Searcher from "./Searcher";
 
+import { useSelector } from "react-redux";
+
 import "../styles/WordOperation.css";
 import wordApi from "../api/wordApi";
+import descriptionApi from "../api/descriptionApi";
 
 function WordOperation({
   visible,
   closingModal,
   word,
-  description,
   isAdd,
   isSuccessfull,
   isDisabled,
-  wordId,
 }) {
-  debugger;
+  const searchedWordId = useSelector((state) => state.words.selectedWordId);
+  const recommendMode = useSelector(
+    (state) => state.descriptions.recommendMode
+  );
+  const description = useSelector(
+    (state) => state.descriptions.selectedDescription
+  );
+  const selectedDescriptionId = useSelector(
+    (state) => state.descriptions.selectedDescriptionId
+  );
+
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
-  const [newDescription, setDescription] = useState(description);
-  const [searchedWordId, setSearchedWordId] = useState(wordId);
+  const [newDescription, setNewDescription] = useState("");
+
   const toast = useRef(null);
 
   const setTheWord = (wordParam) => {
     setWord(wordParam);
   };
 
-
+  const showToaster = (response) => {
+    setLoading(false);
+    toast.current.show({
+      severity: "success",
+      summary: "Başarılı",
+      detail: response.message,
+      life: 2500,
+    });
+  };
   const handleSubmit = async () => {
+    debugger;
     setLoading(true);
     const response = await wordApi.AddWord(newWord, newDescription);
     if (response.isSuccess) {
-      setLoading(false);
-      toast.current.show({
-        severity: "success",
-        summary: "Başarılı",
-        detail: response.message,
-      });
-      isSuccessfull(true);
+      showToaster(response);
     }
   };
 
-  const recommendWord = () => {
-    console.log(searchedWordId);
+  const recommendWord = async () => {
+    console.log("Kelime Id:" + searchedWordId);
+    console.log("Öneri Modu:" + recommendMode);
+    console.log("Yeni Açıklama:" + newDescription);
+    console.log("Açıklamanın Id: " + selectedDescriptionId);
+    if (recommendMode === 1) {
+      const response = await descriptionApi.RecommendDescription(
+        searchedWordId,
+        newDescription
+      );
+      if (response.isSuccess) {
+        showToaster(response);
+      }
+    }
   };
 
   useEffect(() => {
-    if (wordId !== undefined) {
-      setSearchedWordId(wordId);
-      debugger;
-    }
-  },[wordId]);
+    setNewDescription(description);
+  }, [description]);
+
   return isAdd ? (
     <div className="modal">
       <Toast ref={toast} />
@@ -69,38 +93,37 @@ function WordOperation({
           closingModal();
         }}
       >
-        <form onSubmit={handleSubmit}>
-          <div className="p-field">
-            <label htmlFor="word">Kelime Girin:</label>
-            <Searcher word={word} forModal={true} setTheWordF={setTheWord} />
-          </div>
-          <div className="p-field">
-            <label htmlFor="description">Açıklama Girin:</label>
-            <InputTextarea
-              className="description-area"
-              autoResize
-              rows={7}
-              cols={34}
-              value={newDescription}
-              onChange={(e) => {
-                setDescription(e.target.value);
-              }}
-            />
-          </div>
-          <div className="p-field">
-            <Button
-              className="add-button"
-              icon="pi pi-plus"
-              loading={loading}
-              onClick={handleSubmit}
-              label="Kelime Ekle"
-            ></Button>
-          </div>
-        </form>
+        <div className="p-field">
+          <label htmlFor="word">Kelime Girin:</label>
+          <Searcher word={word} forModal={true} setTheWordF={setTheWord} />
+        </div>
+        <div className="p-field">
+          <label htmlFor="description">Açıklama Girin:</label>
+          <InputTextarea
+            className="description-area"
+            autoResize
+            rows={7}
+            cols={34}
+            value={newDescription}
+            onChange={(e) => {
+              setNewDescription(e.target.value);
+            }}
+          />
+        </div>
+        <div className="p-field">
+          <Button
+            className="add-button"
+            icon="pi pi-plus"
+            loading={loading}
+            onClick={handleSubmit}
+            label="Kelime Ekle"
+          ></Button>
+        </div>
       </Dialog>
     </div>
   ) : (
     <div className="modal">
+      <Toast ref={toast} />
       <Dialog
         className="modal-dialog"
         header="Öneride Bulun"
@@ -128,7 +151,10 @@ function WordOperation({
             autoResize
             rows={7}
             cols={38}
-            value={description}
+            value={newDescription}
+            onChange={(e) => {
+              setNewDescription(e.target.value);
+            }}
           />
         </div>
         <div className="p-field">

@@ -13,6 +13,9 @@ import { Button } from "primereact/button";
 import WordOperation from "../companents/WordOperation";
 import DescriptionField from "../companents/DescriptionField";
 
+import { useDispatch } from "react-redux";
+import { setRecommendMode } from "../data/descriptionSlice";
+
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -24,6 +27,9 @@ function HomePage() {
   const [searchedWord, setSearchedWord] = useState("");
   const [searchedWordId, setSearchedWordId] = useState("");
   const { isAuthenticated } = useAuth();
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
@@ -79,14 +85,21 @@ function HomePage() {
             tooltip="Yeni kelime öner"
             tooltipOptions={{ showDelay: 250, position: "left" }}
             className="pi pi-plus floating-button"
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setOpenModal(true);
+              dispatch(setRecommendMode(3));
+            }}
           ></Button>
           <DescriptionField
             isSelected={openDescriptions}
             searchedWord={searchedWord}
             searchedWordId={searchedWordId}
           />
-          <WordOperation visible={openModal} closingModal={closingModalF} isDisabled={false} wordId = {searchedWordId}/>
+          <WordOperation
+            visible={openModal}
+            closingModal={closingModalF}
+            isDisabled={false}
+          />
         </>
       ) : (
         <>{!isAuthenticated && <Navigate to="/SignIn" />}</>

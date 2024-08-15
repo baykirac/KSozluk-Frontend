@@ -14,7 +14,7 @@ function Searcher({
   word,
   setTheWordF,
   forAdmin,
-  isDisabled
+  isDisabled,
 }) {
   const [value, setValue] = useState(word);
 
@@ -36,11 +36,18 @@ function Searcher({
 
   const debounceSearch = useCallback(
     _.debounce(async (query) => {
-      const response = await wordApi.GetWordsByContains(query);
-      const { body } = response;
-      setWords(
-        body.map((item) => ({ id: item.id, wordContent: item.wordContent.charAt(0).toUpperCase() + item.wordContent.slice(1).toLowerCase() }))
-      );
+      if (query !== null && query !== "") {
+        const response = await wordApi.GetWordsByContains(query);
+        const { body } = response;
+        setWords(
+          body.map((item) => ({
+            id: item.id,
+            wordContent:
+              item.wordContent.charAt(0).toUpperCase() +
+              item.wordContent.slice(1).toLowerCase(),
+          }))
+        );
+      }
     }, 500),
     []
   );
