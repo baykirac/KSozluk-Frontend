@@ -15,7 +15,7 @@ import descriptionApi from "../api/descriptionApi";
 
 import { useDispatch } from "react-redux";
 import { setRecommendMode, setSelectedDescription, setSelectedDescriptionId } from "../data/descriptionSlice";
-
+import { setSelectedWordId } from "../data/wordSlice";
 import "../styles/Descriptions.css";
 
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
@@ -26,7 +26,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [descriptionArray, setDescriptionArray] = useState([]);
 
   const dispatch = useDispatch();
-
+  dispatch(setSelectedWordId(searchedWordId));
   const closingModalF = () => {
     setOpenModal(false);
   };
@@ -153,9 +153,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                           tooltipOptions={{ showDelay: 250, mouseTrack: true }}
                           onClick={() => {
                             setOpenModal(true);
-                            setDescription(
-                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmodtempor incididunt ut labore et dolore magna aliqua."
-                            );
                             dispatch(setRecommendMode(2));
                             dispatch(setSelectedDescription(descriptions.descriptionContent));
                             dispatch(setSelectedDescriptionId(descriptions.id));

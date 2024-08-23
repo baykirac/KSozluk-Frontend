@@ -19,6 +19,8 @@ const wordApi = {
       descriptionContent,
     }),
   DeleteWord: async (wordId) => await api.post("Word/DeleteWord", { wordId }),
+  RecommendWord: async (wordContent, descriptionContent) => await api.post("Word/RecommendWord", {wordContent, descriptionContent})
+
 };
 
 export default wordApi;
