@@ -38,6 +38,9 @@ import Searcher from "../companents/Searcher";
 
 import wordApi from "../api/wordApi";
 import descriptionApi from "../api/descriptionApi";
+import WordTree from "../companents/WordTree"; 
+
+        
 
 function AdminPage() {
   const [page, setPage] = useState(0);
@@ -78,6 +81,8 @@ function AdminPage() {
   const { isAuthenticated, user } = useAuth();
 
   const toast = useRef(null);
+
+  const [expandedWordsArray, setExpandedWordsArray] = useState([]);
 
   const getSeverity = (status) => {
     switch (status) {
@@ -202,7 +207,7 @@ function AdminPage() {
         </IconField>
         <Button
           tooltip="Yeni Kelime Ekle"
-          tooltipOptions={{ showDelay: 250, mouseTrack: true }}
+          tooltipOptions={{ showDelay: 250, mouseTrack: true}}
           label="Yeni Kelime Ekle"
           icon="pi pi-plus"
           className="custom-button"
@@ -222,24 +227,45 @@ function AdminPage() {
   }, []);
 
   useEffect(() => {
-    const x = wordsArray.flatMap((item) =>
+    // Anlam sıralarını değiştir ve önerileri değerlendir sayfaları için
+    const flatArray = wordsArray.flatMap((item) =>
       item.descriptions.map((desc, index) => ({
         index: index,
         wordId: item.id,
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        recommender:
-          desc.recommender !== null ? desc.recommender.fullName : "Boş",
-        lastEditedDate:
-          item.lastEditedDate !== null
-            ? item.lastEditedDate.split("T")[0]
-            : "Boş",
+        recommender: desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        lastEditedDate: item.lastEditedDate !== null ? item.lastEditedDate.split("T")[0] : "Boş",
         order: desc.order,
         status: statusFilter(desc.status),
       }))
     );
-    setEditedWordsArray(x);
+    setEditedWordsArray(flatArray);
+  
+    // Yeni kelime ekle ve düzenle sayfası için
+    const grouped = wordsArray.reduce((acc, item) => {
+      if (!acc[item.id]) {
+        acc[item.id] = {
+          wordId: item.id,
+          wordContent: item.wordContent,
+          descriptions: []
+        };
+      }
+      item.descriptions.forEach((desc, index) => {
+        acc[item.id].descriptions.push({
+          index: index,
+          descriptionId: desc.id,
+          descriptionContent: desc.descriptionContent,
+          recommender: desc.recommender !== null ? desc.recommender.fullName : "Boş",
+          lastEditedDate: item.lastEditedDate !== null ? item.lastEditedDate.split("T")[0] : "Boş",
+          order: desc.order,
+          status: statusFilter(desc.status),
+        });
+      });
+      return acc;
+    }, {});
+    setExpandedWordsArray(Object.values(grouped));
   }, [wordsArray]);
 
   const itemTemplate = (item) => {
@@ -252,34 +278,44 @@ function AdminPage() {
       </div>
     );
   };
-
   const onRowEditComplete = async (e) => {
-    let _wordsArray = [...editedWordsArray];
-    let { newData, index } = e;
-
-    _wordsArray[index] = newData;
-
-    const response = await wordApi.UpdateWord(
-      newData.wordId,
-      newData.descriptionId,
-      newData.wordContent,
-      newData.descriptionContent
-    );
-
-    if (response.isSuccess) {
-      toastForNotification.current.show({
-        severity: "success",
-        summary: "Başarılı",
-        detail: response.message,
+    try {
+      let _wordsArray = [...editedWordsArray];
+      let { newData, index } = e;
+      let targetDescription = {};
+  
+      _wordsArray[index] = newData;
+  
+      _wordsArray.forEach(p => {
+        if(p.descriptionId == index.key)
+        {
+          targetDescription=p;
+        }
       });
-      setEditedWordsArray(_wordsArray);
+  
+      const response = await wordApi.UpdateWord(
+        targetDescription.wordId,
+        targetDescription.descriptionId,
+        newData.wordContent,
+        newData.descriptionContent
+      );
+  
+      if (response.isSuccess) {
+        toastForNotification.current.show({
+          severity: "success",
+          summary: "Başarılı",
+          detail: response.message,
+        });
+        setEditedWordsArray(_wordsArray);
+        return Promise.resolve(); // Başarılı güncelleme
+      } else {
+        return Promise.reject(new Error("Update failed")); // Başarısız güncelleme
+      }
+    } catch (error) {
+      console.error("Update failed:", error);
+      return Promise.reject(error); // Hata durumu
     }
   };
-
-  const deleteWordHandler = () => {
-    setVisibleDeleteWord(true);
-  };
-
   const updateDescriptionStatusHandler = async (status) => {
     const response = await descriptionApi.UpdateStatus(descriptionId, status);
 
@@ -293,6 +329,7 @@ function AdminPage() {
       fetchData();
     }
   };
+
 
   const acceptDeleteWord = async () => {
     const response = await wordApi.DeleteWord(wordId);
@@ -330,7 +367,6 @@ function AdminPage() {
       />
     );
   };
-
   const statusBodyTemplate = (rowData) => {
     return (
       <Tag
@@ -405,6 +441,10 @@ function AdminPage() {
       },
     },
   ];
+    
+  const deleteWordHandler = () => {
+    setVisibleDeleteWord(true);
+  }
 
   const items2 = [
     {
@@ -430,6 +470,7 @@ function AdminPage() {
       setWordAddedSuccessfully(false);
     }
   }, [wordAddedSuccessfully]);
+  
   return (
     <>
       {isAuthenticated && user.role === "2" ? (
@@ -520,25 +561,30 @@ function AdminPage() {
               <TabPanel>
                 <div className="datatable-for-edit">
                   <h2>Kelime Ekle veya Düzenle</h2>
-                  <DataTable
-                    value={editedWordsArray}
-                    paginator
-                    rows={10}
-                    dataKey="descriptionId"
-                    editMode="row"
-                    onRowEditComplete={onRowEditComplete}
+                  <WordTree
+                    wordsArray={expandedWordsArray}
+                    onRowEditComplete ={onRowEditComplete}
                     filters={filters}
-                    filterDisplay="row"
-                    //loading={loading}
+                    header={header}
+                    textEditor={textEditor}
+                    setOpenModal={setOpenModal}
+                    setVisibleDeleteDescription={setVisibleDeleteDescription}
+                    setDeletedDescriptionId={setDeletedDescriptionId}
+                    setVisibleDeleteWord={setVisibleDeleteWord}
+                    deleteWordHandler={deleteWordHandler}
+                    setWordId={setWordId}
+                    cm2={cm2}
                     globalFilterFields={[
                       "wordContent",
                       "descriptionContent",
                       "lastEditedDate",
                       "recommender",
                     ]}
-                    header={header}
-                    emptyMessage="Kelime bulunamadı."
+                    statusBodyTemplate= {statusBodyTemplate}
+                    statusRowFilterTemplate = {statusRowFilterTemplate}
+                    
                   >
+           
                     <Column
                       field="wordContent"
                       header="Kelimeler"
@@ -557,12 +603,13 @@ function AdminPage() {
                       filterPlaceholder="Kelimeye göre ara"
                       style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
                       bodyStyle={{ padding: 25 }}
+                      
                     />
                     <Column
                       header="Açıklama"
                       field="descriptionContent"
                       filterField="descriptionContent"
-                      style={{ minWidth: "12rem" }}
+                      style={{ maxWidth: "30rem" }} /*değişmedi*/
                       editor={(options) => textEditor(options)}
                       filter
                       filterPlaceholder="Açıklamaya göre ara"
@@ -599,12 +646,15 @@ function AdminPage() {
                             setVisibleDeleteDescription(true);
                             setDeletedDescriptionId(rowData.descriptionId);
                           }}
+
+                          
                         />
+                        
                       )}
                       headerStyle={{ width: "10%", minWidth: "8rem" }}
                       bodyStyle={{ textAlign: "center" }}
                     ></Column>
-                  </DataTable>
+                  </WordTree>
                 </div>
               </TabPanel>
               <TabPanel>
@@ -657,14 +707,14 @@ function AdminPage() {
                       filter
                       editor={(options) => textEditor(options)}
                       filterPlaceholder="Kelimeye göre ara"
-                      style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
+                      style={{ minWidth: "18rem", borderTopLeftRadius: 15 }}
                       bodyStyle={{ padding: 25 }}
                     />
                     <Column
                       header="Açıklama"
                       field="descriptionContent"
                       filterField="descriptionContent"
-                      style={{ minWidth: "12rem" }}
+                      style={{ maxWidth: "40rem" }}
                       editor={(options) => textEditor(options)}
                       filter
                       filterPlaceholder="Açıklamaya göre ara"

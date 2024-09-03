@@ -54,7 +54,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const handleJoyrideCallback = (data) => {
     const { action, index, origin, status, type } = data;
 
-    if (status !== STATUS.FINISHED) {
+    if (status === STATUS.RUNNING) { //!== status.finished değiştirdim
       document.querySelector(".react-joyride__beacon").click();
     }
     document.querySelectorAll(".react-joyride__beacon").forEach((element) => {
@@ -65,7 +65,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       });
     });
 
-    if (status === STATUS.FINISHED) {
+
+    if (type === EVENTS.TOUR_END || status === STATUS.FINISHED) {
       setRunTips(false);
       setStepIndex(0);
     }
@@ -191,6 +192,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             showProgress
             showSkipButton
             scrollToFirstStep
+            disableOverlayClose={true} //overlaye basınca joyride ilerlemesin
             styles={{
               options: {
                 zIndex: 1000,

@@ -17,6 +17,71 @@
     background-color: transparent;
 }
 
+.custom-button {
+    font-size: 1rem;
+    padding: 1rem;
+    width: auto;
+    height: 2.8rem;
+  }  
+
+ body.dark .card-list.animate__animated.animate__fadeIn{
+    color: white;
+  }
+
+  body.dark .p-contextmenu.p-component.p-ripple-disabled.p-contextmenu-enter-done
+ {
+    background-color: #222222;
+  }
+
+.p-button-rounded {
+    margin-right: 0.8rem;
+  }
+
+
+.p-button-rounded.p-button-success.p-mr-2.p-button.p-component.p-button-icon-only{
+    background-color: #192857 ;
+    border: #192857;
+  }
+  
+
+
+tr.p-row-odd{
+    background-color: rgb(255, 255, 255) !important;
+    
+}
+
+tr[aria-expanded="false"] {
+    background-color: rgb(238, 238, 253) !important;
+    
+}
+
+
+body.dark tr[aria-expanded="false"],
+body.dark tr[aria-expanded="true"]{
+    background-color: #111111 !important;
+    
+}
+
+body.dark .p-autocomplete-items,
+body.dark .p-autocomplete-panel.p-component.p-ripple-disabled.p-connected-overlay-enter-done{
+    background-color: #111111 !important;
+    border-radius: 16px; /*olsun mu olmasın mı sor*/
+    
+}
+
+tr[aria-expanded="true"] {
+    background-color: rgb(255, 255, 255) !important;
+    
+}
+
+body.dark tr.p-row-odd{
+    background-color: #111111 !important;
+}
+
+ body.dark .p-button-rounded.p-button-success.p-mr-2.p-button.p-component.p-button-icon-only{
+    background-color: #0a4682;
+  }
+
 .sidebar {
     margin-top: 100px;
     margin-left: -20px;
@@ -58,6 +123,7 @@
     border-end-end-radius: 50px;
     
 }
+
 
 .ps-menuitem-root.sidebar-menu-item.hovered .notification-badge {
     position: absolute;
@@ -111,6 +177,7 @@
 }
 
 .p-datatable-header {
+    
     border-radius: 15px;
     margin-bottom: 15px;
 }
@@ -139,7 +206,7 @@
 }
 
 .p-orderlist-list{
-    height: 25rem;
+    height: 20rem;
 }
 
 .p-orderlist-controls{
