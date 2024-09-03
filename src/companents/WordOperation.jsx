@@ -85,7 +85,9 @@ function WordOperation({
   };
 
   useEffect(() => {
-    setNewDescription(description);
+    if (visible) {
+      setNewDescription(""); //açıklama giriniz kısmında önceki açıklamalar yazmasın
+    }
   }, [description]);
 
   return isAdd ? (
