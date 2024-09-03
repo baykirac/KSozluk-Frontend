@@ -64,12 +64,21 @@ function WordOperation({
     console.log("Öneri Modu:" + recommendMode);
     console.log("Yeni Açıklama:" + newDescription);
     console.log("Açıklamanın Id: " + selectedDescriptionId);
-    if (recommendMode === 1) {
+    if (recommendMode === 1 || recommendMode === 2) {
+      debugger;
       const response = await descriptionApi.RecommendDescription(
         searchedWordId,
+        selectedDescriptionId ? selectedDescriptionId : null,
         newDescription
       );
       if (response.isSuccess) {
+        showToaster(response);
+      }
+    }
+    if (recommendMode === 3) {
+      debugger;
+      const response = await wordApi.RecommendWord(newWord, newDescription);
+      if(response.isSuccess){
         showToaster(response);
       }
     }

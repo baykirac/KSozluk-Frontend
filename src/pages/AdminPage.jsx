@@ -126,6 +126,7 @@ function AdminPage() {
     wordContent: { value: null, matchMode: FilterMatchMode.CONTAINS },
     lastEditedDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
     recommender: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    "previousDescription.descriptionContent": { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
 
@@ -239,11 +240,11 @@ function AdminPage() {
         lastEditedDate: item.lastEditedDate !== null ? item.lastEditedDate.split("T")[0] : "Boş",
         order: desc.order,
         status: statusFilter(desc.status),
+        previousDescription: desc.previousDescription !== null ? desc.previousDescription : "Boş"
       }))
     );
-    setEditedWordsArray(flatArray);
-  
-    // Yeni kelime ekle ve düzenle sayfası için
+    
+// Yeni kelime ekle ve düzenle sayfası için
     const grouped = wordsArray.reduce((acc, item) => {
       if (!acc[item.id]) {
         acc[item.id] = {
@@ -382,7 +383,6 @@ function AdminPage() {
   };
 
   const statusItemTemplate = (option) => {
-    debugger;
     return <Tag value={option} severity={getSeverity(option)} />;
   };
 
@@ -697,6 +697,7 @@ function AdminPage() {
                       "wordContent",
                       "descriptionContent",
                       "status",
+                      "previousDescription.descriptionContent",
                       "recommender",
                     ]}
                     emptyMessage="Kelime bulunamadı."
@@ -715,6 +716,20 @@ function AdminPage() {
                       field="descriptionContent"
                       filterField="descriptionContent"
                       style={{ maxWidth: "40rem" }}
+                      editor={(options) => textEditor(options)}
+                      filter
+                      filterPlaceholder="Açıklamaya göre ara"
+                    />
+                    <Column
+                      header="Önceki Açıklama"
+                      field="previousDescription.descriptionContent"
+                      filterField="previousDescription.descriptionContent"
+                      body={(rowData) => (
+                        rowData.previousDescription.descriptionContent
+                          ? rowData.previousDescription.descriptionContent 
+                          : "Boş"
+                      )}
+                      style={{ minWidth: "12rem" }}
                       editor={(options) => textEditor(options)}
                       filter
                       filterPlaceholder="Açıklamaya göre ara"
