@@ -86,7 +86,12 @@ function WordOperation({
 
   useEffect(() => {
     if (visible) {
-      setNewDescription(""); //açıklama giriniz kısmında önceki açıklamalar yazmasın
+      if(recommendMode !== 2){
+        setNewDescription("");
+      }
+      else{
+        setNewDescription(description);
+      }
     }
   }, [description]);
 

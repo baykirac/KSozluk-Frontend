@@ -236,13 +236,19 @@ function AdminPage() {
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        recommender: desc.recommender !== null ? desc.recommender.fullName : "Boş",
-        lastEditedDate: item.lastEditedDate !== null ? item.lastEditedDate.split("T")[0] : "Boş",
+        recommender:
+          desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        lastEditedDate:
+          item.lastEditedDate !== null
+            ? item.lastEditedDate.split("T")[0]
+            : "Boş",
         order: desc.order,
         status: statusFilter(desc.status),
         previousDescription: desc.previousDescription !== null ? desc.previousDescription : "Boş"
       }))
     );
+
+    setEditedWordsArray(flatArray);
     
 // Yeni kelime ekle ve düzenle sayfası için
     const grouped = wordsArray.reduce((acc, item) => {
