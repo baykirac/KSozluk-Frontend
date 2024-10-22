@@ -103,7 +103,7 @@ function SignInPage() {
   return (
     <div className="content-signin-div">
       <Toast ref={toast} />
-      <Header />
+      {/* <Header /> */}
       <div className="signin-background">{elements}</div>
       <div className="login-page">
         <div className="login-card animate__animated animate__fadeInLeft">

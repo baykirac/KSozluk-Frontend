@@ -4,20 +4,26 @@ import { OverlayPanel } from "primereact/overlaypanel";
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { InputSwitch } from "primereact/inputswitch";
-
+import { Dialog } from "primereact/dialog";
 import { signOut } from "../services/userService";
-
+import { setRecommendMode } from "../data/descriptionSlice";
 import "../styles/Header.css";
 
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import Searcher from "./Searcher";
+import WordOperation from "./WordOperation";
+import { useDispatch } from "react-redux";
 
-function Header() {
+function Header({ onSearch }) {
   const { isAuthenticated, user, revoke } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const op = useRef(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const dispatch = useDispatch();
   
   const isLoginPage = location.pathname === "/SignIn";
 
@@ -32,7 +38,6 @@ function Header() {
         document.body.classList.remove('dark');
       }
     } else {
-      // Login sayfasında her zaman light tema
       setIsDarkMode(false);
       document.body.classList.remove('dark');
     }
@@ -57,7 +62,7 @@ function Header() {
     navigate("/SignIn");
   }
 
-  function handleGoToAdmin(){
+  function handleGoToAdmin() {
     navigate("/AdminPage");
   }
 
@@ -65,22 +70,74 @@ function Header() {
     navigate("/SignIn");
   }
 
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch(true);
+    }
+  };
+
+  const closingModalF = () => {
+    setOpenModal(false);
+  };
+
+  const infoModalContent = (
+    <div>
+      <h2>Kavramlar Sözlüğü Nedir?</h2>
+      <p>Kavramlar sözlüğü şirkete dahil olan yeni ekip arkadaşlarımızın oryantasyon sürecini hızlandırıp kavramları benimsetmek amacıyla veya disiplinler arası çalışan çalışanlarımıza kolaylık sağlamak amacıyla oluşturulmuş bir uygulamadır.</p>
+      <h2>Neler Yapabilirim?</h2>
+      <p>Sözlükte bulunan tüm kelimeleri alfabetik olarak görüntüleyebilir, kelime arayabilir, yeni kelime önerebilir, yeni kelimeye yeni anlam önerebilir veya mevcutta olan anlamlara öneride bulunabilirsiniz.</p>
+    </div>
+  );
+
   return (
     <header className="custom-header">
       <div className="header-left">
         <a href="/"><img src="logo.png" alt="Logo" className="header-logo" /></a>
         <a href="/" style={{textDecoration: 'none'}}><h2>Kavramlar Sözlüğü</h2></a> 
       </div> 
+
+      <div className="header-center">
+        <Searcher
+          isSearched={handleSearch}
+          forModal={false}
+          searchedWordF={(word) => onSearch && onSearch(true, word)}
+          searchedWordIdF={(id) => onSearch && onSearch(true, undefined, id)}
+          word=""
+          setTheWordF={() => {}}
+          forAdmin={false}
+          isDisabled={false}
+        />
+      </div>
+      
       <div className="header-right">
-      {!isLoginPage && (
-          <div className="theme-toggle">
-            <InputSwitch
-              checked={isDarkMode}
-              onChange={toggleTheme}
-              tooltip={isDarkMode ? "Açık Tema" : "Koyu Tema"}
+        {!isLoginPage && (
+          <>
+            <div className="theme-toggle">
+              <InputSwitch
+                checked={isDarkMode}
+                onChange={toggleTheme}
+                tooltip={isDarkMode ? "Açık Tema" : "Koyu Tema"}
+                tooltipOptions={{ position: 'left' }}
+              />
+            </div>
+            <Button
+              icon="pi pi-question"
+              className="p-button-rounded p-button-text info-button"
+              onClick={() => setInfoModalVisible(true)}
+              tooltip="Bilgi"
               tooltipOptions={{ position: 'left' }}
             />
-          </div>
+            <Button
+              tooltip="Yeni kelime öner"
+              tooltipOptions={{ showDelay: 250, position: "left" }}
+              icon="pi pi-plus"
+              className="floating-button"
+              onClick={() => {
+                setOpenModal(true);
+                dispatch(setRecommendMode(3));
+              }}
+            />
+          </>
         )}
         {isAuthenticated ? (
           <>
@@ -92,7 +149,6 @@ function Header() {
               tooltip="Kullanıcı Bilgileri"
               tooltipOptions={{ showDelay: 250, position: "left" }}
             />
-
             <OverlayPanel ref={op}>
               <Card title="Kullanıcı Bilgileri">
                 <Avatar icon="pi pi-user" size="large" shape="circle" />
@@ -148,8 +204,23 @@ function Header() {
           </>
         )}
       </div>
+      <Dialog
+        visible={infoModalVisible}
+        style={{ width: '50vw' }}
+        onHide={() => setInfoModalVisible(false)}
+        dismissableMask={true}
+        closeOnEscape={true}
+      >
+        {infoModalContent}
+      </Dialog>
+      <WordOperation
+        visible={openModal}
+        closingModal={closingModalF}
+        isDisabled={false}
+      />
     </header>
   );
 }
 
 export default Header;
+

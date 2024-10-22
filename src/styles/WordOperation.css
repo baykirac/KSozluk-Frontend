@@ -1,7 +1,7 @@
 /* Modal Dialog Stilleri */
 
 .modal-dialog .p-dialog-content {
-  padding: 2rem;
+  padding: 1.8rem;
 }
 
 .modal-dialog .user {
@@ -17,6 +17,78 @@
   margin-left: 10px;
 }
 
+.add-button.p-button.p-component{
+ margin-left:320px;
+ border-radius:30px;
+
+}
+
+.p-field label {  
+  font-weight: bold;
+}
+
+
+.p-field label[for="description"] {
+  position: relative;
+  bottom: 125px;  
+  font-weight: bold;
+}
+
+
+/* info buton düzenlemeleri */
+
+.info-dialog-grid {
+  display: grid;
+  grid-template-columns: auto 1fr; 
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.info-dialog-grid{
+  margin-left:20px;
+}
+
+
+.info-item {
+  display: contents; 
+}
+
+.info-item strong {
+  grid-column: 1; 
+  white-space: nowrap; 
+  color: #ef4444; 
+  text-align: left; 
+}
+
+.info-item p {
+  grid-column: 2; 
+  margin: 0; 
+  word-wrap: break-word; 
+  color: #333; /* Color for content */
+}
+
+
+.description-area.p-inputtextarea.p-inputtext.p-component.p-inputtextarea-resizable.description-area{
+  border-radius:20px;
+  margin-top:15px;
+  border: 1px solid #06b6d4;
+  /* width:280px !important; */
+}
+
+ .modal-dialog.p-dialog.p-component.p-dialog-default.p-ripple-disabled.p-dialog-enter-done{
+  width:35vw !important;
+  transition: none !important;
+} 
+
+
+.p-dialog-content{
+  margin-top: -30px;
+}
+
+/* .p-autocomplete-input::placeholder {
+  color: transparent;
+} */
+
 .p-field {
   margin-top: 20px;
 }
@@ -26,7 +98,7 @@
 }
 
 .p-dialog-title {
-  margin: 7px;
+  margin: 10px;
 }
 
 /* Responsive Düzenlemeler */

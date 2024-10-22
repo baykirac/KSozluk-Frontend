@@ -8,6 +8,8 @@ const wordApi = {
     await api.get("Word/GetWordsByContains", { content }),
   AddWord: async (wordcontent, description) =>
     await api.post("Word/AddWord", { wordcontent, description }),
+  AddWords: async (wordcontent, description) =>
+    await api.post("Word/AddWords", { wordcontent }),
   GetAllWords: async () => await api.get("Word/GetAllWords"),
   GetApprovedWordsPaginated: async (pageNumber, pageSize) =>
     await api.get("Word/GetApprovedWordsPaginated", { pageNumber, pageSize }),

@@ -1,159 +1,106 @@
-.accordion-container {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 5px;
-    box-sizing: border-box;
+* {
+  box-sizing: border-box;
 }
 
-.p-accordion-header-link {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 30px;
-    margin-bottom: 1rem;
-    padding: 6px;
-    background-color: #192857;
-    color: white;
-    border-bottom-right-radius: 40px;
-    border-top-right-radius: 40px;
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100vh;
+  padding: 20px; 
+  background-color: #ffffff;
+  overflow-y: auto;
+  transition: all 0.2 ease;
 }
 
-.accordion-tab {
-    margin-top: 5px;
-    width: 150px;
-    text-align: center;
-    margin-left: -45px;
-    transition: all 0.3s ease;
+body.dark .sidebar{
+  background-color: #111111;
 }
 
-.accordion-tab.hovered {
-    margin-top: 5px;
-    text-align: center;
-    margin-left: -10px;
-    padding-right: 20px;
-    width: 200px;
+body.dark .letter{
+  color:#1850a2;
 }
 
-.accordion-words {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+body.dark .letter:hover{
+  color:aqua;
 }
 
-.accordion-word {
-    margin-bottom: 8px;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-    cursor: pointer;
+.sidebar::-webkit-scrollbar {
+  width: 10px;
 }
 
-.accordion-word:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+.sidebar::-webkit-scrollbar-track {
+  margin: 10px;
 }
 
-.p-accordion-content {
-    display: flex;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
-    flex-direction: column;
-    margin-left: 0.5rem;
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #ececec;
+  border: 2px solid white;
+  border-radius: 10px;
 }
 
-.accordion-header {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-left: 25px;
-    width: 100%;
+.accordion-content-wrapper {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out; 
+
 }
 
-.custom-virtual-scroller {
-    overflow-y: auto;
-    overflow-x: hidden;
+.alphabet-column {
+  overflow-y: visible;
+  /* padding: 0 15px; */
+  padding-bottom: 90px; /* Son harflerin görünmesi için */
+
+
 }
 
-.custom-virtual-scroller::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-virtual-scroller::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.custom-virtual-scroller::-webkit-scrollbar-thumb {
-    background: #06B6D4;
-    border-radius: 6px;
-}
-
-.custom-virtual-scroller::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.letter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+  border-radius: 3px;
+  border-bottom: 1px solid rgb(246, 246, 246);
+  color: #0e1261;
+  /* font-weight: bold; */
+  margin-left:40px; /*mavi alanı sağa kaydırmak için*/
+  transition: all 0.2s ease;
 }
 
 
-.accordion-header span {
-    text-align: left;
+.letter:hover {
+  background-color: #1850a2;
+  color: white;
 }
 
-@media (max-width: 768px) {
-    .accordion-container {
-        max-width: 100%;
-    }
 
-    .p-accordion-header-link {
-        gap: 15px;
-        font-size: 0.9rem;
-        padding: 4px;
-    }
 
-    .accordion-tab {
-        margin-left: -10px;
-        width: 160px;
-    }
+.word-list {
+  margin-top: 5px;
+  padding-left: 30px;
+  transition: all 0.2s ease;
+  padding-bottom: 10px;
+  margin-left:40px; 
+  height:200px;
 
-    .accordion-tab.hovered {
-        margin-left: 0;
-        padding-right: 15px;
-        width: 180px;
-    }
+
 }
 
-@media (max-width: 480px) {
-    .accordion-header span {
-        font-size: 14px;
-    }
 
-    .p-accordion .p-accordion-header-link .pi {
-        font-size: 1.2rem;
-        transform: scale(1.2);
-    }
 
-    .accordion-tab {
-        width: 100%;
-        margin-left: 0;
-        margin-left: -10px;
-        padding: 10px;
-        box-sizing: border-box;
-    }
+.word-item {
+  padding: 8px 10px 8px 20px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 1px solid rgb(228, 228, 228);
+  height: 35px;
+}
 
-    .accordion-tab.hovered {
-        margin-left: 0;
-        padding-right: 20px;
-        width: 100%;
-    }
-
-    .accordion-words {
-        flex-direction: column;
-    }
-
-    .accordion-word {
-        margin-bottom: 8px;
-        padding: 10px;
-    }
-    .custom-virtual-scroller {
-        overflow-y: auto;
-        overflow-x: hidden;
-        width: 150px;
-    }
+.word-item:hover {
+  border-left: 1px solid rgb(121, 110, 242);
 }

@@ -1,26 +1,36 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TreeTable } from 'primereact/treetable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { BsPencil } from "react-icons/bs";
+import { BiTrash } from "react-icons/bi";
+import { BsInfoCircle } from "react-icons/bs";
+import { ConfirmDialog } from 'primereact/confirmdialog';
+import { Tooltip } from 'primereact/tooltip';
+import { Dialog } from 'primereact/dialog';
 
 const WordTree = ({ 
   wordsArray, 
   onRowEditComplete, 
   setVisibleDeleteDescription, 
   setDeletedDescriptionId, 
-  setWordId, 
-  cm2, 
+  setWordId,
+  setVisibleDeleteWord,
+  deleteWordHandler,
   globalFilterFields,
-  setOpenModal
+  setOpenModal,
+  setIsWordOnly
 }) => {
   const [nodes, setNodes] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState({});
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [editingRows, setEditingRows] = useState({});
   const [filters, setFilters] = useState({});
+  const [visibleEditConfirm, setVisibleEditConfirm] = useState(false);
+  const [editingNode, setEditingNode] = useState(false);
+  const [visibleInfoDialog, setVisibleInfoDialog] = useState(false);
+  const [currentNode, setCurrentNode] = useState(null);
 
   useEffect(() => {
     if (wordsArray) {
@@ -160,12 +170,27 @@ const WordTree = ({
         />
       </span>
       <Button
+        tooltip="Yeni kelime ekle"
         tooltipOptions={{ showDelay: 250, mouseTrack: true }}
         label="Yeni Kelime Ekle"
         icon="pi pi-plus"
-        className="custom-button"
+        className="custom-button-word"
         onClick={() => {
           setOpenModal(true);
+          setIsWordOnly(false);
+        }}
+        style={{ marginLeft: "2rem" }}
+        size={36}
+      />
+      <Button
+        tooltip="Yeni anlam ekle"
+        tooltipOptions={{ showDelay: 250, mouseTrack: true }}
+        label="Yeni Anlam Ekle"
+        icon="pi pi-plus"
+        className="custom-button-meaning"
+        onClick={() => {
+          setOpenModal(true);
+          setIsWordOnly(true);
         }}
         style={{ marginLeft: "2rem" }}
         size={36}
@@ -174,16 +199,22 @@ const WordTree = ({
   );
 
   const handleRowEditComplete = async (node) => {
+    setEditingNode(node);
+    setVisibleEditConfirm(true);
+  };
+
+  const confirmEdit = async () => {
     try {
-      await onRowEditComplete({ newData: node.data, index: node });
-      // Düzenleme modundan çık
+      await onRowEditComplete({ newData: editingNode.data, index: editingNode });
       const newEditingRows = { ...editingRows };
-      delete newEditingRows[node.key];
+      delete newEditingRows[editingNode.key];
       setEditingRows(newEditingRows);
+     
     } catch (error) {
       console.error("Row edit failed:", error);
-      // Hata durumunda düzenleme modunda kal
+      
     }
+    setVisibleEditConfirm(false);
   };
 
   const actionTemplate = (node) => {
@@ -204,26 +235,54 @@ const WordTree = ({
       );
     }
     return (
-      <>
+      <div style={{ display: 'inline-flex', gap: '5px'}}>
         {!node.children && (
-          <Button
-            icon="pi pi-pencil"
-            className="p-button-rounded p-button-success p-mr-2"
-            onClick={() => startEdit(node)}
-          />
+          <>
+            <Button
+              icon={<BsPencil />}
+              className="p-button-rounded p-button-success p-mr-2"
+              onClick={() => startEdit(node)}
+            />
+            <Button
+              icon="pi pi-trash"
+              className="p-button-rounded p-button-danger"
+              onClick={() => {
+                setVisibleDeleteDescription(true);
+                setDeletedDescriptionId(node.key);
+              }}
+            />
+            <Button
+              icon={<BsInfoCircle />}
+              className="p-button-rounded p-button-info"
+              onClick={() => {
+                setCurrentNode(node);
+                setVisibleInfoDialog(true);
+              }}
+            />
+          </>
         )}
-        {!node.children && (
-          <Button
-            icon="pi pi-trash"
-            className="p-button-rounded p-button-danger"
-            onClick={() => {
-              setVisibleDeleteDescription(true);
-              setDeletedDescriptionId(node.key);
-            }}
-          />
-        )}
-      </>
+      </div>
     );
+  };
+
+  const wordDeleteTemplate = (node) => {
+    if (node.children) {
+      return (
+        <>
+          <Tooltip target={`.delete-word-${node.key}`} content="Kelimeyi Sil" tooltipOptions={{ position: 'top' }} />
+          <span
+            className={`delete-word delete-word-${node.key}`}
+            onClick={() => {
+              setWordId(node.key);
+              setVisibleDeleteWord(true);
+            }}
+          >
+            <BiTrash />
+          </span>
+        </>
+      );
+    }
+    return null;
   };
 
   const startEdit = (node) => {
@@ -236,82 +295,149 @@ const WordTree = ({
     setEditingRows(newEditingRows);
   };
 
-  return (
-    <TreeTable 
-      value={nodes} 
-      filters={filters}
-      filterMode="lenient"
-      onFilter={onColumnFilterChange}
-      globalFilterFields={globalFilterFields}
-      header={headerTemplate}
-      emptyMessage="Kelime bulunamadı."
-      expandedKeys={expandedKeys}
-      onToggle={(e) => setExpandedKeys(e.value)}
-      globalFilter={globalFilterValue}
-      filterDisplay="menu"
-      resizableColumns
-      columnResizeMode="expand"
-    >
-      <Column 
-        field="wordContent" 
-        header="Kelimeler" 
-        expander 
-        filter
-        filterPlaceholder="Kelimeleri Ara"
-        filterMatchMode="contains"
-        body={(node) => (
-          <div
-            onClick={() => {
-              const newExpandedKeys = { ...expandedKeys };
-              newExpandedKeys[node.key] = !newExpandedKeys[node.key];
-              setExpandedKeys(newExpandedKeys);
-            }}
-            onContextMenu={(e) => {
-              if (node.children) {
-                setWordId(node.key);
-                cm2.current.show(e);
-              }
-              e.preventDefault();
-            }}
-          >
-            {node.children ? node.data.wordContent : ''}
+  const renderInfoDialog = () => {
+    return (
+      <Dialog
+        visible={visibleInfoDialog}
+        onHide={() => setVisibleInfoDialog(false)}
+        header="Açıklama Bilgileri"
+        modal
+        style={{ width: '50vw' }}
+      >
+        {currentNode && (
+          <div className="info-dialog-grid">
+            <div className="info-item">
+              <strong>Açıklama:</strong>
+              <p>{currentNode.data.descriptionContent}</p>
+            </div>
+            <div className="info-item">
+              <strong>Son Düzenleme Tarihi:</strong>
+              <p>{currentNode.data.lastEditedDate}</p>
+            </div>
+            <div className="info-item">
+              <strong>Anlamı Öneren:</strong>
+              <p>{currentNode.data.recommender}</p>
+            </div>
           </div>
         )}
-        style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
-        bodyStyle={{ padding: 25 }}
+      </Dialog>
+    );
+  };
+
+
+
+  return (
+    <>
+      {renderInfoDialog()}
+      <ConfirmDialog
+        visible={visibleEditConfirm}
+        onHide={() => setVisibleEditConfirm(false)}
+        message="Bu kelimeyi güncellemek istediğinizden emin misiniz?"
+        header="Güncellemeyi Onayla"
+        icon="pi pi-exclamation-triangle"
+        accept={confirmEdit}
+        reject={cancelEdit}
+        
       />
-      <Column 
-        header="Açıklama"
-        field="descriptionContent"
-        filter
-        filterMatchMode="contains"
-        filterPlaceholder="Açıklamaları Ara"
-        body={(node) => (
-          editingRows[node.key] ? inputTextEditor({ rowData: node.data, field: 'descriptionContent', node }) : node.data.descriptionContent
-        )}
-        style={{ minWidth: "12rem" }}
+      <TreeTable 
+        value={nodes} 
+        filters={filters}
+        filterMode="lenient"
+        onFilter={onColumnFilterChange}
+        globalFilterFields={globalFilterFields}
+        header={headerTemplate}
+        emptyMessage="Kelime bulunamadı."
+        expandedKeys={expandedKeys}
+        onToggle={(e) => setExpandedKeys(e.value)}
+        globalFilter={globalFilterValue}
+        filterDisplay="menu"
+        resizableColumns
+        columnResizeMode="expand"
+      >
+        <Column 
+          field="wordContent" 
+          header="Kelimeler" 
+          expander 
+          filter
+          filterPlaceholder="Kelimeleri Ara"
+          filterMatchMode="contains"
+          body={(node) => (
+            <div
+              onClick={() => {
+                const newExpandedKeys = { ...expandedKeys };
+                newExpandedKeys[node.key] = !newExpandedKeys[node.key];
+                setExpandedKeys(newExpandedKeys);
+              }}
+              onContextMenu={(e) => {
+                if (node.children) {
+                  setWordId(node.key);
+                  cm2.current.show(e);
+                }
+                e.preventDefault();
+              }}
+            >
+              {node.children ? node.data.wordContent : ''}
+            </div>
+          )}
+          style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
+          bodyStyle={{ padding: 25 }}
+          headerStyle={{ paddingLeft: '30px' }}
+        />
+        <Column 
+            header="Açıklama"
+            field="descriptionContent"
+            filter
+            filterMatchMode="contains"
+            filterPlaceholder="Açıklamaları Ara"
+            body={(node) => (
+              editingRows[node.key] ? (
+                inputTextEditor({ rowData: node.data, field: 'descriptionContent', node })
+              ) : (
+                <>
+                  <Tooltip target={`.description-content-${node.key}`} content={node.data.descriptionContent} />
+                  <div
+                    className={`description-content-${node.key}`}
+                    style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px'}} 
+                  >
+                    {node.data.descriptionContent}
+                  </div>
+                </>
+              )
+            )}
+            style={{ minWidth: "12rem" }}
+            headerStyle={{ paddingLeft: '30px' }}
+          />
+
+        <Column 
+          header="Son Düzenleme Tarihi"
+          field="lastEditedDate"
+          filter
+          filterMatchMode="contains"
+          filterPlaceholder="Son Düzenleme Tarihine Göre Ara"
+          style={{ minWidth: "12rem" }}
+          headerStyle={{ paddingLeft: '30px' }}
+        />
+        <Column 
+          header="Anlamı Öneren"
+          field="recommender"
+          filter
+          filterMatchMode="contains"
+          filterPlaceholder="Öneren Ara"
+          style={{ minWidth: "12rem" }}
+          headerStyle={{ paddingLeft: '30px' }}
+        />
+        <Column 
+          body={actionTemplate}
+          style={{ width: '10rem' }}
+        />
+        <Column 
+        body={wordDeleteTemplate}
+       style={{ width: '4rem' }}
       />
-      <Column 
-        header="Son Düzenleme Tarihi"
-        field="lastEditedDate"
-        filter
-        filterMatchMode="contains"
-        filterPlaceholder="Son Düzenleme Tarihine Göre Ara"
-        style={{ minWidth: "12rem" }}
-      />
-      <Column 
-        header="Anlamı Öneren"
-        field="recommender"
-        filter
-        filterMatchMode="contains"
-        filterPlaceholder="Öneren Ara"
-        style={{ minWidth: "12rem" }}
-      />
-      <Column 
-        body={actionTemplate}
-        style={{ width: '10rem' }}
-      />
-    </TreeTable>
+
+
+      </TreeTable>
+    </>
   );
 };
 

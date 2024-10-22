@@ -1,25 +1,15 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../companents/Header";
-
-import Searcher from "../companents/Searcher";
 import AccerdionMenu from "../companents/AccerdionMenu";
-
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { particlesConfig } from "../assets/particalConfig";
-
-import { Button } from "primereact/button";
-
 import WordOperation from "../companents/WordOperation";
 import DescriptionField from "../companents/DescriptionField";
-
-import { useDispatch } from "react-redux";
-import { setRecommendMode } from "../data/descriptionSlice";
-
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-
 import "../App.css";
+
 
 function HomePage() {
   const [openModal, setOpenModal] = useState(false);
@@ -27,69 +17,48 @@ function HomePage() {
   const [searchedWord, setSearchedWord] = useState("");
   const [searchedWordId, setSearchedWordId] = useState("");
   const { isAuthenticated } = useAuth();
+  //const dispatch = useDispatch();
 
-  const dispatch = useDispatch();
 
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
     }).then(() => {});
-  }, []);
 
-  const particlesLoaded = (container) => {};
+    document.body.classList.add("no-scroll");
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
 
   const closingModalF = () => {
     setOpenModal(false);
   };
 
-  const openDescription = () => {
-    setOpenDescriptions(true);
-  };
-
-  const setTheSearchedWord = (word) => {
-    setSearchedWord(word);
-  };
-
-  const setTheSearchedWordId = (id) => {
-    setSearchedWordId(id);
+  const handleSearch = (isOpen, word, id) => {
+    setOpenDescriptions(isOpen);
+    if (word) setSearchedWord(word);
+    if (id) setSearchedWordId(id);
   };
 
   return (
     <>
       {isAuthenticated ? (
         <>
-          <Header />
+          <Header onSearch={handleSearch} />
           <div className="align-left">
             <AccerdionMenu
-              isSearched={openDescription}
-              forModal={false}
-              searchedWordF={setTheSearchedWord}
-              searchedWordIdF={setTheSearchedWordId}
-            />
-          </div>
-          <div>
-            <Searcher
-              isSearched={openDescription}
-              forModal={false}
-              searchedWordF={setTheSearchedWord}
-              searchedWordIdF={setTheSearchedWordId}
+              isSearched={() => handleSearch(true)}
+              searchedWordF={setSearchedWord}
+              searchedWordIdF={setSearchedWordId}
             />
           </div>
           <Particles
             id="tsparticles"
-            particlesLoaded={particlesLoaded}
+            particlesLoaded={() => {}}
             options={particlesConfig}
             className="particles-background"
           />
-          <Button
-            tooltip="Yeni kelime öner"
-            tooltipOptions={{ showDelay: 250, position: "left" }}
-            className="pi pi-plus floating-button"
-            onClick={() => {
-              setOpenModal(true);
-              dispatch(setRecommendMode(3));
-            }}
-          ></Button>
           <DescriptionField
             isSelected={openDescriptions}
             searchedWord={searchedWord}

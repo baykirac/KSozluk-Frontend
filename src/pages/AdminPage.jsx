@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { TabMenu } from 'primereact/tabmenu';
 
 import { TabView, TabPanel } from "primereact/tabview";
 import { InputText } from "primereact/inputtext";
@@ -477,6 +478,34 @@ function AdminPage() {
     }
   }, [wordAddedSuccessfully]);
   
+ 
+  const menuItems = [
+    {
+      label: 'Yeni Kelime Ekle ve Düzenle',
+      icon: 'pi pi-fw pi-pencil',
+      command: () => setPage(0)
+    },
+    {
+      label: 'Anlam Sıralarını Değiştir',
+      icon: 'pi pi-fw pi-list',
+      command: () => setPage(1)
+    },
+    {
+      label: 'Önerileri Değerlendir',
+      icon: 'pi pi-fw pi-check-square',
+      command: () => setPage(2),
+      template: (item, options) => {
+        return (
+          <a className={options.className} target={item.target} onClick={options.onClick}>
+            <span className={`${item.icon} ${options.iconClassName}`}></span>
+            <span className={options.labelClassName}>{item.label}</span>
+            <span className="notification-badge">{pendingCount}</span>
+          </a>
+        );
+      }
+    }
+  ];
+
   return (
     <>
       {isAuthenticated && user.role === "2" ? (
@@ -507,7 +536,7 @@ function AdminPage() {
           <ContextMenu model={items2} ref={cm2} breakpoint="767px" />
           <ContextMenu model={items} ref={cm} breakpoint="767px" />
           <WordOperation
-            visible={openModal}
+            visible={openModal} 
             closingModal={closingModalF}
             isAdd={true}
             isSuccessfull={WordAddedHandle}
@@ -517,197 +546,85 @@ function AdminPage() {
             options={particlesConfig}
             className="particles-background"
           />
-          <div className="sidebar">
-            <Sidebar defaultValue={false}>
-              <Menu>
-                <MenuItem
-                  onClick={() => setPage(0)}
-                  icon={<MdOutlineEdit size={36} style={{ paddingRight: 5 }} />}
-                  className={`sidebar-menu-item ${
-                    hoveredTab === 0 ? "hovered" : ""
-                  }`}
-                  onMouseEnter={() => handleMouseEnter(0)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  Yeni Kelime Ekle ve Düzenle
-                </MenuItem>
-                <MenuItem
-                  onClick={() => setPage(1)}
-                  icon={
-                    <AiOutlineOrderedList
-                      size={36}
-                      style={{ paddingRight: 5 }}
-                    />
-                  }
-                  className={`sidebar-menu-item ${
-                    hoveredTab === 1 ? "hovered" : ""
-                  }`}
-                  onMouseEnter={() => handleMouseEnter(1)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  Anlam Sıralarını Değiştir
-                </MenuItem>
-                <MenuItem
-                  onClick={() => setPage(2)}
-                  icon={<GiTeamIdea size={36} style={{ paddingRight: 5 }} />}
-                  className={`sidebar-menu-item notification ${
-                    hoveredTab === 2 ? "hovered" : ""
-                  }`}
-                  onMouseEnter={() => handleMouseEnter(2)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  Önerileri Değerlendir
-                  <span className="notification-badge">{pendingCount}</span>
-                </MenuItem>
-              </Menu>
-            </Sidebar>
-          </div>
-          <div className="tabs">
-            <TabView activeIndex={page} onTabChange={(e) => setPage(e.index)}>
-              <TabPanel>
-                <div className="datatable-for-edit">
-                  <h2>Kelime Ekle veya Düzenle</h2>
-                  <WordTree
-                    wordsArray={expandedWordsArray}
-                    onRowEditComplete ={onRowEditComplete}
-                    filters={filters}
-                    header={header}
-                    textEditor={textEditor}
-                    setOpenModal={setOpenModal}
-                    setVisibleDeleteDescription={setVisibleDeleteDescription}
-                    setDeletedDescriptionId={setDeletedDescriptionId}
-                    setVisibleDeleteWord={setVisibleDeleteWord}
-                    deleteWordHandler={deleteWordHandler}
-                    setWordId={setWordId}
-                    cm2={cm2}
-                    globalFilterFields={[
-                      "wordContent",
-                      "descriptionContent",
-                      "lastEditedDate",
-                      "recommender",
-                    ]}
-                    statusBodyTemplate= {statusBodyTemplate}
-                    statusRowFilterTemplate = {statusRowFilterTemplate}
+          <div className="admin-page-container">
+            <div className="admin-menu">
+              <TabMenu model={menuItems} activeIndex={page} onTabChange={(e) => setPage(e.index)} />
+            </div>
+            <div className="admin-content">
+              <TabView activeIndex={page} onTabChange={(e) => setPage(e.index)}>
+                <TabPanel>
+                  <div className="datatable-for-edit">
                     
-                  >
-           
-                    <Column
-                      field="wordContent"
-                      header="Kelimeler"
-                      body={(rowData) => (
-                        <div
-                          onContextMenu={(e) => {
-                            setWordId(rowData.wordId);
-                            cm2.current.show(e);
-                          }}
-                        >
-                          {rowData.wordContent}
-                        </div>
-                      )}
-                      filter
-                      editor={(options) => textEditor(options)}
-                      filterPlaceholder="Kelimeye göre ara"
-                      style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
-                      bodyStyle={{ padding: 25 }}
-                      
-                    />
-                    <Column
-                      header="Açıklama"
-                      field="descriptionContent"
-                      filterField="descriptionContent"
-                      style={{ maxWidth: "30rem" }} /*değişmedi*/
-                      editor={(options) => textEditor(options)}
-                      filter
-                      filterPlaceholder="Açıklamaya göre ara"
-                    />
-                    <Column
-                      header="Son Düzenleme Tarihi"
-                      field="lastEditedDate"
-                      filterField="lastEditedDate"
-                      style={{ minWidth: "12rem" }}
-                      filter
-                      filterPlaceholder="Son düzenlenme tarihine göre ara"
-                    />
-                    <Column
-                      header="Anlamı Öneren"
-                      field="recommender"
-                      filterField="recommender"
-                      style={{ minWidth: "12rem" }}
-                      filter
-                      filterPlaceholder="Önerene göre ara"
-                    />
-                    <Column
-                      rowEditor={true}
-                      headerStyle={{ width: "10%", minWidth: "8rem" }}
-                      bodyStyle={{ textAlign: "center" }}
-                      style={{ borderTopRightRadius: 15 }}
-                    ></Column>
-
-                    <Column
-                      body={(rowData) => (
-                        <Button
-                          icon="pi pi-trash"
-                          className="p-button-rounded p-button-danger"
-                          onClick={(e) => {
-                            setVisibleDeleteDescription(true);
-                            setDeletedDescriptionId(rowData.descriptionId);
-                          }}
-
-                          
-                        />
-                        
-                      )}
-                      headerStyle={{ width: "10%", minWidth: "8rem" }}
-                      bodyStyle={{ textAlign: "center" }}
-                    ></Column>
-                  </WordTree>
-                </div>
-              </TabPanel>
-              <TabPanel>
-                <p className="m-0">
-                  <h2>Anlam Sıralarını Değiştir</h2>
-                  <div className="card xl:flex xl:justify-content-center">
-                    <OrderList
+                    <WordTree
+                      wordsArray={expandedWordsArray}
+                      onRowEditComplete={onRowEditComplete}
+                      filters={filters}
+                      header={header}
+                      textEditor={textEditor}
+                      setOpenModal={setOpenModal}
+                      setVisibleDeleteDescription={setVisibleDeleteDescription}
+                      setDeletedDescriptionId={setDeletedDescriptionId}
+                      setVisibleDeleteWord={setVisibleDeleteWord}
+                      deleteWordHandler={deleteWordHandler}
+                      setWordId={setWordId}
+                      cm2={cm2}
+                      globalFilterFields={[
+                        "wordContent",
+                        "descriptionContent",
+                        "lastEditedDate",
+                        "recommender",
+                      ]}
+                      statusBodyTemplate={statusBodyTemplate}
+                      statusRowFilterTemplate={statusRowFilterTemplate}
+                    >
+                      {/* ... Columnlar WordTree.jsx in içinde */}
+                    </WordTree>
+                    </div>
+                </TabPanel>
+                <TabPanel>
+                  <p className="m-0">
+                    
+                    <div className="card xl:flex xl:justify-content-center">
+                      <OrderList
+                        dataKey="descriptionId"
+                        value={filteredWordArray}
+                        onChange={(e) => {
+                          changeOrder(e);
+                        }}
+                        itemTemplate={itemTemplate}
+                        header={
+                          <Searcher
+                            forModal={true}
+                            forAdmin={true}
+                            searchedWordF={searchedWordF}
+                            isSearched={isSearched}
+                            setTheWordF={searchedWordF}
+                          />
+                        }
+                        dragdrop
+                      />
+                    </div>
+                  </p>
+                </TabPanel>
+                <TabPanel>
+                  <p className="m-0">
+                   
+                    <DataTable
+                      value={editedWordsArray}
+                      paginator
+                      rows={10}
                       dataKey="descriptionId"
-                      value={filteredWordArray}
-                      onChange={(e) => {
-                        changeOrder(e);
-                      }}
-                      itemTemplate={itemTemplate}
-                      header={
-                        <Searcher
-                          forModal={true}
-                          forAdmin={true}
-                          searchedWordF={searchedWordF}
-                          isSearched={isSearched}
-                          setTheWordF={searchedWordF}
-                        />
-                      }
-                      dragdrop
-                    ></OrderList>
-                  </div>
-                </p>
-              </TabPanel>
-              <TabPanel>
-                <p className="m-0">
-                  <h2>Önerileri Değerlendir</h2>
-                  <DataTable
-                    value={editedWordsArray}
-                    paginator
-                    rows={10}
-                    dataKey="descriptionId"
-                    filters={filters}
-                    filterDisplay="row"
-                    //loading={loading}
-                    globalFilterFields={[
-                      "wordContent",
-                      "descriptionContent",
-                      "status",
-                      "previousDescription.descriptionContent",
-                      "recommender",
-                    ]}
-                    emptyMessage="Kelime bulunamadı."
-                  >
+                      filters={filters}
+                      filterDisplay="row"
+                      globalFilterFields={[
+                        "wordContent",
+                        "descriptionContent",
+                        "status",
+                        "previousDescription.descriptionContent",
+                        "recommender",
+                      ]}
+                      emptyMessage="Kelime bulunamadı."
+                    >
                     <Column
                       field="wordContent"
                       header="Kelimeler"
@@ -761,13 +678,14 @@ function AdminPage() {
                       filterElement={statusRowFilterTemplate}
                     />
                   </DataTable>
-                </p>
-              </TabPanel>
-            </TabView>
+                  </p>
+                </TabPanel>
+              </TabView>
+            </div>
           </div>
         </>
       ) : (
-        <>{<Navigate to="/SignIn" />}</>
+        <Navigate to="/SignIn" />
       )}
     </>
   );

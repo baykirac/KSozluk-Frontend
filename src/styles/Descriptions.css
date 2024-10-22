@@ -1,6 +1,33 @@
-.descriptions {
+
+/* Sidebar styles */
+.sidebar {
+  width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  top:10px;
+  
+  
+}
+
+/* Description container styles */
+.description-container {
+  flex: 1;
+  display: flex;
+  height: calc(100vh - 100px); /* Adjust based on your header height */
+  overflow: hidden;
+}
+
+.description-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
   margin-left: 250px;
-  margin-top: 2%;
+  margin-right: 330px; /* Width of the tip-section */
+}
+
+.descriptions {
+  width: 100%;
+  max-width: 850px;
 }
 
 .description-sentence {
@@ -12,17 +39,34 @@
   padding: 5px;
 }
 
+.empty-state {
+  margin-top: 80px;
+}
+
+/* Ribbon styles */
+.ReactRibbons_ribbonContainer_vFu7ad7Mhf4adfHEI1f3 {
+  width: 100%;
+  max-width: 850px;
+  margin-left: 0;
+  margin-top: 20px;
+}
+
+.ReactRibbons_leftLargeRibbon_gKkDpYQyfk5jpV4ST8hM {
+  z-index: 1;
+  margin-left:30px;
+}
+
+/* Card styles */
 .card-list {
-  display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .custom-card {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  margin-right: 70px;
+  width: 100%;
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.45);
+  margin-left: 30px;
 }
 
 .card-content {
@@ -35,101 +79,208 @@
   padding: 1rem;
 }
 
-.ReactRibbons_leftLargeRibbon_gKkDpYQyfk5jpV4ST8hM{
-  z-index: 1;
+.action-buttons {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
 }
 
-.custom-button {
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
+.custom-button-like,
+.custom-button-star,
+.custom-button-recommend {  
+  font-size: 1.4rem;
+  padding: 0.5rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
-.custom-button .p-button-icon {
-  margin-right: 0.5rem;
+
+.custom-button-star.favorited {
+  color: #fbbf24; 
 }
+
+.custom-button-like.liked {
+  color: #06b6d4;
+}
+
+
 
 .first-letter {
-  font-size: 4rem;
-  font-weight: bold;
+  text-transform: uppercase;
 }
 
+/* Tip section styles */
 .tip-section {
-  justify-content: center;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 1rem;
-  margin-top: 3rem;
+  position: fixed;
+  right: 0;
+  top: 110px;
+  bottom: 0;
+  overflow-y: auto;
+  padding: 0.5rem 1.5rem 1rem 1rem;
+  width: 330px;
 }
 
-.card-sss {
-  width: 30rem;
-  margin-left: 1rem;
+/* Custom scroll styles */
+.sidebar::-webkit-scrollbar,
+.description-content::-webkit-scrollbar,
+.tip-section::-webkit-scrollbar {
+  width: 6px;
 }
 
+.sidebar::-webkit-scrollbar-track,
+.description-content::-webkit-scrollbar-track,
+.tip-section::-webkit-scrollbar-track {
+  background: transparent;
+ 
+}
+
+body.dark .sidebar::-webkit-scrollbar-track,
+body.dark .description-content::-webkit-scrollbar-track,
+body.dark .tip-section::-webkit-scrollbar-track {
+  background-color: #495057;
+  border-radius: 2px;
+}
+
+.description-content::-webkit-scrollbar-thumb{
+  background-color: #ffffff;
+  border-radius: 3px;
+  border: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.tip-section::-webkit-scrollbar-thumb {
+  background-color: #ececec;
+  border-radius: 3px;
+  border: transparent;
+}
+
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.description-content::-webkit-scrollbar-thumb:hover,
+.tip-section::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Card styles for tip section */
+.card-sss,
+.card-extra {
+  width: 100%;
+  box-shadow: 0 12px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-sss .p-card-title,
+.card-extra .p-card-title {
+  font-size: 1.1rem;
+}
+
+.card-sss .p-card-content,
+.card-extra .p-card-content {
+  font-size: 0.85rem;
+}
+
+.card-sss img {
+  width: 50px;
+  padding: 4px;
+  padding-top: 0.8rem;
+}
+
+.card-extra {
+  background-color: #f8f9fa;
+}
+
+.card-extra .p-card-title {
+  color: #495057;
+}
+
+.card-extra .p-card-content {
+  color: #6c757d;
+}
+
+/* Media Queries */
 @media only screen and (max-width: 1200px) {
-  .descriptions {
-      margin-left: 200px;
+  .sidebar {
+    width: 200px;
   }
-  .custom-card {
-      margin-right: 50px;
+  .description-content {
+    margin-left: 200px;
+    margin-right: 240px;
   }
   .tip-section {
-      margin-left: 200px;
+    width: 240px;
   }
 }
 
 @media only screen and (max-width: 992px) {
-  .descriptions {
-      margin-left: 150px;
+  .sidebar {
+    width: 150px;
+  }
+  .description-content {
+    margin-left: 150px;
+    margin-right: 220px;
   }
   .tip-section {
-      margin-left: 150px;
+    width: 220px;
   }
 }
 
 @media only screen and (max-width: 768px) {
-  .descriptions {
-      margin-left: 50px;
+  .main-container,
+  .description-container {
+    flex-direction: column;
+    height: auto;
   }
-  .custom-card {
-      margin-right: 30px;
+  .sidebar,
+  .description-container,
+  .tip-section {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .description-content {
+    margin-left: 50px;
+    margin-right: 50px;
+    overflow-y: visible;
+    padding: 20px 50px;
   }
   .tip-section {
-      margin-left: 50px;
-      flex-direction: column;
+    position: static;
+    padding: 1rem;
   }
-  .card-content {
-      flex-direction: column;
+  .card-sss,
+  .card-extra {
+    width: 90%;
+    margin: 0 auto;
   }
-  .number-box {
-      font-size: 1.2rem;
+  html, body, #root {
+    height: auto;
+    overflow: auto;
   }
 }
 
 @media only screen and (max-width: 576px) {
-  .descriptions {
-      margin-left: 20px;
-  }
-  .tip-section {
-      margin-left: 20px;
-  }
-  .number-box {
-      padding: 0.5rem;
-      font-size: 1rem;
-  }
-  .first-letter {
-      font-size: 3rem;
+  .description-content {
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 20px;
   }
 }
 
 @media only screen and (max-width: 480px) {
-  .descriptions {
-      margin-left: 10px;
-  }
-  .tip-section {
-      margin-left: 10px;
-  }
-  .description-sentence {
-      padding-left: 2%;
+  .description-content {
+    margin-left: 10px;
+    margin-right: 10px;
   }
 }
