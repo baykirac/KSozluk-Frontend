@@ -6,13 +6,18 @@ import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import { RibbonContainer, Ribbon } from "react-ribbons";
 import descriptionApi from "../api/descriptionApi";
 import { useDispatch } from "react-redux";
-import { setRecommendMode, setSelectedDescription, setSelectedDescriptionId } from "../data/descriptionSlice";
+import {
+  setRecommendMode,
+  setSelectedDescription,
+  setSelectedDescriptionId,
+} from "../data/descriptionSlice";
 import { setSelectedWordId } from "../data/wordSlice";
 import "../styles/Descriptions.css";
-import { Tooltip } from 'primereact/tooltip';
+import { Tooltip } from "primereact/tooltip";
 import { AiFillLike } from "react-icons/ai";
 import { AiFillStar } from "react-icons/ai";
 import { AiFillEdit } from "react-icons/ai";
+import wordApi from "../api/wordApi";
 
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
@@ -23,41 +28,50 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [isLike, setIsLike] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWordLike, setIsWordLike] = useState(false);
-  
 
-  const handleLikeClickk = async (descriptionId) => {
-      try {
-         const _response = await descriptionApi.LikeDescription(descriptionId);
-         debugger;
+  const handleDescriptionLikeClick = async (descriptionId) => {
+    try {
+      const _response = await descriptionApi.LikeDescription(descriptionId);
+      debugger;
 
-         if(_response.isSuccess){
-          const tempArray = descriptionArray.map(x=> {
-            if(x.id == descriptionId){
-              return {...x,isLike:!x.isLike}
-            }
-            return x;
-          })
-          setDescriptionArray(tempArray);
-         }
+      if (_response.isSuccess) {
+        const tempArray = descriptionArray.map((x) => {
+          if (x.id == descriptionId) {
+            return { ...x, isLike: !x.isLike };
+          }
+          return x;
+        });
+        setDescriptionArray(tempArray);
       }
-    catch (error) {
-          console.error('Error handling like:', error);
-         }
+    } catch (error) {
+      console.error("Error handling like:", error);
+    }
+  };
+  const handleWordLikeClick = async () => {
+    try {
+      const _response = await wordApi.LikeWord(searchedWordId);
+      debugger;
+      if(_response.isSuccess){
+        setIsWordLike(_response.body);
+      }
+      
+      
+    } catch (error) {
+      console.error("Error handling like:", error);
+    }
   };
 
   const handleFavoriteClick = async (wordId) => {
-    try{
-    const _response = await descriptionApi.FavouriteWord(wordId);
+    try {
+      const _response = await descriptionApi.FavouriteWord(wordId);
 
-    if(_response.isSuccess){
-      setIsFavorite(!isFavorite);
-     }
-    // setIsFavorite(!isFavorite);
-    // handleFavorite(descriptionId);
-
-    }
-    catch(error){
-      console.error('Error handling favourite:', error);
+      if (_response.isSuccess) {
+        setIsFavorite(!isFavorite);
+      }
+      // setIsFavorite(!isFavorite);
+      // handleFavorite(descriptionId);
+    } catch (error) {
+      console.error("Error handling favourite:", error);
     }
   };
 
@@ -71,7 +85,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
     const response = await descriptionApi.GetDescriptions(wordId);
     return response;
   };
-
 
   const steps = [
     {
@@ -130,6 +143,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
           }))
         );
         setIsFavorite(body.isFavourited);
+        setIsWordLike(body.isLikedWord);
+        debugger;
       }
     };
 
@@ -143,37 +158,48 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
           <div className="descriptions">
             <div className="card-list animate__animated animate__fadeIn">
               <div>
-                <span style={{ fontSize: 24, fontWeight: "bold", display: "inline", marginLeft: 40}}>
+                <span
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    display: "inline",
+                    marginLeft: 40,
+                  }}
+                >
                   <em>"{searchedWord}"</em>
                 </span>
                 <span> kelimesi için sonuçlar</span>
                 <div
-                id={`like-button-${searchedWord}`} /*bunu bi sor */
-                
-                className={`custom-button-like p-button-text`}
-                tooltip="Beğen"
-                tooltipOptions={{ position: 'top' }}
-                style={{ display: 'inline-block', marginLeft: 10 }}
-              >
-                <AiFillLike />
-              </div>
+                  id={`like-button-${searchedWord}`} /*bunu bi sor */
+                  className={`custom-button-like p-button-text ${
+                    isWordLike ? "liked" : ""
+                  }`}
+                  tooltip="Beğen"
+                  tooltipOptions={{ position: "top" }}
+                  onClick={() => {handleWordLikeClick(searchedWordId)}}
+                  style={{ display: "inline-block", marginLeft: 10 }}
+                >
+                  <AiFillLike />
+                </div>
 
-              <div
-                        //  id={`favorite-button-${searchedWordId}`}
-                          onClick={() => handleFavoriteClick(searchedWordId)}
-                          className={`custom-button-star p-button-text ${isFavorite ? 'favorited' : ''}`}
-                          tooltip="Favorilere Ekle"
-                          tooltipOptions={{ position: 'top' }}
-                        >
-                          <AiFillStar />
-                        </div>
+                <div
+                  //  id={`favorite-button-${searchedWordId}`}
+                  onClick={() => handleFavoriteClick(searchedWordId)}
+                  className={`custom-button-star p-button-text ${
+                    isFavorite ? "favorited" : ""
+                  }`}
+                  tooltip="Favorilere Ekle"
+                  tooltipOptions={{ position: "top" }}
+                >
+                  <AiFillStar />
+                </div>
               </div>
               <Button
                 style={{
                   marginTop: 20,
                   padding: 10,
                   borderRadius: 10,
-                  marginLeft: 40
+                  marginLeft: 40,
                 }}
                 icon="pi pi-plus"
                 onClick={() => {
@@ -190,61 +216,68 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               {descriptionArray.map((descriptions, index) => (
                 <div key={descriptions.id}>
                   <RibbonContainer>
-                  <Ribbon
-                    side="left"
-                    type="edge"
-                    size="large"
-                    backgroundColor="#06B6D4"
-                    color="#ffffff"
-                    fontFamily="serif"
-                    withStripes={true}
-                  >
-                    {index + 1}
-                  </Ribbon>
-                  <Card className="custom-card">
-                    <div className="card-content">
-                      <div className="text-content">
-                        <p>
-                          <span className="first-letter">
-                            {descriptions.descriptionContent[0]}
-                          </span>
-                          {descriptions.descriptionContent.slice(1)}
-                        </p>
-                        
-                        <div className="action-buttons">
-                        <div
-                          id={`like-button-${descriptions.id}`}
-                           onClick={() => handleLikeClickk(descriptions.id)}
-                          //className={`custom-button-like p-button-text ${likedDescriptions.has(descriptions.id) ? 'liked' : ''}`}
-                          className={`custom-button-like p-button-text ${descriptions.isLike ? 'liked' : ''}`}
-                          tooltip="Beğen"
-                          tooltipOptions={{ position: 'top' }}
-                        >
-                          <AiFillLike />
-                        </div>
+                    <Ribbon
+                      side="left"
+                      type="edge"
+                      size="large"
+                      backgroundColor="#06B6D4"
+                      color="#ffffff"
+                      fontFamily="serif"
+                      withStripes={true}
+                    >
+                      {index + 1}
+                    </Ribbon>
+                    <Card className="custom-card">
+                      <div className="card-content">
+                        <div className="text-content">
+                          <p>
+                            <span className="first-letter">
+                              {descriptions.descriptionContent[0]}
+                            </span>
+                            {descriptions.descriptionContent.slice(1)}
+                          </p>
 
-                        
+                          <div className="action-buttons">
+                            <div
+                              id={`like-button-${descriptions.id}`}
+                              onClick={() =>
+                                handleDescriptionLikeClick(descriptions.id)
+                              }
+                              //className={`custom-button-like p-button-text ${likedDescriptions.has(descriptions.id) ? 'liked' : ''}`}
+                              className={`custom-button-like p-button-text ${
+                                descriptions.isLike ? "liked" : ""
+                              }`}
+                              tooltip="Beğen"
+                              tooltipOptions={{ position: "top" }}
+                            >
+                              <AiFillLike />
+                            </div>
 
-
-                          <div
-                            id={`recommend-button-${descriptions.id}`}
-                            onClick={() => {
-                              setOpenModal(true);
-                              dispatch(setRecommendMode(2));
-                              dispatch(setSelectedDescription(descriptions.descriptionContent));
-                              dispatch(setSelectedDescriptionId(descriptions.id));
-                            }}
-                            className="custom-button-recommend p-button-text"
-                            tooltip="Öneride Bulun"
-                            tooltipOptions={{ position: 'top' }}
-                          >
-                            <AiFillEdit />
+                            <div
+                              id={`recommend-button-${descriptions.id}`}
+                              onClick={() => {
+                                setOpenModal(true);
+                                dispatch(setRecommendMode(2));
+                                dispatch(
+                                  setSelectedDescription(
+                                    descriptions.descriptionContent
+                                  )
+                                );
+                                dispatch(
+                                  setSelectedDescriptionId(descriptions.id)
+                                );
+                              }}
+                              className="custom-button-recommend p-button-text"
+                              tooltip="Öneride Bulun"
+                              tooltipOptions={{ position: "top" }}
+                            >
+                              <AiFillEdit />
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                </RibbonContainer>
+                    </Card>
+                  </RibbonContainer>
                 </div>
               ))}
             </div>
@@ -263,7 +296,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
           </div>
         )}
       </div>
-      
+
       <div className="tip-section">
         <Joyride
           steps={steps}
@@ -289,7 +322,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             skip: "Atla",
           }}
         />
-       <Card title="Haftanın En Beğenilen Kelimeleri" className="card-sss">
+        <Card title="Haftanın En Beğenilen Kelimeleri" className="card-sss">
           <ol>
             <li> Kelime - bengisu</li>
             <li> Kelime - bengisu</li>
@@ -298,10 +331,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             <li> Kelime - bengisu</li>
           </ol>
         </Card>
-      <Card title="Favori Kelimeler" className="card-sss">
-          <p>
-            Yıldızlanan kelimeler burada gösterilecektir
-          </p>
+        <Card title="Favori Kelimeler" className="card-sss">
+          <p>Yıldızlanan kelimeler burada gösterilecektir</p>
         </Card>
         <Card title="Öneriler" className="card-extra">
           <p>
@@ -311,9 +342,9 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
         </Card>
         <Card title="Güncellemeler" className="card-extra">
           <p>
-            Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
-            ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
-            kontrol etmeyi unutmayın!
+            Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları ve
+            yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak kontrol
+            etmeyi unutmayın!
           </p>
         </Card>
       </div>
