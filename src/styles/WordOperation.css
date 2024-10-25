@@ -17,11 +17,24 @@
   margin-left: 10px;
 }
 
-.add-button.p-button.p-component{
- margin-left:320px;
- border-radius:30px;
 
+.w-full  {
+  border-radius: 15px;
+ 
+  margin-left:20px;
+  border-color: #06b6d4;
 }
+
+.p-button-danger-minus{
+  margin-left: 5px;
+  background-color: #ef4444;
+
+  }
+
+  .p-button-success-plus{
+    margin-left:20px;
+
+  }
 
 .p-field label {  
   font-weight: bold;
@@ -33,6 +46,7 @@
   bottom: 125px;  
   font-weight: bold;
 }
+
 
 
 /* info buton düzenlemeleri */
@@ -83,14 +97,19 @@
 
 .p-dialog-content{
   margin-top: -30px;
+
 }
 
-/* .p-autocomplete-input::placeholder {
-  color: transparent;
+/* .p-autocomplete-input {
+  margin-left:20px;
 } */
 
 .p-field {
   margin-top: 20px;
+}
+.position-right{
+  display: flex;
+  justify-content: end;
 }
 
 .description-area {
@@ -100,6 +119,7 @@
 .p-dialog-title {
   margin: 10px;
 }
+
 
 /* Responsive Düzenlemeler */
 

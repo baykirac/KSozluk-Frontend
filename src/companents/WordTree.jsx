@@ -19,8 +19,9 @@ const WordTree = ({
   setVisibleDeleteWord,
   deleteWordHandler,
   globalFilterFields,
-  setOpenModal,
-  setIsWordOnly
+  setOpenDescriptionModal,
+  setOpenWordModal,
+  setIsWordOnly,
 }) => {
   const [nodes, setNodes] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState({});
@@ -176,8 +177,8 @@ const WordTree = ({
         icon="pi pi-plus"
         className="custom-button-word"
         onClick={() => {
-          setOpenModal(true);
-          setIsWordOnly(false);
+          setOpenWordModal(true);
+          setIsWordOnly(true);
         }}
         style={{ marginLeft: "2rem" }}
         size={36}
@@ -189,8 +190,8 @@ const WordTree = ({
         icon="pi pi-plus"
         className="custom-button-meaning"
         onClick={() => {
-          setOpenModal(true);
-          setIsWordOnly(true);
+          setOpenDescriptionModal(true);
+          setIsWordOnly(false);
         }}
         style={{ marginLeft: "2rem" }}
         size={36}
