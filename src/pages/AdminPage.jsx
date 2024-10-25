@@ -31,6 +31,7 @@ import { GiTeamIdea } from "react-icons/gi";
 import { WordsService } from "./WordsService";
 
 import WordOperation from "../companents/WordOperation";
+import WordOperationOnly from "../companents/WordOperationOnly";
 
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -55,6 +56,9 @@ function AdminPage() {
   const [loading, setLoading] = useState(true);
 
   const [openModal, setOpenModal] = useState(false);
+  const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
+  const [openWordModal, setOpenWordModal] = useState(false);
+
 
   const [filteredWordArray, setFilteredWordArray] = useState([]);
 
@@ -214,7 +218,7 @@ function AdminPage() {
           icon="pi pi-plus"
           className="custom-button"
           onClick={() => {
-            setOpenModal(true);
+            setOpenWordModal(true);
           }}
           style={{ marginLeft: "2rem" }}
         />
@@ -535,12 +539,20 @@ function AdminPage() {
           <Header />
           <ContextMenu model={items2} ref={cm2} breakpoint="767px" />
           <ContextMenu model={items} ref={cm} breakpoint="767px" />
+          <WordOperationOnly
+            visible={openWordModal}
+            closingModal={() => setOpenWordModal(false)}
+            word=""
+            isSuccessfull={WordAddedHandle}
+          />
           <WordOperation
-            visible={openModal} 
-            closingModal={closingModalF}
+            visible={openDescriptionModal}
+            closingModal={() => setOpenDescriptionModal(false)}
+            word=""
             isAdd={true}
             isSuccessfull={WordAddedHandle}
           />
+
           <Particles
             id="tsparticles"
             options={particlesConfig}
@@ -562,6 +574,8 @@ function AdminPage() {
                       header={header}
                       textEditor={textEditor}
                       setOpenModal={setOpenModal}
+                      setOpenWordModal={setOpenWordModal}
+                      setOpenDescriptionModal={setOpenDescriptionModal}
                       setVisibleDeleteDescription={setVisibleDeleteDescription}
                       setDeletedDescriptionId={setDeletedDescriptionId}
                       setVisibleDeleteWord={setVisibleDeleteWord}
