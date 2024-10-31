@@ -554,14 +554,7 @@ function AdminPage() {
             isSuccessfull={WordAddedHandle}
           />
 
-          {/* <WordOperationMeaning
-            visible={openModal}
-            closingModal={() => setOpenModal(false)}
-            word=""
-            isAdd={false}
-            isSuccessfull={WordAddedHandle}
-
-          /> */}
+          
 
           <Particles
             id="tsparticles"

@@ -13,8 +13,8 @@ import "../App.css";
 
 function HomePage() {
   const [openModal, setOpenModal] = useState(false);
-  const [openDescriptions, setOpenDescriptions] = useState(false);
-  const [searchedWord, setSearchedWord] = useState("");
+  const [openDescriptions, setOpenDescriptions] = useState(false); //true yap
+  const [searchedWord, setSearchedWord] = useState(""); //poi yaz
   const [searchedWordId, setSearchedWordId] = useState("");
   const { isAuthenticated } = useAuth();
   //const dispatch = useDispatch();
@@ -31,6 +31,8 @@ function HomePage() {
     };
   }, []);
 
+
+  
   const closingModalF = () => {
     setOpenModal(false);
   };
@@ -51,6 +53,8 @@ function HomePage() {
               isSearched={() => handleSearch(true)}
               searchedWordF={setSearchedWord}
               searchedWordIdF={setSearchedWordId}
+              // defaultWord="poi" 
+              // defaultWordId="1" 
             />
           </div>
           <Particles
