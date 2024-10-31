@@ -190,7 +190,11 @@ function AdminPage() {
         detail: response.message,
       });
       const { body } = response;
+      debugger;
       setWordsArray(body);
+      const pendingCount = body.filter(item => item.status === 2).length;
+      debugger;
+      setPendingCount(pendingCount);
     }
   };
 

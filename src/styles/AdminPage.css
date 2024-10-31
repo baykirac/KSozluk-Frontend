@@ -204,6 +204,22 @@ body.dark tr.p-row-odd{
     
 }
 
+.notification-badge {
+    margin-left: 8px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    background-color: #0EA5E9;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+
 .ps-menuitem-root.sidebar-menu-item.hovered .notification-badge {
     position: absolute;
     right: 5px;
