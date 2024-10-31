@@ -11,19 +11,19 @@
   padding: 20px; 
   background-color: #ffffff;
   overflow-y: auto;
-  transition: all 0.2 ease;
+  /* transition: all 0.1s ease; */
 }
 
-body.dark .sidebar{
+body.dark .sidebar {
   background-color: #111111;
 }
 
-body.dark .letter{
-  color:#1850a2;
+body.dark .letter {
+  color: #1850a2;
 }
 
-body.dark .letter:hover{
-  color:aqua;
+body.dark .letter:hover {
+  color: aqua;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -40,18 +40,9 @@ body.dark .letter:hover{
   border-radius: 10px;
 }
 
-.accordion-content-wrapper {
-  overflow: hidden;
-  transition: max-height 0.3s ease-out; 
-
-}
-
 .alphabet-column {
   overflow-y: visible;
-  /* padding: 0 15px; */
-  padding-bottom: 90px; /* Son harflerin görünmesi için */
-
-
+  padding-bottom: 90px;
 }
 
 .letter {
@@ -65,42 +56,85 @@ body.dark .letter:hover{
   border-radius: 3px;
   border-bottom: 1px solid rgb(246, 246, 246);
   color: #0e1261;
-  /* font-weight: bold; */
-  margin-left:40px; /*mavi alanı sağa kaydırmak için*/
-  transition: all 0.2s ease;
+  margin-left: 40px;
+  
 }
 
+body.dark .letter{
+  border-color: #3c3b3b;
+}
 
 .letter:hover {
   background-color: #1850a2;
   color: white;
 }
 
-
-
 .word-list {
   margin-top: 5px;
   padding-left: 30px;
-  transition: all 0.2s ease;
   padding-bottom: 10px;
-  margin-left:40px; 
-  height:200px;
-
-
+  margin-left: 40px;
+  overflow-y: auto;
+  max-height: 175px;
+  display: flex;
+  flex-direction: column;
 }
 
-
+.word-list:not(.empty) {
+  min-height: 35px;
+}
 
 .word-item {
   padding: 8px 10px 8px 20px;
   font-size: 13px;
   color: #555;
   cursor: pointer;
-  transition: all 0.2s ease;
   border-left: 1px solid rgb(228, 228, 228);
   height: 35px;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+body.dark .word-item{
+  color:#ccc;
+ 
 }
 
 .word-item:hover {
   border-left: 1px solid rgb(121, 110, 242);
+}
+
+.word-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.word-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.word-list::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 3px;
+}
+
+.word-list::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+.loading {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.word-list.empty {
+  min-height: 0;
+  max-height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: hidden;
 }

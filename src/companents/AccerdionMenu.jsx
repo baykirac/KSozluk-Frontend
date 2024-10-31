@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setCurrentWords, setSelectedWordId } from "../data/wordSlice";
 import wordApi from "../api/wordApi";
 import "../styles/AccerdionMenu.css";
-import { VirtualScroller } from "primereact/virtualscroller";
 
 function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
   const dispatch = useDispatch();
@@ -46,8 +45,9 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
     }
   };
 
-  const handleLoadMore = async () => {
-    if (!loadedAllWords && selectedLetter) {
+  const handleScroll = async (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollHeight - scrollTop - clientHeight < 50 && !loading && !loadedAllWords) {
       const nextPage = pageNumber + 1;
       setPageNumber(nextPage);
       await loadWords(selectedLetter, nextPage);
@@ -67,15 +67,11 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
     }
   }, [selectedLetter, allWords, dispatch]);
 
-  const itemTemplate = (word, options) => {
-    return (
-      <div
-        className="word-item"
-        onClick={() => handleWordClick(word)}
-      >
-        {word.wordContent}
-      </div>
-    );
+  const getWordListClass = (letter) => {
+    if (!allWords[letter] || allWords[letter].length === 0) {
+      return 'word-list empty';
+    }
+    return `word-list ${allWords[letter]?.length > 5 ? 'scrollable' : ''}`;
   };
 
   return (
@@ -90,18 +86,20 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
               {letter}
             </div>
             {selectedLetter === letter && (
-              <div className="word-list">
-                <VirtualScroller
-                  items={allWords[selectedLetter] || []}
-                  itemSize={40}
-                  itemTemplate={itemTemplate}
-                  onLazyLoad={handleLoadMore}
-                  lazy
-                  //loading={loading}
-                 // showLoader
-                  delay={250}
-                  //style={{ height: '200px' }}
-                />
+              <div 
+                className={getWordListClass(letter)}
+                onScroll={handleScroll}
+              >
+                {allWords[letter]?.map((word) => (
+                  <div
+                    key={word.id}
+                    className="word-item"
+                    onClick={() => handleWordClick(word)}
+                  >
+                    {word.wordContent}
+                  </div>
+                ))}
+                {loading && <div className="loading">Loading...</div>}
               </div>
             )}
           </div>

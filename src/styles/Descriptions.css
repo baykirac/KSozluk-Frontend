@@ -40,7 +40,14 @@
 }
 
 .empty-state {
-  margin-top: 80px;
+ 
+  text-align: center;
+  justify-content: center;
+  padding: 60px 0 0 0 ;
+}
+
+body.dark .empty-state{
+  color:#ccc;
 }
 
 /* Ribbon styles */
