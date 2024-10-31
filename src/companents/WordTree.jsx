@@ -9,6 +9,8 @@ import { BsInfoCircle } from "react-icons/bs";
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { Tooltip } from 'primereact/tooltip';
 import { Dialog } from 'primereact/dialog';
+import 'primeicons/primeicons.css';
+import descriptionApi from '../api/descriptionApi';
 
 const WordTree = ({ 
   wordsArray, 
@@ -32,6 +34,8 @@ const WordTree = ({
   const [editingNode, setEditingNode] = useState(false);
   const [visibleInfoDialog, setVisibleInfoDialog] = useState(false);
   const [currentNode, setCurrentNode] = useState(null);
+  const [filteredWordArray, setFilteredWordArray] = useState([]);
+  const [a, setA] = useState('');
 
   useEffect(() => {
     if (wordsArray) {
@@ -51,13 +55,15 @@ const WordTree = ({
             descriptionContent: desc.descriptionContent,
             lastEditedDate: desc.lastEditedDate,
             recommender: desc.recommender,
-            status: desc.status
+            status: desc.status,
+            descriptionId : desc.descriptionId,
+            order: desc.order
           }
         }))
       }));
       setNodes(mappedNodes);
     }
-  }, [wordsArray]);
+  }, [wordsArray,a]);
 
   const onEditorValueChange = (options, value) => {
     const newNodes = JSON.parse(JSON.stringify(nodes));
@@ -218,6 +224,38 @@ const WordTree = ({
     setVisibleEditConfirm(false);
   };
 
+  const arrow = (id,newOrder) =>{
+    console.log(id,newOrder);
+    const _response = descriptionApi.UpdateOrder(id,newOrder);
+    console.log(_response);
+
+    // var _descriptions = wordsArray.map(x=>x.descriptions);
+    // for(let i = 0 ; i<_descriptions.length; i++){
+    //   if(_descriptions.descriptionId == id){
+    //     _descriptions.order = newOrder;
+    //   }
+    // }
+    // setA('aaa');
+
+  }
+
+  const arrows = (node) => {
+    if (!node.children) {
+      return(
+        <>      
+        <div>
+          <div onClick={() => arrow(node.data.descriptionId,node.data.order-1)}>  {/* 1 --> Yukarı*/}
+            <i className="pi pi-arrow-circle-up" ></i>
+          </div> 
+          <div onClick={() => arrow(node.data.descriptionId,node.data.order+1)}>  {/* 2 --> Aşağı*/}
+            <i className="pi pi-arrow-circle-down"></i>
+          </div>
+        </div>
+        </>
+      )
+    }
+  }
+
   const actionTemplate = (node) => {
     if (editingRows[node.key]) {
       return (
@@ -239,6 +277,7 @@ const WordTree = ({
       <div style={{ display: 'inline-flex', gap: '5px'}}>
         {!node.children && (
           <>
+         
             <Button
               icon={<BsPencil />}
               className="p-button-rounded p-button-success p-mr-2"
@@ -260,6 +299,7 @@ const WordTree = ({
                 setVisibleInfoDialog(true);
               }}
             />
+            
           </>
         )}
       </div>
@@ -427,10 +467,15 @@ const WordTree = ({
           style={{ minWidth: "12rem" }}
           headerStyle={{ paddingLeft: '30px' }}
         />
+        <Column
+        body={arrows}
+        style={{width:'2rem'}}
+        />
         <Column 
           body={actionTemplate}
           style={{ width: '10rem' }}
         />
+
         <Column 
         body={wordDeleteTemplate}
        style={{ width: '4rem' }}

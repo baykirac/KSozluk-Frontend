@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-import WordOperation from "./WordOperation";
+import WordOperationMeaning from "./WordOperationMeaning";
 import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import { RibbonContainer, Ribbon } from "react-ribbons";
 import descriptionApi from "../api/descriptionApi";
@@ -281,7 +281,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                 </div>
               ))}
             </div>
-            <WordOperation
+            <WordOperationMeaning
               visible={openModal}
               closingModal={closingModalF}
               word={searchedWord}

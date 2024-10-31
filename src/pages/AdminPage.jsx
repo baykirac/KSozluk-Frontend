@@ -32,6 +32,7 @@ import { WordsService } from "./WordsService";
 
 import WordOperation from "../companents/WordOperation";
 import WordOperationOnly from "../companents/WordOperationOnly";
+//import WordOperationMeaning from "../companents/WordOperationMeaning";
 
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -552,6 +553,15 @@ function AdminPage() {
             isAdd={true}
             isSuccessfull={WordAddedHandle}
           />
+
+          {/* <WordOperationMeaning
+            visible={openModal}
+            closingModal={() => setOpenModal(false)}
+            word=""
+            isAdd={false}
+            isSuccessfull={WordAddedHandle}
+
+          /> */}
 
           <Particles
             id="tsparticles"

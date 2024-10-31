@@ -1,19 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import Searcher from "./Searcher";
 import { useSelector } from "react-redux";
 import wordApi from "../api/wordApi";
-import descriptionApi from "../api/descriptionApi";
-import "../styles/WordOperation.css"
+import "../styles/WordOperation.css";
 import { InputTextarea } from "primereact/inputtextarea";
 
 const WordOperation = ({
   visible,
   closingModal,
-  word ="",
+  word = "",
   isAdd,
   isDisabled,
   isSuccessfull
@@ -30,11 +28,12 @@ const WordOperation = ({
   const toast = useRef(null);
 
   const isWordEntered = () => {
-    return newWord.trim() !== "";
-  }
+    const trimmedWord = newWord?.trim() || "";
+    return trimmedWord !== "";
+  };
 
   const normalizeWord = (word) => {
-    return word.trim().toLowerCase();
+    return word?.trim().toLowerCase() || "";
   };
 
   const setTheWord = (wordParam) => {
@@ -110,7 +109,6 @@ const WordOperation = ({
 
     setLoading(true);
     
-    
     const validDescriptions = descriptions
       .map(desc => desc.text.trim())
       .filter(text => text !== "");
@@ -121,40 +119,11 @@ const WordOperation = ({
       return;
     }
 
-    let isSuccess = true;
-    
-    for (const description of validDescriptions) {
-      let response;
-      if (recommendMode === 1 || recommendMode === 2) {
-        response = await descriptionApi.RecommendDescription(
-          searchedWordId,
-          selectedDescriptionId ? selectedDescriptionId : null,
-          description
-        );
-      } else if (recommendMode === 3) {
-        response = await wordApi.RecommendWord(trimmedWord, description);
-      }
-
-      if (!response.isSuccess) {
-        isSuccess = false;
-        toast.current.show({
-          severity: "error",
-          summary: "Hata",
-          detail: response.message || "Öneri gönderilirken bir hata oluştu.",
-          life: 3000,
-        });
-        break;
-      }
-    }
-
-    if (isSuccess) {
-      showToaster({ message: "Tüm öneriler başarıyla gönderildi." });
-    }
-    
     setLoading(false);
   };
 
   const handleAddDescription = () => {
+    if (!isWordEntered()) return;
     const newId = descriptions.length + 1;
     setDescriptions([...descriptions, { id: newId, text: "" }]);
   };
@@ -167,6 +136,7 @@ const WordOperation = ({
   };
 
   const handleDescriptionChange = (id, newText) => {
+    if (!isWordEntered()) return;
     const updatedDescriptions = descriptions.map(desc =>
       desc.id === id ? { ...desc, text: newText } : desc
     );
@@ -174,18 +144,22 @@ const WordOperation = ({
   };
 
   useEffect(() => {
-    if (visible) {  
-      if(recommendMode !== 2){
+    if (visible) {
+      if (recommendMode !== 2) {
         setDescriptions([{ id: 1, text: "" }]);
-      }
-      else{
-        setDescriptions([{ id: 1, text: description }]);
+      } else {
+        setDescriptions([{ id: 1, text: description || "" }]);
       }
       if (word) {
         setWord(normalizeWord(word));
+      } else {
+        setWord("");
       }
     }
+    console.log(recommendMode);
   }, [visible, recommendMode, description, word]);
+
+  const isInputDisabled = isDisabled || !isWordEntered();
 
   return (
     <div className="modal">
@@ -208,7 +182,6 @@ const WordOperation = ({
             setTheWordF={setTheWord}
             isDisabled={isDisabled}
           />
-          
           {errorMessage && <small className="p-error">{errorMessage}</small>}
         </div>
         <div className="p-field">
@@ -219,7 +192,7 @@ const WordOperation = ({
                 value={desc.text}
                 onChange={(e) => handleDescriptionChange(desc.id, e.target.value)}
                 placeholder={isWordEntered() ? "Açıklama girin" : "Önce kelime giriniz"}
-                disabled= {!isWordEntered()}
+                disabled={isInputDisabled}
                 className="w-full"
                 autoResize
                 rows={7}
@@ -229,14 +202,13 @@ const WordOperation = ({
                 icon="pi pi-plus"
                 className="p-button-rounded p-button-success-plus"
                 onClick={handleAddDescription}
-                disabled= {!isWordEntered()}
+                disabled={isInputDisabled}
               />
               <Button
                 icon="pi pi-minus"
                 className="p-button-rounded p-button-danger-minus"
                 onClick={() => handleRemoveDescription(desc.id)}
-                disabled={descriptions.length === 1}
-                
+                disabled={descriptions.length === 1 || isInputDisabled}
               />
             </div>
           ))}
@@ -248,6 +220,7 @@ const WordOperation = ({
             loading={loading}
             onClick={isAdd ? handleSubmitWord : recommendWord}
             label={isAdd ? "Anlam Ekle" : "Öner"}
+            disabled={isInputDisabled || !descriptions.some(desc => desc.text.trim() !== "")}
           />
         </div>
       </Dialog>

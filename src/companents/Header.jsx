@@ -12,7 +12,7 @@ import "../styles/Header.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
-import WordOperation from "./WordOperation";
+import WordOperationMeaning from "./WordOperationMeaning";
 import { useDispatch } from "react-redux";
 
 function Header({ onSearch }) {
@@ -213,7 +213,7 @@ function Header({ onSearch }) {
       >
         {infoModalContent}
       </Dialog>
-      <WordOperation
+      <WordOperationMeaning
         visible={openModal}
         closingModal={closingModalF}
         isDisabled={false}

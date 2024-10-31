@@ -299,3 +299,16 @@ body.dark .pi.pi-plus.floating-button.p-button.p-component{ /*iconun rengi pembe
 .p-orderlist-controls{
     margin-top: 5rem;
 }
+
+.arrow-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+
+}
+
+.arrow-container > div > i {
+    font-size: 25px;
+}
