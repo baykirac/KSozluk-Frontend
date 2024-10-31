@@ -32,7 +32,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
       const _response = await descriptionApi.LikeDescription(descriptionId);
-      debugger;
 
       if (_response.isSuccess) {
         const tempArray = descriptionArray.map((x) => {
@@ -50,7 +49,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const handleWordLikeClick = async () => {
     try {
       const _response = await wordApi.LikeWord(searchedWordId);
-      debugger;
       if(_response.isSuccess){
         setIsWordLike(_response.body);
       }
@@ -144,7 +142,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
         );
         setIsFavorite(body.isFavourited);
         setIsWordLike(body.isLikedWord);
-        debugger;
       }
     };
 

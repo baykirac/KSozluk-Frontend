@@ -5,8 +5,9 @@ import { Toast } from "primereact/toast";
 import { InputTextarea } from "primereact/inputtextarea";
 import Searcher from "./Searcher";
 import { useSelector } from "react-redux";
-import wordApi from "../api/wordApi";
 import "../styles/WordOperation.css";
+import descriptionApi from "../api/descriptionApi";
+import wordApi from "../api/wordApi";
 
 const WordOperationMeaning = ({
   visible,
@@ -21,13 +22,16 @@ const WordOperationMeaning = ({
   const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const toast = useRef(null);
+  const recommendMode = useSelector((state) => state.descriptions.recommendMode);
+  const searchedWordId = useSelector((state) => state.words.selectedWordId);
+  const selectedDescriptionId = useSelector((state) => state.descriptions.selectedDescriptionId);
 
   const isWordEntered = () => {
     return newWord.trim() !== "";
   };
 
   const normalizeWord = (word) => {
-    return word.trim().toLowerCase();
+    return word.trim();
   };
 
   const setTheWord = (wordParam) => {
@@ -48,37 +52,59 @@ const WordOperationMeaning = ({
   const handleSubmitWord = async () => {
     setLoading(true);
     const trimmedWord = normalizeWord(newWord);
-    
+    const trimmedDescription = description.trim();
+
     if (trimmedWord === "") {
       setErrorMessage("Kelime boş olamaz.");
       setLoading(false);
       return;
     }
 
-    if (description.trim() === "") {
+    if (trimmedDescription === "") {
       setErrorMessage("Açıklama girilmelidir.");
       setLoading(false);
       return;
     }
 
-    const response = await wordApi.AddWord(trimmedWord, description.trim());
-    
-    if (response.isSuccess) {
-      showToaster({ message: "Açıklama başarıyla eklendi." });
-      setWord("");
-      setDescription("");
-      if (isSuccessfull) {
-        isSuccessfull(true);
+    if (recommendMode == 1 || recommendMode == 3) {
+      const response = await wordApi.RecommendWord(trimmedWord, trimmedDescription);
+
+      if (response.isSuccess) {
+        showToaster({ message: "Açıklama başarıyla eklendi." });
+        setWord("");
+        setDescription("");
+        if (isSuccessfull) {
+          isSuccessfull(true);
+        }
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: response.message || "Kelime eklenirken bir hata oluştu.",
+          life: 3000,
+        });
       }
-    } else {
-      toast.current.show({
-        severity: "error",
-        summary: "Hata",
-        detail: response.message || "Kelime eklenirken bir hata oluştu.",
-        life: 3000,
-      });
     }
-    
+
+    if (recommendMode == 2) {
+      const response = await descriptionApi.RecommendDescription(searchedWordId, selectedDescriptionId, trimmedDescription);
+
+      if (response.isSuccess) {
+        showToaster({ message: "Açıklama başarıyla eklendi." });
+        setWord("");
+        setDescription("");
+        if (isSuccessfull) {
+          isSuccessfull(true);
+        }
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: response.message || "Kelime eklenirken bir hata oluştu.",
+          life: 3000,
+        });
+      }
+    }
     setLoading(false);
   };
 
@@ -112,7 +138,7 @@ const WordOperationMeaning = ({
             setTheWordF={setTheWord}
             isDisabled={isDisabled}
           />
-          
+
           {errorMessage && <small className="p-error">{errorMessage}</small>}
         </div>
         <div className="p-field">
@@ -140,7 +166,7 @@ const WordOperationMeaning = ({
           />
         </div>
       </Dialog>
-    </div>  
+    </div>
   );
 };
 

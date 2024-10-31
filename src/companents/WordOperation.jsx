@@ -16,10 +16,8 @@ const WordOperation = ({
   isDisabled,
   isSuccessfull
 }) => {
-  const searchedWordId = useSelector((state) => state.words.selectedWordId);
   const recommendMode = useSelector((state) => state.descriptions.recommendMode);
   const description = useSelector((state) => state.descriptions.selectedDescription);
-  const selectedDescriptionId = useSelector((state) => state.descriptions.selectedDescriptionId);
 
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
@@ -33,7 +31,7 @@ const WordOperation = ({
   };
 
   const normalizeWord = (word) => {
-    return word?.trim().toLowerCase() || "";
+    return word?.trim() || "";
   };
 
   const setTheWord = (wordParam) => {
