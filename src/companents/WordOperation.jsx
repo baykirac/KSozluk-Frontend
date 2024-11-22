@@ -7,6 +7,9 @@ import { useSelector } from "react-redux";
 import wordApi from "../api/wordApi";
 import "../styles/WordOperation.css";
 import { InputTextarea } from "primereact/inputtextarea";
+import { ConfirmDialog } from "primereact/confirmdialog";
+import descriptionApi from "../api/descriptionApi";
+import { Card } from 'primereact/card';
 
 const WordOperation = ({
   visible,
@@ -23,6 +26,9 @@ const WordOperation = ({
   const [newWord, setWord] = useState(word);
   const [descriptions, setDescriptions] = useState([{ id: 1, text: "" }]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [existingWord, setExistingWord] = useState(false);
+  const [savedDescriptions, setSavedDescriptions] = useState([]);
   const toast = useRef(null);
 
   const isWordEntered = () => {
@@ -31,12 +37,20 @@ const WordOperation = ({
   };
 
   const normalizeWord = (word) => {
-    return word?.trim() || "";
+    return word?.trim().toLowerCase() || "";
   };
 
-  const setTheWord = (wordParam) => {
-    setWord(normalizeWord(wordParam));
+  const handleWordChange = async (value) => {
+    const normalizedWord = normalizeWord(value);
+    setWord(normalizedWord);
     setErrorMessage("");
+    
+    if (normalizedWord.length > 0) {
+      await descriptionList(normalizedWord);
+    } else {
+      setDescriptions([{ id: 1, text: "" }]);
+      setExistingWord(false);
+    }
   };
 
   const showToaster = (response) => {
@@ -49,80 +63,108 @@ const WordOperation = ({
     });
   };
 
-  const handleSubmitWord = async () => {
-    setLoading(true);
-    const trimmedWord = normalizeWord(newWord);
-    
-    if (trimmedWord === "") {
-      setErrorMessage("Kelime boş olamaz.");
-      setLoading(false);
-      return;
-    }
-
-    const validDescriptions = descriptions
-      .map(desc => desc.text.trim())
-      .filter(text => text !== "");
-
-    if (validDescriptions.length === 0) {
-      setErrorMessage("En az bir açıklama girilmelidir.");
-      setLoading(false);
-      return;
-    }
-
-    let isSuccess = true;
-  
-    for (const description of validDescriptions) {
-      const response = await wordApi.AddWord(trimmedWord, description);
-      if (!response.isSuccess) {
-        isSuccess = false;
-        toast.current.show({
-          severity: "error",
-          summary: "Hata",
-          detail: response.message || "Kelime eklenirken bir hata oluştu.",
-          life: 3000,
-        });
-        break;
+  const descriptionList = async (wordContent) => {
+    if (wordContent.trim() !== "") {
+      try {
+        const response = await descriptionApi.HeadersDescription(wordContent);
+        if(response.body?.descriptions && response.body.descriptions.length > 0){
+          setSavedDescriptions(response.body.descriptions);
+          setExistingWord(true);
+          toast.current.show({
+            severity: "success",
+            summary: "Başarılı",
+            detail: response.message,
+            life: 2500,
+          });
+        } else {
+          setSavedDescriptions([]);
+          setDescriptions([{ id: 1, text: "" }]);
+          setExistingWord(false);
+        }
+      } catch (error) {
+        console.error("Error fetching descriptions:", error);
+        setDescriptions([{ id: 1, text: "" }]);
+        setExistingWord(false);
       }
-    }
-
-    if (isSuccess) {
-      showToaster({ message: "Tüm açıklamalar başarıyla eklendi." });
-      setWord("");
+    } else {
       setDescriptions([{ id: 1, text: "" }]);
-      if (isSuccessfull) {
-        isSuccessfull(true);
-      }
+      setExistingWord(false);
     }
-    
-    setLoading(false);
   };
 
-  const recommendWord = async () => {
+  const confirmAdd = async () => {
+    setLoading(true);
     const trimmedWord = normalizeWord(newWord);
 
+    const validDescriptions = descriptions
+      .map(desc => desc.text.trim())
+      .filter(text => text !== "");
+
+    let isSuccess = true;
+
+    try {
+      for (const description of validDescriptions) {
+        const response = await wordApi.AddWord(trimmedWord, description);
+        if (!response.isSuccess) {
+          isSuccess = false;
+          toast.current.show({
+            severity: "error",
+            summary: "Hata",
+            detail: response.message || "İşlem sırasında bir hata oluştu.",
+            life: 3000,
+          });
+          break;
+        }
+      }
+
+      if (isSuccess) {
+        const message = existingWord 
+          ? "Yeni açıklamalar başarıyla eklendi."
+          : "Kelime ve açıklamalar başarıyla eklendi.";
+        showToaster({ message });
+        setWord("");
+        setDescriptions([{ id: 1, text: "" }]);
+        setExistingWord(false);
+        if (isSuccessfull) {
+          isSuccessfull(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error adding word/description:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Hata",
+        detail: "İşlem sırasında bir hata oluştu.",
+        life: 3000,
+      });
+    }
+
+    setLoading(false);
+    setShowConfirm(false);
+  };
+
+  const handleSubmitWord = () => {
+    const trimmedWord = normalizeWord(newWord);
     if (trimmedWord === "") {
       setErrorMessage("Kelime boş olamaz.");
       return;
     }
 
-    setLoading(true);
-    
     const validDescriptions = descriptions
       .map(desc => desc.text.trim())
       .filter(text => text !== "");
 
     if (validDescriptions.length === 0) {
       setErrorMessage("En az bir açıklama girilmelidir.");
-      setLoading(false);
       return;
     }
 
-    setLoading(false);
+    setShowConfirm(true);
   };
 
   const handleAddDescription = () => {
     if (!isWordEntered()) return;
-    const newId = descriptions.length + 1;
+    const newId = Math.max(...descriptions.map(d => d.id)) + 1;
     setDescriptions([...descriptions, { id: newId, text: "" }]);
   };
 
@@ -149,12 +191,12 @@ const WordOperation = ({
         setDescriptions([{ id: 1, text: description || "" }]);
       }
       if (word) {
-        setWord(normalizeWord(word));
+        handleWordChange(normalizeWord(word));
       } else {
         setWord("");
+        setExistingWord(false);
       }
     }
-    console.log(recommendMode);
   }, [visible, recommendMode, description, word]);
 
   const isInputDisabled = isDisabled || !isWordEntered();
@@ -162,9 +204,21 @@ const WordOperation = ({
   return (
     <div className="modal">
       <Toast ref={toast} />
+      <ConfirmDialog 
+        visible={showConfirm}
+        onHide={() => setShowConfirm(false)}
+        message={existingWord 
+          ? "Mevcut kelimeye yeni açıklamalar eklenecektir. Onaylıyor musunuz?" 
+          : "Yeni kelime ve açıklamalar eklenecektir. Onaylıyor musunuz?"}
+        header={existingWord ? "Açıklama Ekle" : "Kelime ve Anlam Ekle"}
+        icon="pi pi-check-square"
+        acceptClassName="p-button-success"
+        accept={confirmAdd}
+        reject={() => setShowConfirm(false)}
+      />
       <Dialog
         className="modal-dialog"
-        header={isAdd ? "Yeni Anlam Ekle" : "Öneride Bulun"}
+        header={existingWord ? "Mevcut Kelimeye Açıklama Ekle" : "Yeni Kelime ve Anlam Ekle"}
         visible={visible}
         maximizable
         style={{ width: "40vw", padding: 3 }}
@@ -177,13 +231,29 @@ const WordOperation = ({
           <Searcher
             word={normalizeWord(word)}
             forModal={true}
-            setTheWordF={setTheWord}
+            setTheWordF={handleWordChange}
             isDisabled={isDisabled}
+            onChange={(e) => handleWordChange(e.target.value)}
           />
-          {errorMessage && <small className="p-error">{errorMessage}</small>}
+          
         </div>
+        <div className="description-list">
+          {savedDescriptions.map((s, index) => (
+        <InputTextarea
+         value={s.descriptionContent}
+          key={index}
+          className="existing-descriptions"
+          autoResize          
+          disabled
+         
+        >
+        </InputTextarea>
+      ))}
+    </div>
+        
+
         <div className="p-field">
-          <label htmlFor="description">Açıklama Girin:</label>
+          <label htmlFor="description"></label>
           {descriptions.map((desc) => (
             <div key={desc.id} className="flex align-items-center gap-2 mb-2">
               <InputTextarea
@@ -191,7 +261,7 @@ const WordOperation = ({
                 onChange={(e) => handleDescriptionChange(desc.id, e.target.value)}
                 placeholder={isWordEntered() ? "Açıklama girin" : "Önce kelime giriniz"}
                 disabled={isInputDisabled}
-                className="w-full"
+                className="input-text-area-desc"
                 autoResize
                 rows={7}
                 cols={38}
@@ -214,10 +284,10 @@ const WordOperation = ({
         <div className="p-field position-right">
           <Button
             className="add-button"
-            icon={isAdd ? "pi pi-plus" : "pi pi-check"}
+            icon={"pi pi-plus"}
             loading={loading}
-            onClick={isAdd ? handleSubmitWord : recommendWord}
-            label={isAdd ? "Anlam Ekle" : "Öner"}
+            onClick={handleSubmitWord}
+            label={existingWord ? "Açıklama Ekle" : "Yeni Kelime ve Anlam Ekle"}
             disabled={isInputDisabled || !descriptions.some(desc => desc.text.trim() !== "")}
           />
         </div>

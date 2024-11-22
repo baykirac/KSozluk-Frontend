@@ -47,6 +47,9 @@
     border-radius: 10px;
   }
 
+  body.dark ::-webkit-scrollbar-thumb {
+    background-color: #9d9b9b;
+  }
 
 .tabs {
     flex-grow: 1;
@@ -79,7 +82,22 @@
     height: 2.8rem;
     z-index: 1;
   }
-  
+
+/* Dark theme styles for TabMenu */
+body.dark .p-tabmenu .p-tabmenu-nav {
+    background: #121212;
+ 
+}
+
+body.dark .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+    background: #121212;
+    color: #fff;
+}
+
+body.dark .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
+    background: #1e1e1e;
+    border-color: #333;
+}
 
 
  body.dark .card-list.animate__animated.animate__fadeIn{
@@ -128,6 +146,15 @@ body.dark .p-autocomplete-panel.p-component.p-ripple-disabled.p-connected-overla
 tr[aria-expanded="true"] {
     background-color: rgb(255, 255, 255) !important;
     
+}
+
+
+.p-treetable-tbody {
+    text-transform: capitalize;
+}
+
+.p-menuitem-text{
+    font-size:18px;
 }
 
 .delete-word{

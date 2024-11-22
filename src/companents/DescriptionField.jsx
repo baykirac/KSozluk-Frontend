@@ -18,6 +18,7 @@ import { AiFillLike } from "react-icons/ai";
 import { AiFillStar } from "react-icons/ai";
 import { AiFillEdit } from "react-icons/ai";
 import wordApi from "../api/wordApi";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
@@ -28,6 +29,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [isLike, setIsLike] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWordLike, setIsWordLike] = useState(false);
+  const [topWords,setTopWords] = useState([]);
+ 
 
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
@@ -46,17 +49,21 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       console.error("Error handling like:", error);
     }
   };
+    
+
+
   const handleWordLikeClick = async () => {
     try {
       const _response = await wordApi.LikeWord(searchedWordId);
       if(_response.isSuccess){
-        setIsWordLike(_response.body);
+        setIsWordLike(!isWordLike);
       }
       
       
     } catch (error) {
       console.error("Error handling like:", error);
     }
+
   };
 
   const handleFavoriteClick = async (wordId) => {
@@ -66,8 +73,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       if (_response.isSuccess) {
         setIsFavorite(!isFavorite);
       }
-      // setIsFavorite(!isFavorite);
-      // handleFavorite(descriptionId);
     } catch (error) {
       console.error("Error handling favourite:", error);
     }
@@ -129,24 +134,39 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   };
 
   useEffect(() => {
-    const fetchDescription = async () => {
-      if (searchedWord) {
-        const response = await GetDescriptionContent(searchedWordId);
-        const { body } = response;
-        setDescriptionArray(
-          body.body.map((descriptions) => ({
-            id: descriptions.id,
-            descriptionContent: descriptions.descriptionContent,
-            isLike: descriptions.isLike,
-          }))
-        );
-        setIsFavorite(body.isFavourited);
-        setIsWordLike(body.isLikedWord);
-      }
-    };
 
+   GetTopList();
     fetchDescription();
   }, [searchedWord, searchedWordId]);
+
+  const GetTopList = async () =>{
+    try {
+      const response = await wordApi.GetTopList();
+      setTopWords(response.body.responseTopWordListDtos);
+      console.log(response);
+  } catch (e) {
+      console.error(e);
+  }
+  }
+
+  const fetchDescription = async () => {
+    if (searchedWord) {
+      const response = await GetDescriptionContent(searchedWordId);
+      const { body } = response;
+      setDescriptionArray(
+        body.body.map((descriptions) => ({
+          id: descriptions.id,
+          descriptionContent: descriptions.descriptionContent,
+          isLike: descriptions.isLike,
+        }))
+      );
+      setIsFavorite(body.isFavourited);
+      setIsWordLike(body.isLikedWord);
+    }
+  };
+
+
+  
 
   return (
     <div className="description-container">
@@ -157,7 +177,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               <div>
                 <span
                   style={{
-                    fontSize: 24,
+                    fontSize: 25,
                     fontWeight: "bold",
                     display: "inline",
                     marginLeft: 40,
@@ -165,7 +185,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                 >
                   <em>"{searchedWord}"</em>
                 </span>
-                <span> kelimesi için sonuçlar</span>
+                <span style= {{fontSize:"18px"}}>  kelimesi için sonuçlar</span>
                 <div
                   id={`like-button-${searchedWord}`} /*bunu bi sor */
                   className={`custom-button-like p-button-text ${
@@ -173,7 +193,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   }`}
                   tooltip="Beğen"
                   tooltipOptions={{ position: "top" }}
-                  onClick={() => {handleWordLikeClick(searchedWordId)}}
+                 onClick={() => {handleWordLikeClick(searchedWordId)}}
+                 // onClick={confirmWordLike}
                   style={{ display: "inline-block", marginLeft: 10 }}
                 >
                   <AiFillLike />
@@ -239,6 +260,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                               id={`like-button-${descriptions.id}`}
                               onClick={() =>
                                 handleDescriptionLikeClick(descriptions.id)
+                                
                               }
                               //className={`custom-button-like p-button-text ${likedDescriptions.has(descriptions.id) ? 'liked' : ''}`}
                               className={`custom-button-like p-button-text ${
@@ -319,25 +341,34 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             skip: "Atla",
           }}
         />
-        <Card title="Haftanın En Beğenilen Kelimeleri" className="card-sss">
-          <ol>
-            <li> Kelime - bengisu</li>
-            <li> Kelime - bengisu</li>
-            <li> Kelime - bengisu</li>
-            <li> Kelime - bengisu</li>
-            <li> Kelime - bengisu</li>
-          </ol>
-        </Card>
+        <Card className="card-sss">
+          <h2>En Beğenilenler</h2>
+          <div className="top-list d-flex flex-column" style={{ gap: '0.5rem' }}>
+            {topWords.map((word,index) => (
+              <div key={index} className="d-flex align-items-center">
+                <div className="number-box">
+                  {index+1}
+                </div>
+                <div className="word-info">
+                  <span className="word-name">{word.word}</span>
+                  <span className="word-details">{word.count} Kelime</span>
+                </div>
+              </div>
+            ))}
+          </div>
+    </Card>
+    
+
         <Card title="Favori Kelimeler" className="card-sss">
           <p>Yıldızlanan kelimeler burada gösterilecektir</p>
         </Card>
-        <Card title="Öneriler" className="card-extra">
+        <Card title="Öneriler" className="card-sss">
           <p>
             Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
             katkıda bulunabilirsiniz. Her katkınız değerlidir!
           </p>
         </Card>
-        <Card title="Güncellemeler" className="card-extra">
+        <Card title="Güncellemeler" className="card-sss">
           <p>
             Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları ve
             yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak kontrol

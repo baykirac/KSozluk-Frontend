@@ -17,10 +17,21 @@
   margin-left: 10px;
 }
 
-
-.w-full  {
+.existing-descriptions{
+  width: 100%;
+  margin-top:20px;
   border-radius: 15px;
- 
+  max-height:300px;
+  /* margin-left:20px; */
+  border-color: #06b6d4;
+}
+
+
+.input-text-area-desc  {
+  margin-top:20px;
+  border-radius: 15px;
+  max-height:200px;
+  overflow-y: auto;
   margin-left:20px;
   border-color: #06b6d4;
 }
@@ -31,7 +42,7 @@
 
   }
 
-  .p-button-success-plus{
+.p-button-success-plus{
     margin-left:20px;
 
   }
@@ -45,6 +56,14 @@
   position: relative;
   bottom: 125px;  
   font-weight: bold;
+}
+
+.p-confirm-dialog-accept{
+  background-color:#06b6d4;
+}
+
+body.dark .p-confirm-dialog-accept{
+  background-color:#06b6d4;
 }
 
 

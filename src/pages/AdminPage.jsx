@@ -9,6 +9,8 @@ import { Column } from "primereact/column";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { Dialog } from 'primereact/dialog';
+import { RadioButton } from 'primereact/radiobutton';
 import { Dropdown } from "primereact/dropdown";
 import { OrderList } from "primereact/orderlist";
 import { Button } from "primereact/button";
@@ -90,6 +92,57 @@ function AdminPage() {
 
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
 
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [nextStatus, setNextStatus] = useState(null);
+  const [message, setMessage] = useState(" ");
+  const [headerName, setHeaderName] = useState("");
+
+  const rejectionReasons = [
+    { name: 'Uygunsuz', value: 1 },
+    { name: 'Zaten Mevcut', value: 2 },
+    { name: 'Eksik Açıklama', value: 3 },
+    { name: 'Yanlış Tanım', value: 4 },
+    { name: 'Daha Önceden Reddedilen Tanım', value: 5 },
+    { name: 'Karmaşık veya Anlaşılmaz İfade', value: 6 },
+    { name: 'Aşırı Teknik veya Özel Terminoloji', value: 7 },
+    { name: 'Kelimeyle Alakasız', value: 8 },
+    { name: 'Çok Yönlü Tanım', value: 9 },
+    { name: 'Yanlış Bilgi Veriyor', value: 10 },
+    { name: 'Farklı Anlamlar Karışmış', value: 11 },
+    { name: 'Diğer', value: 12 }
+  ];
+
+  const handleRejectionReasonSubmit = async () => {
+    if (rejectionReason) {
+      const response = await descriptionApi.UpdateStatus(descriptionId, 3, rejectionReason);
+      
+      if (response.isSuccess) {
+        toastForNotification.current.show({
+          severity: "success",
+          summary: "Başarılı",
+          detail: response.message,
+        });
+  
+        fetchData();
+        
+       
+        setShowConfirm(false);
+        setShowRejectionReasonModal(false);
+      }
+    } else {
+      
+      toastForNotification.current.show({
+        severity: "warn",
+        summary: "Uyarı",
+        detail: "Lütfen bir ret sebebi seçiniz",
+      });
+    }
+  };
+
+
+
   const getSeverity = (status) => {
     switch (status) {
       case "Reddedildi":
@@ -103,6 +156,7 @@ function AdminPage() {
     }
   };
 
+  
   const toastForNotification = useRef(null);
 
   const cm = useRef(null); // context menu için
@@ -246,19 +300,22 @@ function AdminPage() {
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        recommender:
-          desc.recommender !== null ? desc.recommender.fullName : "Boş",
-        lastEditedDate:
-          item.lastEditedDate !== null
-            ? item.lastEditedDate.split("T")[0]
-            : "Boş",
+        recommender: desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        lastEditedDate: desc.lastEditedDate,
         order: desc.order,
         status: statusFilter(desc.status),
         previousDescription: desc.previousDescription !== null ? desc.previousDescription : "Boş"
       }))
     );
 
-    setEditedWordsArray(flatArray);
+
+    const sortedArray = flatArray.sort((a, b) => {
+      let dateA = a.lastEditedDate !== "Boş" ? new Date(a.lastEditedDate) : new Date(0);
+      let dateB = b.lastEditedDate !== "Boş" ? new Date(b.lastEditedDate) : new Date(0);
+      return dateB - dateA; // Descending order
+    });
+    
+    setEditedWordsArray(sortedArray);
     
 // Yeni kelime ekle ve düzenle sayfası için
     const grouped = wordsArray.reduce((acc, item) => {
@@ -334,19 +391,42 @@ function AdminPage() {
     }
   };
   const updateDescriptionStatusHandler = async (status) => {
-    const response = await descriptionApi.UpdateStatus(descriptionId, status);
+    try {
+      
+      let reasonToSend = status === 3 ? rejectionReason : 0;
+      
+      const response = await descriptionApi.UpdateStatus(descriptionId, status, reasonToSend);
 
-    if (response.isSuccess) {
+      if (response.isSuccess) {
+        toastForNotification.current.show({
+          severity: "success",
+          summary: "Başarılı",
+          detail: response.message,
+        });
+
+        
+        await fetchData();
+        
+
+        setShowRejectionReasonModal(false);
+        setRejectionReason("");
+        setShowConfirm(false);
+      } else {
+        toastForNotification.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: "Status güncellenirken bir hata oluştu",
+        });
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
       toastForNotification.current.show({
-        severity: "success",
-        summary: "Başarılı",
-        detail: response.message,
+        severity: "error",
+        summary: "Hata",
+        detail: "Status güncellenirken bir hata oluştu",
       });
-
-      fetchData();
     }
   };
-
 
   const acceptDeleteWord = async () => {
     const response = await wordApi.DeleteWord(wordId);
@@ -360,6 +440,10 @@ function AdminPage() {
 
       fetchData();
     }
+  };
+
+  const acceptAddWord = async () => {
+    setOpenWordModal(true);
   };
 
   const searchedWordF = (word) => {
@@ -437,7 +521,11 @@ function AdminPage() {
       icon: "pi pi-check",
       className: `p-success-${getSeverity("Onaylı")}`,
       command: () => {
-        updateDescriptionStatusHandler(1);
+     //   updateDescriptionStatusHandler(1);
+        setShowConfirm(true);
+        setNextStatus(1);
+        setMessage("Bu öneriyi onaylamak istediğinize emin misiniz?");
+        setHeaderName("Onayla");
       },
     },
     {
@@ -445,7 +533,11 @@ function AdminPage() {
       icon: "pi pi-spin pi-spinner",
       className: `p-info-${getSeverity("Bekliyor")}`,
       command: () => {
-        updateDescriptionStatusHandler(2);
+        //updateDescriptionStatusHandler(2);
+        setShowConfirm(true);
+        setNextStatus(2);
+        setMessage("Bu öneriyi bekletmek istediğinize emin misiniz?");
+        setHeaderName("Beklet");
       },
     },
     {
@@ -453,10 +545,15 @@ function AdminPage() {
       icon: "pi pi-times",
       className: `p-error-${getSeverity("Reddedildi")}`,
       command: () => {
-        updateDescriptionStatusHandler(3);
+     //   updateDescriptionStatusHandler(3);
+        setShowConfirm(true);
+        setNextStatus(3);
+        setMessage("Bu öneriyi reddetmek istediğinize emin misiniz?");
+        setHeaderName("Reddet");
       },
     },
   ];
+
     
   const deleteWordHandler = () => {
     setVisibleDeleteWord(true);
@@ -495,19 +592,14 @@ function AdminPage() {
       command: () => setPage(0)
     },
     {
-      label: 'Anlam Sıralarını Değiştir',
-      icon: 'pi pi-fw pi-list',
-      command: () => setPage(1)
-    },
-    {
       label: 'Önerileri Değerlendir',
       icon: 'pi pi-fw pi-check-square',
-      command: () => setPage(2),
+      command: () => setPage(1),
       template: (item, options) => {
         return (
           <a className={options.className} target={item.target} onClick={options.onClick}>
-            <span className={`${item.icon} ${options.iconClassName}`}></span>
-            <span className={options.labelClassName}>{item.label}</span>
+            <span className={`${item.icon} ${options.iconClassName}`} ></span>
+            <span className={options.labelClassName}>{item.label} </span>
             <span className="notification-badge">{pendingCount}</span>
           </a>
         );
@@ -521,6 +613,63 @@ function AdminPage() {
         <>
           <Toast ref={toastForNotification} />
           <Toast ref={toast} />
+          <ConfirmDialog 
+            visible={showConfirm}
+            onHide={() => setShowConfirm(false)}
+            message={message}
+            header={headerName}
+            icon="pi pi-check-square"
+            acceptClassName="p-button-success"
+            accept={() => {
+              if (nextStatus === 3) {
+                setShowConfirm(false);
+                setShowRejectionReasonModal(true);
+              } else {
+                updateDescriptionStatusHandler(nextStatus);
+                //setShowConfirm(false);
+              }
+            }}
+            reject={() => setShowConfirm(false)}
+          />
+        <Dialog 
+          header="Reddetme Sebebini Seçin" 
+          visible={showRejectionReasonModal} 
+          style={{ width: '350px' }} 
+          modal 
+          onHide={() => setShowRejectionReasonModal(false)}
+          footer={
+            <div>
+              <Button 
+                label="İptal" 
+                icon="pi pi-times" 
+                onClick={() => setShowRejectionReasonModal(false)} 
+                className="p-button-text" 
+              />
+              <Button 
+                label="Gönder" 
+                icon="pi pi-check" 
+                onClick={handleRejectionReasonSubmit} 
+                autoFocus 
+              />
+            </div>
+          }
+        >
+          <div className="flex flex-column gap-3">
+            {rejectionReasons.map((reason) => (
+              <div key={reason.value} className="flex align-items-center">
+                <RadioButton 
+                  inputId={`reason-${reason.value}`} 
+                  name="rejectionReason" 
+                  value={reason.value}
+                  onChange={(e) => setRejectionReason(e.value)}
+                  checked={rejectionReason === reason.value} 
+                />
+                <label htmlFor={`reason-${reason.value}`} className="ml-2">{reason.name}</label>
+              </div>
+            ))}
+          </div>
+        </Dialog>
+
           <ConfirmDialog
             group="declarative"
             visible={visibleDeleteDescription}
@@ -549,6 +698,7 @@ function AdminPage() {
             closingModal={() => setOpenWordModal(false)}
             word=""
             isSuccessfull={WordAddedHandle}
+          
           />
           <WordOperation
             visible={openDescriptionModal}
@@ -586,6 +736,7 @@ function AdminPage() {
                       setVisibleDeleteDescription={setVisibleDeleteDescription}
                       setDeletedDescriptionId={setDeletedDescriptionId}
                       setVisibleDeleteWord={setVisibleDeleteWord}
+                      
                       deleteWordHandler={deleteWordHandler}
                       setWordId={setWordId}
                       cm2={cm2}
@@ -602,31 +753,7 @@ function AdminPage() {
                     </WordTree>
                     </div>
                 </TabPanel>
-                <TabPanel>
-                  <p className="m-0">
-                    
-                    <div className="card xl:flex xl:justify-content-center">
-                      <OrderList
-                        dataKey="descriptionId"
-                        value={filteredWordArray}
-                        onChange={(e) => {
-                          changeOrder(e);
-                        }}
-                        itemTemplate={itemTemplate}
-                        header={
-                          <Searcher
-                            forModal={true}
-                            forAdmin={true}
-                            searchedWordF={searchedWordF}
-                            isSearched={isSearched}
-                            setTheWordF={searchedWordF}
-                          />
-                        }
-                        dragdrop
-                      />
-                    </div>
-                  </p>
-                </TabPanel>
+               
                 <TabPanel>
                   <p className="m-0">
                    

@@ -36,6 +36,8 @@ const WordTree = ({
   const [currentNode, setCurrentNode] = useState(null);
   const [filteredWordArray, setFilteredWordArray] = useState([]);
   const [a, setA] = useState('');
+  const [showRemoveOrderConfirm, setShowRemoveOrderConfirm] = useState(false);
+  const [orderToBeUpdated, setOrderToBeUpdated] = useState(null);
 
   useEffect(() => {
     if (wordsArray) {
@@ -176,7 +178,7 @@ const WordTree = ({
           placeholder="Tümünde ara"
         />
       </span>
-      <Button
+      {/* <Button
         tooltip="Yeni kelime ekle"
         tooltipOptions={{ showDelay: 250, mouseTrack: true }}
         label="Yeni Kelime Ekle"
@@ -185,14 +187,15 @@ const WordTree = ({
         onClick={() => {
           setOpenWordModal(true);
           setIsWordOnly(true);
+         
         }}
         style={{ marginLeft: "2rem" }}
         size={36}
-      />
+      /> */}
       <Button
-        tooltip="Yeni anlam ekle"
-        tooltipOptions={{ showDelay: 250, mouseTrack: true }}
-        label="Yeni Anlam Ekle"
+       // tooltip="Yeni Kelime ve Anlam ekle"
+      //  tooltipOptions={{ showDelay: 250, mouseTrack: true }}
+        label="Yeni Kelime ve Anlam Ekle"
         icon="pi pi-plus"
         className="custom-button-meaning"
         onClick={() => {
@@ -224,33 +227,53 @@ const WordTree = ({
     setVisibleEditConfirm(false);
   };
 
-  const arrow = (id,newOrder) =>{
-    console.log(id,newOrder);
-    const _response = descriptionApi.UpdateOrder(id,newOrder);
-    console.log(_response);
+  // const arrow = (id,newOrder) =>{
+  //   console.log(id,newOrder);
+  //   const _response = descriptionApi.UpdateOrder(id,newOrder);
+  //   console.log(_response);
 
-    // var _descriptions = wordsArray.map(x=>x.descriptions);
-    // for(let i = 0 ; i<_descriptions.length; i++){
-    //   if(_descriptions.descriptionId == id){
-    //     _descriptions.order = newOrder;
-    //   }
-    // }
-    // setA('aaa');
+  // }
 
-  }
+  const confirmOrderUpdate = (id, newOrder) => {
+    setOrderToBeUpdated({ id, newOrder });
+    setShowRemoveOrderConfirm(true);
+  };
+  
+  const handleOrderUpdate = async () => {
+    try {
+      const response = await descriptionApi.UpdateOrder(orderToBeUpdated.id, orderToBeUpdated.newOrder);
+      if (response.isSuccess) {
+       
+      }
+    } catch (error) {
+      console.error("Error updating order:", error);
+    }
+    setShowRemoveOrderConfirm(false);
+    setOrderToBeUpdated(null);
+  };
 
   const arrows = (node) => {
     if (!node.children) {
       return(
         <>      
         <div>
-          <div onClick={() => arrow(node.data.descriptionId,node.data.order-1)}>  {/* 1 --> Yukarı*/}
-            <i className="pi pi-arrow-circle-up" ></i>
+          <div onClick={() => confirmOrderUpdate(node.data.descriptionId,node.data.order-1)}>  {/* 1 --> Yukarı*/}
+            <i className="pi pi-arrow-circle-up" style={{cursor: 'pointer'}}></i>
           </div> 
-          <div onClick={() => arrow(node.data.descriptionId,node.data.order+1)}>  {/* 2 --> Aşağı*/}
-            <i className="pi pi-arrow-circle-down"></i>
+          <div onClick={() => confirmOrderUpdate(node.data.descriptionId,node.data.order+1)}>  {/* 2 --> Aşağı*/}
+            <i className="pi pi-arrow-circle-down" style={{cursor: 'pointer'}}></i>
           </div>
         </div>
+        <ConfirmDialog
+          visible={showRemoveOrderConfirm}
+          onHide={() => setShowRemoveOrderConfirm(false)}
+          message={`Bu açıklamanın sırasını güncellemek istediğinizden emin misiniz?`}
+          header="Anlam Sırasının Güncellenmesi"
+          icon="pi pi-exclamation-triangle"
+          accept={handleOrderUpdate}
+          reject={() => setShowRemoveOrderConfirm(false)}
+          modal={false} //bunu sor
+        />
         </>
       )
     }

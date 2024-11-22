@@ -3,11 +3,12 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { InputTextarea } from "primereact/inputtextarea";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import Searcher from "./Searcher";
 import { useSelector } from "react-redux";
-import "../styles/WordOperation.css";
 import descriptionApi from "../api/descriptionApi";
 import wordApi from "../api/wordApi";
+import "../styles/WordOperation.css";
 
 const WordOperationMeaning = ({
   visible,
@@ -15,12 +16,13 @@ const WordOperationMeaning = ({
   word = "",
   isAdd,
   isDisabled,
-  isSuccessfull
+  isSuccessfull,
 }) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
   const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const toast = useRef(null);
   const recommendMode = useSelector((state) => state.descriptions.recommendMode);
   const searchedWordId = useSelector((state) => state.words.selectedWordId);
@@ -50,7 +52,6 @@ const WordOperationMeaning = ({
   };
 
   const handleSubmitWord = async () => {
-    setLoading(true);
     const trimmedWord = normalizeWord(newWord);
     const trimmedDescription = description.trim();
 
@@ -66,11 +67,19 @@ const WordOperationMeaning = ({
       return;
     }
 
-    if (recommendMode == 1 || recommendMode == 3) {
+    setShowConfirm(true);  
+  };
+
+  const confirmAdd = async () => {
+    setLoading(true);
+    const trimmedWord = normalizeWord(newWord);
+    const trimmedDescription = description.trim();
+
+    if (recommendMode === 1 || recommendMode === 3) {
       const response = await wordApi.RecommendWord(trimmedWord, trimmedDescription);
 
       if (response.isSuccess) {
-        showToaster({ message: "Açıklama başarıyla eklendi." });
+        showToaster({ message: "Öneri başarıyla eklendi." });
         setWord("");
         setDescription("");
         if (isSuccessfull) {
@@ -86,11 +95,11 @@ const WordOperationMeaning = ({
       }
     }
 
-    if (recommendMode == 2) {
+    if (recommendMode === 2) {
       const response = await descriptionApi.RecommendDescription(searchedWordId, selectedDescriptionId, trimmedDescription);
 
       if (response.isSuccess) {
-        showToaster({ message: "Açıklama başarıyla eklendi." });
+        showToaster({ message: "Öneri başarıyla eklendi." });
         setWord("");
         setDescription("");
         if (isSuccessfull) {
@@ -105,7 +114,9 @@ const WordOperationMeaning = ({
         });
       }
     }
+
     setLoading(false);
+    setShowConfirm(false); 
   };
 
   useEffect(() => {
@@ -120,6 +131,16 @@ const WordOperationMeaning = ({
   return (
     <div className="modal">
       <Toast ref={toast} />
+      <ConfirmDialog
+        visible={showConfirm}
+        onHide={() => setShowConfirm(false)}
+        message="Bu kelimeyi önermek istediğinize emin misiniz?"
+        header="Öner"
+        icon="pi pi-check-square"
+        acceptClassName="p-button-success"
+        accept={confirmAdd} 
+        reject={() => setShowConfirm(false)}  
+      />
       <Dialog
         className="modal-dialog"
         header="Öneride Bulun"
@@ -138,7 +159,6 @@ const WordOperationMeaning = ({
             setTheWordF={setTheWord}
             isDisabled={isDisabled}
           />
-
           {errorMessage && <small className="p-error">{errorMessage}</small>}
         </div>
         <div className="p-field">
@@ -149,7 +169,7 @@ const WordOperationMeaning = ({
               onChange={(e) => setDescription(e.target.value)}
               placeholder={isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"}
               disabled={!isWordEntered()}
-              className="w-full"
+              className="input-text-area-desc"
               autoResize
               rows={7}
               cols={38}
@@ -161,7 +181,7 @@ const WordOperationMeaning = ({
             className="add-button"
             icon="pi pi-plus"
             loading={loading}
-            onClick={handleSubmitWord}
+            onClick={handleSubmitWord}  
             label="Öner"
           />
         </div>

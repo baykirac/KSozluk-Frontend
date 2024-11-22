@@ -22,7 +22,8 @@ const wordApi = {
     }),
   DeleteWord: async (wordId) => await api.post("Word/DeleteWord", { wordId }),
   RecommendWord: async (wordContent, descriptionContent) => await api.post("Word/RecommendWord", {wordContent, descriptionContent}),
-  LikeWord: async (wordId) => await api.post("Word/LikeWord", {wordId})
+  LikeWord: async (wordId) => await api.post("Word/LikeWord", {wordId}),
+  GetTopList: async () => await api.get("Word/WeeklyLiked", {}),
 
 };
 

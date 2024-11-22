@@ -52,11 +52,12 @@ body.dark .letter:hover {
   padding: 10px 25px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-size: 14px;
+  font-size: 18px;
   border-radius: 3px;
   border-bottom: 1px solid rgb(246, 246, 246);
   color: #0e1261;
   margin-left: 40px;
+  font-weight:bold;
   
 }
 
@@ -86,14 +87,17 @@ body.dark .letter{
 
 .word-item {
   padding: 8px 10px 8px 20px;
-  font-size: 13px;
+  font-size: 16px;
   color: #555;
   cursor: pointer;
   border-left: 1px solid rgb(228, 228, 228);
   height: 35px;
   flex-shrink: 0;
   transition: border-color 0.2s ease;
+  text-transform: capitalize; /*ilk harf büyük*/
 }
+
+
 
 body.dark .word-item{
   color:#ccc;
@@ -103,6 +107,10 @@ body.dark .word-item{
 .word-item:hover {
   border-left: 1px solid rgb(121, 110, 242);
 }
+
+body.dark .word-list::-webkit-scrollbar-track{
+  background-color: #3c3b3b;
+ }
 
 .word-list::-webkit-scrollbar {
   width: 6px;

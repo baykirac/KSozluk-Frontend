@@ -75,10 +75,14 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 15px 20px;
   width: 100%;
   background-color: #fff;
 
+}
+
+body.dark .custom-header{
+  border-color: #3c3b3b;
 }
 
 .floating-button {
