@@ -25,9 +25,31 @@
   margin-right: 330px; /* Width of the tip-section */
 }
 
-.descriptions {
+/* .descriptions {
   width: 100%;
   max-width: 850px;
+} */
+
+.descriptions {
+  width: 100%;
+  max-width: 90%; 
+  margin: 0 auto; 
+  padding: 16px;
+  box-sizing: border-box; 
+}
+
+
+@media (min-width: 1200px) {
+  .descriptions {
+    max-width: 850px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .descriptions {
+    max-width: 100%;
+  }
 }
 
 .description-sentence {
@@ -201,11 +223,11 @@ body.dark .tip-section::-webkit-scrollbar-track {
 
 .card-sss .top-list {
   list-style-type: none;
-  padding: 0;
+  padding-top: 10px;
   margin: 0;
   width: 100%;
-}
 
+}
 
 
 .number-box {
@@ -248,6 +270,22 @@ body.dark .tip-section::-webkit-scrollbar-track {
 .word-info {
   display: flex;
   flex-direction: column;
+}
+
+.word-info-favorite{
+  padding: 5px 0 0 20px;
+}
+
+.star-icon{
+  padding: 10px 0 0 15px;
+  color:#fbbf24;
+}
+
+.favorite-words-list{
+  max-height: 200px;
+  overflow-y: auto;
+  width:245px;
+ 
 }
 
 .word-name {

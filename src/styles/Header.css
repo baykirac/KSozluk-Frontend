@@ -41,17 +41,24 @@
 }
 
 .user-info-button:focus {
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #192857 !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px aqua !important;
 }
 
 .header-right {
+  padding-right:45px;
   display: flex;
   gap: 1rem;
   align-items: center;
-  margin-left: 550px;
-
+  margin-left: auto; 
+  justify-content: flex-end; 
 }
 
+
+@media (max-width: 1024px) {
+  .header-right {
+    gap: 0.5rem; 
+  }
+}
 
 
 .header-right .user-icon {
@@ -67,6 +74,7 @@ main {
   margin-top: 80px;
   padding: 1em;
 }
+
 
 
 .custom-header {
@@ -408,15 +416,11 @@ body.dark .header-left h2 {
 }
 
 body.dark .user-info-button {
-  background-color: #4296f4 !important;
-}
-
-body.dark .user-info-button:hover {
-  background-color: #3a84d8 !important;
+  background-color: #0a4682  !important;
 }
 
 body.dark .user-info-button:focus {
-  box-shadow: 0 0 0 2px #333, 0 0 0 4px #4296f4 !important;
+  box-shadow: 0 0 0 2px #333, 0 0 0 5px aqua !important;
 }
 
 body.dark .p-accordion-header-link {

@@ -36,7 +36,6 @@ function SignInPage() {
     e.preventDefault();
     setLoading(true);
     const response = await signIn(username, password);
-    debugger;
     if (response.isSuccess) {
       setLoading(false);
       navigate("/");

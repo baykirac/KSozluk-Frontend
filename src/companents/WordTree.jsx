@@ -267,7 +267,7 @@ const WordTree = ({
         <ConfirmDialog
           visible={showRemoveOrderConfirm}
           onHide={() => setShowRemoveOrderConfirm(false)}
-          message={`Bu açıklamanın sırasını güncellemek istediğinizden emin misiniz?`}
+          message={`Bu anlamın sırasını güncellemek istediğinizden emin misiniz?`}
           header="Anlam Sırasının Güncellenmesi"
           icon="pi pi-exclamation-triangle"
           accept={handleOrderUpdate}
@@ -364,7 +364,7 @@ const WordTree = ({
       <Dialog
         visible={visibleInfoDialog}
         onHide={() => setVisibleInfoDialog(false)}
-        header="Açıklama Bilgileri"
+        header="Anlam Bilgileri"
         modal
         style={{ width: '50vw' }}
       >
@@ -448,17 +448,16 @@ const WordTree = ({
           headerStyle={{ paddingLeft: '30px' }}
         />
         <Column 
-            header="Açıklama"
+            header="Anlam"
             field="descriptionContent"
             filter
             filterMatchMode="contains"
-            filterPlaceholder="Açıklamaları Ara"
+            filterPlaceholder="Anlamları Ara"
             body={(node) => (
               editingRows[node.key] ? (
                 inputTextEditor({ rowData: node.data, field: 'descriptionContent', node })
               ) : (
                 <>
-                  <Tooltip target={`.description-content-${node.key}`} content={node.data.descriptionContent} />
                   <div
                     className={`description-content-${node.key}`}
                     style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px'}} 

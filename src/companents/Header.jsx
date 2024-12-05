@@ -24,22 +24,24 @@ function Header({ onSearch }) {
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const dispatch = useDispatch();
-  
+
+  const isAdminPage = location.pathname === "/AdminPage";
+
   const isLoginPage = location.pathname === "/SignIn";
 
   useEffect(() => {
     if (!isLoginPage) {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
         setIsDarkMode(true);
-        document.body.classList.add('dark');
+        document.body.classList.add("dark");
       } else {
         setIsDarkMode(false);
-        document.body.classList.remove('dark');
+        document.body.classList.remove("dark");
       }
     } else {
       setIsDarkMode(false);
-      document.body.classList.remove('dark');
+      document.body.classList.remove("dark");
     }
   }, [isLoginPage]);
 
@@ -47,14 +49,17 @@ function Header({ onSearch }) {
     if (!isLoginPage) {
       setIsDarkMode(!isDarkMode);
       if (isDarkMode) {
-        document.body.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
+        document.body.classList.remove("dark");
+        localStorage.setItem("theme", "light");
       } else {
-        document.body.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
+        document.body.classList.add("dark");
+        localStorage.setItem("theme", "dark");
       }
     }
   };
+
+  if (isAdminPage) {
+  }
 
   function handleSignOut() {
     revoke();
@@ -83,41 +88,56 @@ function Header({ onSearch }) {
   const infoModalContent = (
     <div>
       <h2>Kavramlar Sözlüğü Nedir?</h2>
-      <p>Kavramlar sözlüğü şirkete dahil olan yeni ekip arkadaşlarımızın oryantasyon sürecini hızlandırıp kavramları benimsetmek amacıyla veya disiplinler arası çalışan çalışanlarımıza kolaylık sağlamak amacıyla oluşturulmuş bir uygulamadır.</p>
+      <p>
+        Kavramlar sözlüğü şirkete dahil olan yeni ekip arkadaşlarımızın
+        oryantasyon sürecini hızlandırıp kavramları benimsetmek amacıyla veya
+        disiplinler arası çalışan çalışanlarımıza kolaylık sağlamak amacıyla
+        oluşturulmuş bir uygulamadır.
+      </p>
       <h2>Neler Yapabilirim?</h2>
-      <p>Sözlükte bulunan tüm kelimeleri alfabetik olarak görüntüleyebilir, kelime arayabilir, yeni kelime önerebilir, yeni kelimeye yeni anlam önerebilir veya mevcutta olan anlamlara öneride bulunabilirsiniz.</p>
+      <p>
+        Sözlükte bulunan tüm kelimeleri alfabetik olarak görüntüleyebilir,
+        kelime arayabilir, yeni kelime önerebilir, yeni kelimeye yeni anlam
+        önerebilir veya mevcutta olan anlamlara öneride bulunabilirsiniz.
+      </p>
     </div>
   );
 
   return (
     <header className="custom-header">
       <div className="header-left">
-        <a href="/"><img src="logo.png" alt="Logo" className="header-logo" /></a>
-        <a href="/" style={{textDecoration: 'none'}}><h2>Kavramlar Sözlüğü</h2></a> 
-      </div> 
-
-      <div className="header-center">
-        <Searcher
-          isSearched={handleSearch}
-          forModal={false}
-          searchedWordF={(word) => onSearch && onSearch(true, word)}
-          searchedWordIdF={(id) => onSearch && onSearch(true, undefined, id)}
-          word=""
-          setTheWordF={() => {}}
-          forAdmin={false}
-          isDisabled={false}
-        />
+        <a href="/">
+          <img src="logo.png" alt="Logo" className="header-logo" />
+        </a>
+        <a href="/" style={{ textDecoration: "none" }}>
+          <h2>Kavramlar Sözlüğü</h2>
+        </a>
       </div>
-      
+
       <div className="header-right">
         {!isLoginPage && (
           <>
+            {!isAdminPage && (
+              <Searcher
+                isSearched={handleSearch}
+                forModal={false}
+                searchedWordF={(word) => onSearch && onSearch(true, word)}
+                searchedWordIdF={(id) =>
+                  onSearch && onSearch(true, undefined, id)
+                }
+                word=""
+                setTheWordF={() => {}}
+                forAdmin={false}
+                isDisabled={false}
+                
+              />
+            )}
             <div className="theme-toggle">
               <InputSwitch
                 checked={isDarkMode}
                 onChange={toggleTheme}
                 tooltip={isDarkMode ? "Açık Tema" : "Koyu Tema"}
-                tooltipOptions={{ position: 'left' }}
+                tooltipOptions={{ position: "left" }}
               />
             </div>
             <Button
@@ -125,7 +145,7 @@ function Header({ onSearch }) {
               className="p-button-rounded p-button-text info-button"
               onClick={() => setInfoModalVisible(true)}
               tooltip="Bilgi"
-              tooltipOptions={{ position: 'left' }}
+              tooltipOptions={{ position: "left" }}
             />
             <Button
               tooltip="Yeni kelime öner"
@@ -166,7 +186,7 @@ function Header({ onSearch }) {
                   <Button
                     label="Admin Paneli"
                     icon="pi pi-cog"
-                    style={{marginRight: '1rem'}}
+                    style={{ marginRight: "1rem" }}
                     onClick={handleGoToAdmin}
                   />
                 ) : (
@@ -206,7 +226,7 @@ function Header({ onSearch }) {
       </div>
       <Dialog
         visible={infoModalVisible}
-        style={{ width: '50vw' }}
+        style={{ width: "50vw" }}
         onHide={() => setInfoModalVisible(false)}
         dismissableMask={true}
         closeOnEscape={true}
@@ -223,4 +243,3 @@ function Header({ onSearch }) {
 }
 
 export default Header;
-

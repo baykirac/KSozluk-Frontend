@@ -119,8 +119,8 @@ const WordOperation = ({
 
       if (isSuccess) {
         const message = existingWord 
-          ? "Yeni açıklamalar başarıyla eklendi."
-          : "Kelime ve açıklamalar başarıyla eklendi.";
+          ? "Yeni anlamlar başarıyla eklendi."
+          : "Kelime ve anlamlar başarıyla eklendi.";
         showToaster({ message });
         setWord("");
         setDescriptions([{ id: 1, text: "" }]);
@@ -155,7 +155,7 @@ const WordOperation = ({
       .filter(text => text !== "");
 
     if (validDescriptions.length === 0) {
-      setErrorMessage("En az bir açıklama girilmelidir.");
+      setErrorMessage("En az bir anlam girilmelidir.");
       return;
     }
 
@@ -208,9 +208,9 @@ const WordOperation = ({
         visible={showConfirm}
         onHide={() => setShowConfirm(false)}
         message={existingWord 
-          ? "Mevcut kelimeye yeni açıklamalar eklenecektir. Onaylıyor musunuz?" 
-          : "Yeni kelime ve açıklamalar eklenecektir. Onaylıyor musunuz?"}
-        header={existingWord ? "Açıklama Ekle" : "Kelime ve Anlam Ekle"}
+          ? "Mevcut kelimeye yeni anlamlar eklenecektir. Onaylıyor musunuz?" 
+          : "Yeni kelime ve anlamlar eklenecektir. Onaylıyor musunuz?"}
+        header={existingWord ? "Anlam Ekle" : "Kelime ve Anlam Ekle"}
         icon="pi pi-check-square"
         acceptClassName="p-button-success"
         accept={confirmAdd}
@@ -218,7 +218,7 @@ const WordOperation = ({
       />
       <Dialog
         className="modal-dialog"
-        header={existingWord ? "Mevcut Kelimeye Açıklama Ekle" : "Yeni Kelime ve Anlam Ekle"}
+        header={existingWord ? "Mevcut Kelimeye Anlam Ekle" : "Yeni Kelime ve Anlam Ekle"}
         visible={visible}
         maximizable
         style={{ width: "40vw", padding: 3 }}
@@ -259,7 +259,7 @@ const WordOperation = ({
               <InputTextarea
                 value={desc.text}
                 onChange={(e) => handleDescriptionChange(desc.id, e.target.value)}
-                placeholder={isWordEntered() ? "Açıklama girin" : "Önce kelime giriniz"}
+                placeholder={isWordEntered() ? "Anlam girin" : "Önce kelime giriniz"}
                 disabled={isInputDisabled}
                 className="input-text-area-desc"
                 autoResize
@@ -287,7 +287,7 @@ const WordOperation = ({
             icon={"pi pi-plus"}
             loading={loading}
             onClick={handleSubmitWord}
-            label={existingWord ? "Açıklama Ekle" : "Yeni Kelime ve Anlam Ekle"}
+            label={existingWord ? "Anlam Ekle" : "Yeni Kelime ve Anlam Ekle"}
             disabled={isInputDisabled || !descriptions.some(desc => desc.text.trim() !== "")}
           />
         </div>

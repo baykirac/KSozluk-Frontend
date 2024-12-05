@@ -24,10 +24,6 @@ function HomePage() {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
     }).then(() => { });
-
-    setSearchedWord("Poi");
-    setSearchedWordId("c4b55493-a964-4605-b1ac-3576acc3f3cf");
-    setOpenDescriptions(true);
     document.body.classList.add("no-scroll");
     return () => {
       document.body.classList.remove("no-scroll");

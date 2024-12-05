@@ -6,6 +6,9 @@ import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import { RibbonContainer, Ribbon } from "react-ribbons";
 import descriptionApi from "../api/descriptionApi";
 import { useDispatch } from "react-redux";
+import WordCloud from "react-d3-cloud";
+import { scaleOrdinal } from "d3-scale";
+import { schemeCategory10 } from "d3-scale-chromatic";
 import {
   setRecommendMode,
   setSelectedDescription,
@@ -29,8 +32,82 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [isLike, setIsLike] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWordLike, setIsWordLike] = useState(false);
-  const [topWords,setTopWords] = useState([]);
- 
+  const [topWords, setTopWords] = useState([]);
+  const [favoriteWords, setFavoriteWords] = useState([]);
+
+  const data = [
+    { text: "başarsoft", value: 120 },
+    { text: "poi", value: 4 },
+    { text: "cbs", value: 3 },
+    { text: "harita", value: 4 },
+    { text: "ağ", value: 5 },
+    { text: "merhaba", value: 6 },
+    { text: "dünya", value: 7 },
+    { text: "örnek", value: 8 },
+    { text: "test", value: 9 },
+    { text: "veri", value: 15 },
+    { text: "metin", value: 1 },
+    { text: "deneme", value: 2 },
+    { text: "günler", value: 3 },
+    { text: "yazılım", value: 4 },
+    { text: "proje", value: 5 },
+    { text: "sonuç", value: 6 },
+    { text: "analiz", value: 7 },
+    { text: "çözümler", value: 8 },
+    { text: "yönetim", value: 9 },
+    { text: "işleme", value: 10 },
+    { text: "sonuçlar", value: 1 },
+    { text: "çözümler", value: 2 },
+    { text: "görsel", value: 3 },
+    { text: "doküman", value: 4 },
+    { text: "memnuniyet", value: 5 },
+    { text: "kalite", value: 6 },
+    { text: "geliştirme", value: 7 },
+    { text: "bilgi", value: 8 },
+    { text: "planlama", value: 9 },
+    { text: "birlik", value: 10 },
+    { text: "ekip", value: 1 },
+    { text: "deneyim", value: 2 },
+    { text: "öneriler", value: 3 },
+    { text: "testler", value: 4 },
+    { text: "inceleme", value: 5 },
+    { text: "fikirler", value: 6 },
+    { text: "tasarım", value: 7 },
+    { text: "strateji", value: 8 },
+    { text: "verim", value: 9 },
+    { text: "inceleme", value: 10 },
+    { text: "öneriler", value: 1 },
+    { text: "gelişim", value: 2 },
+    { text: "değerlendirme", value: 3 },
+    { text: "prensipler", value: 4 },
+    { text: "süreç", value: 5 },
+    { text: "rapor", value: 6 },
+    { text: "içerik", value: 7 },
+    { text: "teknik", value: 8 },
+    { text: "kullanıcı", value: 9 },
+    { text: "güvenlik", value: 10 },
+    { text: "hizmet", value: 1 },
+    { text: "kayıt", value: 2 },
+    { text: "ağ", value: 3 },
+    { text: "hata", value: 4 },
+    { text: "durum", value: 5 },
+    { text: "zaman", value: 6 },
+    { text: "model", value: 7 },
+    { text: "tablo", value: 8 },
+    { text: "grafik", value: 9 },
+    { text: "sunum", value: 10 },
+    { text: "iş", value: 1 },
+    { text: "açıklama", value: 2 },
+    { text: "işlem", value: 3 },
+    { text: "yönetici", value: 4 },
+    { text: "yöntem", value: 5 },
+    { text: "formül", value: 6 },
+    { text: "çalışma", value: 7 },
+    { text: "hesaplama", value: 8 },
+    { text: "çözüm", value: 9 },
+  ];
+
+  const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
@@ -44,26 +121,23 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
           return x;
         });
         setDescriptionArray(tempArray);
+        
       }
     } catch (error) {
       console.error("Error handling like:", error);
     }
   };
-    
-
 
   const handleWordLikeClick = async () => {
     try {
       const _response = await wordApi.LikeWord(searchedWordId);
-      if(_response.isSuccess){
+      if (_response.isSuccess) {
         setIsWordLike(!isWordLike);
+        await GetTopList();
       }
-      
-      
     } catch (error) {
       console.error("Error handling like:", error);
     }
-
   };
 
   const handleFavoriteClick = async (wordId) => {
@@ -72,6 +146,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
 
       if (_response.isSuccess) {
         setIsFavorite(!isFavorite);
+        await FavouriteWordsOnScreen();
       }
     } catch (error) {
       console.error("Error handling favourite:", error);
@@ -134,20 +209,30 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   };
 
   useEffect(() => {
-
-   GetTopList();
+    GetTopList();
     fetchDescription();
+    FavouriteWordsOnScreen();
   }, [searchedWord, searchedWordId]);
 
-  const GetTopList = async () =>{
+  const GetTopList = async () => {
     try {
       const response = await wordApi.GetTopList();
       setTopWords(response.body.responseTopWordListDtos);
       console.log(response);
-  } catch (e) {
+    } catch (e) {
       console.error(e);
-  }
-  }
+    }
+  };
+
+  const FavouriteWordsOnScreen = async () => {
+    try {
+      const response = await descriptionApi.FavouriteWordsOnScreen();
+      setFavoriteWords(response.body.responseFavouriteWordsDtos);
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchDescription = async () => {
     if (searchedWord) {
@@ -164,9 +249,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       setIsWordLike(body.isLikedWord);
     }
   };
-
-
-  
 
   return (
     <div className="description-container">
@@ -185,7 +267,10 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                 >
                   <em>"{searchedWord}"</em>
                 </span>
-                <span style= {{fontSize:"18px"}}>  kelimesi için sonuçlar</span>
+                <span style={{ fontSize: "18px" }}>
+                  {" "}
+                  kelimesi için sonuçlar
+                </span>
                 <div
                   id={`like-button-${searchedWord}`} /*bunu bi sor */
                   className={`custom-button-like p-button-text ${
@@ -193,8 +278,10 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   }`}
                   tooltip="Beğen"
                   tooltipOptions={{ position: "top" }}
-                 onClick={() => {handleWordLikeClick(searchedWordId)}}
-                 // onClick={confirmWordLike}
+                  onClick={() => {
+                    handleWordLikeClick(searchedWordId);
+                  }}
+                  // onClick={confirmWordLike}
                   style={{ display: "inline-block", marginLeft: 10 }}
                 >
                   <AiFillLike />
@@ -260,7 +347,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                               id={`like-button-${descriptions.id}`}
                               onClick={() =>
                                 handleDescriptionLikeClick(descriptions.id)
-                                
                               }
                               //className={`custom-button-like p-button-text ${likedDescriptions.has(descriptions.id) ? 'liked' : ''}`}
                               className={`custom-button-like p-button-text ${
@@ -310,8 +396,24 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             />
           </div>
         ) : (
-          <div className="empty-state">
-            <p>Lütfen sol taraftan bir kelime seçin veya arama yapın.</p>
+          <div style={{ userSelect: "none" , opacity: "0.7"}}>
+            <WordCloud
+              data={data}
+              width={500}
+              height={320}
+              font="Itim"
+              fontStyle="italic"
+              fontWeight="bold"
+              fontSize={(word) => Math.log2(word.value) * 8}
+              //spiral="rectangular"
+              rotate={0}
+              padding={1}
+              // random={Math.random}
+              fill={(d, i) => schemeCategory10ScaleOrdinal(i)}
+              onWordClick={(event, d) => {
+                console.log(`onWordClick: ${d.text}`);
+              }}
+            />
           </div>
         )}
       </div>
@@ -341,32 +443,60 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             skip: "Atla",
           }}
         />
-        <Card className="card-sss">
-          <h2>En Beğenilenler</h2>
-          <div className="top-list d-flex flex-column" style={{ gap: '0.5rem' }}>
-            {topWords.map((word,index) => (
+        <Card
+          title="En Beğenilenler"
+          className="card-sss"
+          style={{ width: "100%" }}
+        >
+          <div
+            className="top-list d-flex flex-column"
+            style={{ gap: "0.6rem" }}
+          >
+            {topWords.map((word, index) => (
               <div key={index} className="d-flex align-items-center">
-                <div className="number-box">
-                  {index+1}
-                </div>
+                <div className="number-box">{index + 1}</div>
                 <div className="word-info">
-                  <span className="word-name">{word.word}</span>
+                  <span className="word-name" >{word.word}</span>
                   <span className="word-details">{word.count} Kelime</span>
                 </div>
               </div>
             ))}
           </div>
-    </Card>
-    
+        </Card>
 
-        <Card title="Favori Kelimeler" className="card-sss">
-          <p>Yıldızlanan kelimeler burada gösterilecektir</p>
+        <Card
+          title="Favori Kelimeler"
+          className="card-sss"
+          style={{ width: "100%" }}
+        >
+          {favoriteWords.length > 0 && (
+            <div className="favorite-words-list">
+              {favoriteWords.map((word, index) => (
+                <div key={index} className="d-flex align-items-center">
+                  {/* <div className="number-box">{index + 1}</div> */}
+                  <div className="star-icon">
+                    <i className="pi pi-star-fill" />
+                  </div>
+                  <div className="word-info-favorite">
+                    <span className="word-name">{word.wordContent}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
         <Card title="Öneriler" className="card-sss">
           <p>
             Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
             katkıda bulunabilirsiniz. Her katkınız değerlidir!
           </p>
+          <span>İletişim için: </span>
+          <a
+            href="ik@basarsoft.com.tr"
+            style={{ color: "blue", textDecoration: "underline" }}
+          >
+            ik@basarsoft.com.tr
+          </a>
         </Card>
         <Card title="Güncellemeler" className="card-sss">
           <p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { TabMenu } from 'primereact/tabmenu';
+import { TabMenu } from "primereact/tabmenu";
 
 import { TabView, TabPanel } from "primereact/tabview";
 import { InputText } from "primereact/inputtext";
@@ -9,8 +9,8 @@ import { Column } from "primereact/column";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { Dialog } from 'primereact/dialog';
-import { RadioButton } from 'primereact/radiobutton';
+import { Dialog } from "primereact/dialog";
+import { RadioButton } from "primereact/radiobutton";
 import { Dropdown } from "primereact/dropdown";
 import { OrderList } from "primereact/orderlist";
 import { Button } from "primereact/button";
@@ -36,6 +36,8 @@ import WordOperation from "../companents/WordOperation";
 import WordOperationOnly from "../companents/WordOperationOnly";
 //import WordOperationMeaning from "../companents/WordOperationMeaning";
 
+import { InputTextarea } from "primereact/inputtextarea";
+
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -43,9 +45,7 @@ import Searcher from "../companents/Searcher";
 
 import wordApi from "../api/wordApi";
 import descriptionApi from "../api/descriptionApi";
-import WordTree from "../companents/WordTree"; 
-
-        
+import WordTree from "../companents/WordTree";
 
 function AdminPage() {
   const [page, setPage] = useState(0);
@@ -61,7 +61,6 @@ function AdminPage() {
   const [openModal, setOpenModal] = useState(false);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openWordModal, setOpenWordModal] = useState(false);
-
 
   const [filteredWordArray, setFilteredWordArray] = useState([]);
 
@@ -93,46 +92,52 @@ function AdminPage() {
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
 
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] =
+    useState(false);
+  const [showCustomReasonModal, setShowCustomReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [nextStatus, setNextStatus] = useState(null);
   const [message, setMessage] = useState(" ");
   const [headerName, setHeaderName] = useState("");
+  const [customRejectionReason, setCustomReasonReason] = useState("");
 
   const rejectionReasons = [
-    { name: 'Uygunsuz', value: 1 },
-    { name: 'Zaten Mevcut', value: 2 },
-    { name: 'Eksik Açıklama', value: 3 },
-    { name: 'Yanlış Tanım', value: 4 },
-    { name: 'Daha Önceden Reddedilen Tanım', value: 5 },
-    { name: 'Karmaşık veya Anlaşılmaz İfade', value: 6 },
-    { name: 'Aşırı Teknik veya Özel Terminoloji', value: 7 },
-    { name: 'Kelimeyle Alakasız', value: 8 },
-    { name: 'Çok Yönlü Tanım', value: 9 },
-    { name: 'Yanlış Bilgi Veriyor', value: 10 },
-    { name: 'Farklı Anlamlar Karışmış', value: 11 },
-    { name: 'Diğer', value: 12 }
+    { name: "Uygunsuz", value: 1 },
+    { name: "Zaten Mevcut", value: 2 },
+    { name: "Eksik Açıklama", value: 3 },
+    { name: "Yanlış Tanım", value: 4 },
+    { name: "Karmaşık veya Anlaşılmaz İfade", value: 5 },
+    { name: "Birden Fazla Anlam", value: 6 },
+    { name: "Diğer", value: 7 },
   ];
 
   const handleRejectionReasonSubmit = async () => {
     if (rejectionReason) {
-      const response = await descriptionApi.UpdateStatus(descriptionId, 3, rejectionReason);
-      
+      if (rejectionReason === 7) {
+        setShowCustomReasonModal(true);
+        return;
+      }
+
+      const response = await descriptionApi.UpdateStatus(
+        descriptionId,
+        3,
+        rejectionReason
+      );
+
       if (response.isSuccess) {
         toastForNotification.current.show({
           severity: "success",
           summary: "Başarılı",
           detail: response.message,
         });
-  
+
         fetchData();
-        
-       
+
         setShowConfirm(false);
         setShowRejectionReasonModal(false);
+        setRejectionReason("");
       }
     } else {
-      
       toastForNotification.current.show({
         severity: "warn",
         summary: "Uyarı",
@@ -141,7 +146,39 @@ function AdminPage() {
     }
   };
 
+  const handleCustomReasonSubmit = async () => {
+    if (!customRejectionReason.trim()) {
+      toastForNotification.current.show({
+        severity: "warn",
+        summary: "Uyarı",
+        detail: "Lütfen ret sebebini yazınız",
+      });
+      return;
+    }
 
+    const response = await descriptionApi.UpdateStatus(
+      descriptionId,
+      3,
+      rejectionReason,
+      customRejectionReason
+    );
+
+    if (response.isSuccess) {
+      toastForNotification.current.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: response.message,
+      });
+
+      fetchData();
+
+      setShowConfirm(false);
+      setShowRejectionReasonModal(false);
+      setShowCustomReasonModal(false);
+      setCustomReasonReason("");
+      setRejectionReason("");
+    }
+  };
 
   const getSeverity = (status) => {
     switch (status) {
@@ -156,7 +193,6 @@ function AdminPage() {
     }
   };
 
-  
   const toastForNotification = useRef(null);
 
   const cm = useRef(null); // context menu için
@@ -186,7 +222,10 @@ function AdminPage() {
     wordContent: { value: null, matchMode: FilterMatchMode.CONTAINS },
     lastEditedDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
     recommender: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    "previousDescription.descriptionContent": { value: null, matchMode: FilterMatchMode.CONTAINS },
+    "previousDescription.descriptionContent": {
+      value: null,
+      matchMode: FilterMatchMode.CONTAINS,
+    },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
 
@@ -238,16 +277,14 @@ function AdminPage() {
     const response = await wordApi.GetAllWords();
     if (response.isSuccess) {
       toastForNotification.current.show({
-        life:750,
+        life: 750,
         severity: "info",
         summary: "Info",
         detail: response.message,
       });
       const { body } = response;
-      debugger;
       setWordsArray(body);
-      const pendingCount = body.filter(item => item.status === 2).length;
-      debugger;
+      const pendingCount = body.filter((item) => item.status === 2).length;
       setPendingCount(pendingCount);
     }
   };
@@ -272,7 +309,7 @@ function AdminPage() {
         </IconField>
         <Button
           tooltip="Yeni Kelime Ekle"
-          tooltipOptions={{ showDelay: 250, mouseTrack: true}}
+          tooltipOptions={{ showDelay: 250, mouseTrack: true }}
           label="Yeni Kelime Ekle"
           icon="pi pi-plus"
           className="custom-button"
@@ -300,30 +337,33 @@ function AdminPage() {
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        recommender: desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        recommender:
+          desc.recommender !== null ? desc.recommender.fullName : "Boş",
         lastEditedDate: desc.lastEditedDate,
         order: desc.order,
         status: statusFilter(desc.status),
-        previousDescription: desc.previousDescription !== null ? desc.previousDescription : "Boş"
+        previousDescription:
+          desc.previousDescription !== null ? desc.previousDescription : "Boş",
       }))
     );
 
-
     const sortedArray = flatArray.sort((a, b) => {
-      let dateA = a.lastEditedDate !== "Boş" ? new Date(a.lastEditedDate) : new Date(0);
-      let dateB = b.lastEditedDate !== "Boş" ? new Date(b.lastEditedDate) : new Date(0);
+      let dateA =
+        a.lastEditedDate !== "Boş" ? new Date(a.lastEditedDate) : new Date(0);
+      let dateB =
+        b.lastEditedDate !== "Boş" ? new Date(b.lastEditedDate) : new Date(0);
       return dateB - dateA; // Descending order
     });
-    
+
     setEditedWordsArray(sortedArray);
-    
-// Yeni kelime ekle ve düzenle sayfası için
+
+    // Yeni kelime ekle ve düzenle sayfası için
     const grouped = wordsArray.reduce((acc, item) => {
       if (!acc[item.id]) {
         acc[item.id] = {
           wordId: item.id,
           wordContent: item.wordContent,
-          descriptions: []
+          descriptions: [],
         };
       }
       item.descriptions.forEach((desc, index) => {
@@ -331,8 +371,12 @@ function AdminPage() {
           index: index,
           descriptionId: desc.id,
           descriptionContent: desc.descriptionContent,
-          recommender: desc.recommender !== null ? desc.recommender.fullName : "Boş",
-          lastEditedDate: item.lastEditedDate !== null ? item.lastEditedDate.split("T")[0] : "Boş",
+          recommender:
+            desc.recommender !== null ? desc.recommender.fullName : "Boş",
+          lastEditedDate:
+            item.lastEditedDate !== null
+              ? item.lastEditedDate.split("T")[0]
+              : "Boş",
           order: desc.order,
           status: statusFilter(desc.status),
         });
@@ -357,23 +401,22 @@ function AdminPage() {
       let _wordsArray = [...editedWordsArray];
       let { newData, index } = e;
       let targetDescription = {};
-  
+
       _wordsArray[index] = newData;
-  
-      _wordsArray.forEach(p => {
-        if(p.descriptionId == index.key)
-        {
-          targetDescription=p;
+
+      _wordsArray.forEach((p) => {
+        if (p.descriptionId == index.key) {
+          targetDescription = p;
         }
       });
-  
+
       const response = await wordApi.UpdateWord(
         targetDescription.wordId,
         targetDescription.descriptionId,
         newData.wordContent,
         newData.descriptionContent
       );
-  
+
       if (response.isSuccess) {
         toastForNotification.current.show({
           severity: "success",
@@ -392,10 +435,13 @@ function AdminPage() {
   };
   const updateDescriptionStatusHandler = async (status) => {
     try {
-      
       let reasonToSend = status === 3 ? rejectionReason : 0;
-      
-      const response = await descriptionApi.UpdateStatus(descriptionId, status, reasonToSend);
+
+      const response = await descriptionApi.UpdateStatus(
+        descriptionId,
+        status,
+        reasonToSend
+      );
 
       if (response.isSuccess) {
         toastForNotification.current.show({
@@ -404,9 +450,7 @@ function AdminPage() {
           detail: response.message,
         });
 
-        
         await fetchData();
-        
 
         setShowRejectionReasonModal(false);
         setRejectionReason("");
@@ -521,7 +565,7 @@ function AdminPage() {
       icon: "pi pi-check",
       className: `p-success-${getSeverity("Onaylı")}`,
       command: () => {
-     //   updateDescriptionStatusHandler(1);
+        //   updateDescriptionStatusHandler(1);
         setShowConfirm(true);
         setNextStatus(1);
         setMessage("Bu öneriyi onaylamak istediğinize emin misiniz?");
@@ -545,7 +589,7 @@ function AdminPage() {
       icon: "pi pi-times",
       className: `p-error-${getSeverity("Reddedildi")}`,
       command: () => {
-     //   updateDescriptionStatusHandler(3);
+        //   updateDescriptionStatusHandler(3);
         setShowConfirm(true);
         setNextStatus(3);
         setMessage("Bu öneriyi reddetmek istediğinize emin misiniz?");
@@ -554,10 +598,9 @@ function AdminPage() {
     },
   ];
 
-    
   const deleteWordHandler = () => {
     setVisibleDeleteWord(true);
-  }
+  };
 
   const items2 = [
     {
@@ -583,28 +626,31 @@ function AdminPage() {
       setWordAddedSuccessfully(false);
     }
   }, [wordAddedSuccessfully]);
-  
- 
+
   const menuItems = [
     {
-      label: 'Yeni Kelime Ekle ve Düzenle',
-      icon: 'pi pi-fw pi-pencil',
-      command: () => setPage(0)
+      label: "Yeni Kelime Ekle ve Düzenle",
+      icon: "pi pi-fw pi-pencil",
+      command: () => setPage(0),
     },
     {
-      label: 'Önerileri Değerlendir',
-      icon: 'pi pi-fw pi-check-square',
+      label: "Önerileri Değerlendir",
+      icon: "pi pi-fw pi-check-square",
       command: () => setPage(1),
       template: (item, options) => {
         return (
-          <a className={options.className} target={item.target} onClick={options.onClick}>
-            <span className={`${item.icon} ${options.iconClassName}`} ></span>
+          <a
+            className={options.className}
+            target={item.target}
+            onClick={options.onClick}
+          >
+            <span className={`${item.icon} ${options.iconClassName}`}></span>
             <span className={options.labelClassName}>{item.label} </span>
             <span className="notification-badge">{pendingCount}</span>
           </a>
         );
-      }
-    }
+      },
+    },
   ];
 
   return (
@@ -613,7 +659,7 @@ function AdminPage() {
         <>
           <Toast ref={toastForNotification} />
           <Toast ref={toast} />
-          <ConfirmDialog 
+          <ConfirmDialog
             visible={showConfirm}
             onHide={() => setShowConfirm(false)}
             message={message}
@@ -631,50 +677,94 @@ function AdminPage() {
             }}
             reject={() => setShowConfirm(false)}
           />
-        <Dialog 
-          header="Reddetme Sebebini Seçin" 
-          visible={showRejectionReasonModal} 
-          style={{ width: '350px' }} 
-          modal 
-          onHide={() => setShowRejectionReasonModal(false)}
-          footer={
-            <div>
-              <Button 
-                label="İptal" 
-                icon="pi pi-times" 
-                onClick={() => setShowRejectionReasonModal(false)} 
-                className="p-button-text" 
-              />
-              <Button 
-                label="Gönder" 
-                icon="pi pi-check" 
-                onClick={handleRejectionReasonSubmit} 
-                autoFocus 
-              />
-            </div>
-          }
-        >
-          <div className="flex flex-column gap-3">
-            {rejectionReasons.map((reason) => (
-              <div key={reason.value} className="flex align-items-center">
-                <RadioButton 
-                  inputId={`reason-${reason.value}`} 
-                  name="rejectionReason" 
-                  value={reason.value}
-                  onChange={(e) => setRejectionReason(e.value)}
-                  checked={rejectionReason === reason.value} 
+          <Dialog
+            header="Reddetme Sebebini Seçin"
+            visible={showRejectionReasonModal}
+            style={{ width: "350px" }}
+            modal
+            onHide={() => setShowRejectionReasonModal(false)}
+            footer={
+              <div>
+                <Button
+                  label="İptal"
+                  icon="pi pi-times"
+                  onClick={() => setShowRejectionReasonModal(false)}
+                  className="p-button-text"
                 />
-                <label htmlFor={`reason-${reason.value}`} className="ml-2">{reason.name}</label>
+                <Button
+                  label="Gönder"
+                  icon="pi pi-check"
+                  onClick={handleRejectionReasonSubmit}
+                  autoFocus
+                />
               </div>
-            ))}
-          </div>
-        </Dialog>
+            }
+          >
+            <Dialog
+              header="Diğer Reddetme Sebebi"
+              visible={showCustomReasonModal}
+              style={{ width: "400px" }}
+              modal
+              onHide={() => {
+                setShowCustomReasonModal(false);
+                setCustomReasonReason("");
+              }}
+              footer={
+                <div>
+                  <Button
+                    label="İptal"
+                    icon="pi pi-times"
+                    onClick={() => {
+                      setShowCustomReasonModal(false);
+                      setCustomReasonReason("");
+                    }}
+                    className="p-button-text"
+                  />
+                  <Button
+                    label="Gönder"
+                    icon="pi pi-check"
+                    onClick={handleCustomReasonSubmit}
+                    autoFocus
+                  />
+                </div>
+              }
+            >
+              <div className="flex flex-column gap-3">
+                <InputTextarea
+                  value={customRejectionReason}
+                  onChange={(e) => setCustomReasonReason(e.target.value)}
+                  rows={5}
+                  cols={30}
+                  autoResize
+                  placeholder="Diğer reddetme sebebini yazınız."
+                  className="w-full"
+                />
+              </div>
+            </Dialog>
+
+            <div className="flex flex-column gap-3">
+              {rejectionReasons.map((reason) => (
+                <div key={reason.value} className="flex align-items-center">
+                  <RadioButton
+                    inputId={`reason-${reason.value}`}
+                    name="rejectionReason"
+                    value={reason.value}
+                    onChange={(e) => setRejectionReason(e.value)}
+                    checked={rejectionReason === reason.value}
+                  />
+                  <label htmlFor={`reason-${reason.value}`} className="ml-2">
+                    {reason.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </Dialog>
 
           <ConfirmDialog
             group="declarative"
             visible={visibleDeleteDescription}
             onHide={() => setVisibleDeleteDescription(false)}
-            message="Bu kelimeye bağlı açıklamayı silmek istediğinize emin misiniz?"
+            message="Bu kelimeye bağlı anlamı silmek istediğinize emin misiniz?"
             header="Silmeyi Onayla"
             acceptClassName="p-button-danger"
             icon="pi pi-exclamation-triangle"
@@ -698,7 +788,6 @@ function AdminPage() {
             closingModal={() => setOpenWordModal(false)}
             word=""
             isSuccessfull={WordAddedHandle}
-          
           />
           <WordOperation
             visible={openDescriptionModal}
@@ -708,8 +797,6 @@ function AdminPage() {
             isSuccessfull={WordAddedHandle}
           />
 
-          
-
           <Particles
             id="tsparticles"
             options={particlesConfig}
@@ -717,13 +804,16 @@ function AdminPage() {
           />
           <div className="admin-page-container">
             <div className="admin-menu">
-              <TabMenu model={menuItems} activeIndex={page} onTabChange={(e) => setPage(e.index)} />
+              <TabMenu
+                model={menuItems}
+                activeIndex={page}
+                onTabChange={(e) => setPage(e.index)}
+              />
             </div>
             <div className="admin-content">
               <TabView activeIndex={page} onTabChange={(e) => setPage(e.index)}>
                 <TabPanel>
                   <div className="datatable-for-edit">
-                    
                     <WordTree
                       wordsArray={expandedWordsArray}
                       onRowEditComplete={onRowEditComplete}
@@ -736,7 +826,6 @@ function AdminPage() {
                       setVisibleDeleteDescription={setVisibleDeleteDescription}
                       setDeletedDescriptionId={setDeletedDescriptionId}
                       setVisibleDeleteWord={setVisibleDeleteWord}
-                      
                       deleteWordHandler={deleteWordHandler}
                       setWordId={setWordId}
                       cm2={cm2}
@@ -751,12 +840,11 @@ function AdminPage() {
                     >
                       {/* ... Columnlar WordTree.jsx in içinde */}
                     </WordTree>
-                    </div>
+                  </div>
                 </TabPanel>
-               
+
                 <TabPanel>
                   <p className="m-0">
-                   
                     <DataTable
                       value={editedWordsArray}
                       paginator
@@ -773,59 +861,59 @@ function AdminPage() {
                       ]}
                       emptyMessage="Kelime bulunamadı."
                     >
-                    <Column
-                      field="wordContent"
-                      header="Kelimeler"
-                      filter
-                      editor={(options) => textEditor(options)}
-                      filterPlaceholder="Kelimeye göre ara"
-                      style={{ minWidth: "18rem", borderTopLeftRadius: 15 }}
-                      bodyStyle={{ padding: 25 }}
-                    />
-                    <Column
-                      header="Açıklama"
-                      field="descriptionContent"
-                      filterField="descriptionContent"
-                      style={{ maxWidth: "40rem" }}
-                      editor={(options) => textEditor(options)}
-                      filter
-                      filterPlaceholder="Açıklamaya göre ara"
-                    />
-                    <Column
-                      header="Önceki Açıklama"
-                      field="previousDescription.descriptionContent"
-                      filterField="previousDescription.descriptionContent"
-                      body={(rowData) => (
-                        rowData.previousDescription.descriptionContent
-                          ? rowData.previousDescription.descriptionContent 
-                          : "Boş"
-                      )}
-                      style={{ minWidth: "12rem" }}
-                      editor={(options) => textEditor(options)}
-                      filter
-                      filterPlaceholder="Açıklamaya göre ara"
-                    />
-                    <Column
-                      header="Öneren"
-                      field="recommender"
-                      filterField="recommender"
-                      style={{ minWidth: "12rem" }}
-                      editor={(options) => textEditor(options)}
-                      filter
-                      filterPlaceholder="Önerene göre ara"
-                    />
-                    <Column
-                      header="Durum"
-                      field="status"
-                      filterField="status"
-                      style={{ minWidth: "12rem" }}
-                      body={statusBodyTemplate}
-                      showFilterMenu={false}
-                      filterMenuStyle={{ width: "14rem" }}
-                      filter
-                      filterElement={statusRowFilterTemplate}
-                    />
-                  </DataTable>
+                      <Column
+                        field="wordContent"
+                        header="Kelimeler"
+                        filter
+                        editor={(options) => textEditor(options)}
+                        filterPlaceholder="Kelimeye göre ara"
+                        style={{ minWidth: "18rem", borderTopLeftRadius: 15 }}
+                        bodyStyle={{ padding: 25 }}
+                      />
+                      <Column
+                        header="Anlam"
+                        field="descriptionContent"
+                        filterField="descriptionContent"
+                        style={{ maxWidth: "40rem" }}
+                        editor={(options) => textEditor(options)}
+                        filter
+                        filterPlaceholder="Anlama göre ara"
+                      />
+                      <Column
+                        header="Önceki Anlam"
+                        field="previousDescription.descriptionContent"
+                        filterField="previousDescription.descriptionContent"
+                        body={(rowData) =>
+                          rowData.previousDescription.descriptionContent
+                            ? rowData.previousDescription.descriptionContent
+                            : "Boş"
+                        }
+                        style={{ minWidth: "12rem" }}
+                        editor={(options) => textEditor(options)}
+                        filter
+                        filterPlaceholder="Önceki anlama göre ara"
+                      />
+                      <Column
+                        header="Öneren"
+                        field="recommender"
+                        filterField="recommender"
+                        style={{ minWidth: "12rem" }}
+                        editor={(options) => textEditor(options)}
+                        filter
+                        filterPlaceholder="Önerene göre ara"
+                      />
+                      <Column
+                        header="Durum"
+                        field="status"
+                        filterField="status"
+                        style={{ minWidth: "12rem" }}
+                        body={statusBodyTemplate}
+                        showFilterMenu={false}
+                        filterMenuStyle={{ width: "14rem" }}
+                        filter
+                        filterElement={statusRowFilterTemplate}
+                      />
+                    </DataTable>
                   </p>
                 </TabPanel>
               </TabView>
