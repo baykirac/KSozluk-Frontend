@@ -355,3 +355,7 @@ body.dark .pi.pi-plus.floating-button.p-button.p-component{ /*iconun rengi pembe
 .arrow-container > div > i {
     font-size: 25px;
 }
+
+.tooltip-word-delete{
+    position:top !important;
+}

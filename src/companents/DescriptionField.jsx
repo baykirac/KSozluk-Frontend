@@ -396,7 +396,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             />
           </div>
         ) : (
-          <div style={{ userSelect: "none" , opacity: "0.7"}}>
+          <div style={{ userSelect: "none" , opacity: "0.8"}}>
             <WordCloud
               data={data}
               width={500}

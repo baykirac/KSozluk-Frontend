@@ -665,7 +665,7 @@ function AdminPage() {
             message={message}
             header={headerName}
             icon="pi pi-check-square"
-            acceptClassName="p-button-success"
+            acceptClassName="p-button-accept"
             accept={() => {
               if (nextStatus === 3) {
                 setShowConfirm(false);
@@ -766,7 +766,7 @@ function AdminPage() {
             onHide={() => setVisibleDeleteDescription(false)}
             message="Bu kelimeye bağlı anlamı silmek istediğinize emin misiniz?"
             header="Silmeyi Onayla"
-            acceptClassName="p-button-danger"
+            acceptClassName="p-button-accept"
             icon="pi pi-exclamation-triangle"
             accept={acceptDeleteDescription}
           />
@@ -776,7 +776,7 @@ function AdminPage() {
             onHide={() => setVisibleDeleteWord(false)}
             message="Bu kelimeyi tamamıyla silmek istediğinize emin misiniz?"
             header="Silmeyi Onayla"
-            acceptClassName="p-button-danger"
+            acceptClassName="p-button-accept"
             icon="pi pi-exclamation-triangle"
             accept={acceptDeleteWord}
           />

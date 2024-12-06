@@ -199,7 +199,7 @@ const WordOperationMeaning = ({
         message="Bu kelimeyi önermek istediğinize emin misiniz?"
         header="Öner"
         icon="pi pi-check-square"
-        acceptClassName="p-button-success"
+        acceptClassName="p-button-accept"
         accept={confirmAdd}
         reject={() => setShowConfirm(false)}
       />
@@ -237,7 +237,7 @@ const WordOperationMeaning = ({
                   placeholder={
                     isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
                   }
-                  // disabled={isInputDisabled}
+                  disabled={isInputDisabled ? recommendMode === 3 : recommendMode === 1}
                   className="input-text-area-desc"
                   autoResize
                   rows={7}

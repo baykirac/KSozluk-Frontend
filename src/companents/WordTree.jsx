@@ -34,14 +34,19 @@ const WordTree = ({
   const [editingNode, setEditingNode] = useState(false);
   const [visibleInfoDialog, setVisibleInfoDialog] = useState(false);
   const [currentNode, setCurrentNode] = useState(null);
-  const [filteredWordArray, setFilteredWordArray] = useState([]);
   const [a, setA] = useState('');
   const [showRemoveOrderConfirm, setShowRemoveOrderConfirm] = useState(false);
   const [orderToBeUpdated, setOrderToBeUpdated] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const cm2 = useRef(null);
 
   useEffect(() => {
     if (wordsArray) {
-      const mappedNodes = wordsArray.map(word => ({
+      const approvedWords = wordsArray.filter(word => 
+        word.descriptions.some(desc => desc.status === 'Onaylı')
+      );
+
+      const mappedNodes = approvedWords.map(word => ({
         key: word.wordId,
         data: { 
           wordContent: word.wordContent,
@@ -50,22 +55,27 @@ const WordTree = ({
           recommender: '',
           status: ''
         },
-        children: word.descriptions.map(desc => ({
-          key: desc.descriptionId,
-          data: {
-            wordContent: word.wordContent,
-            descriptionContent: desc.descriptionContent,
-            lastEditedDate: desc.lastEditedDate,
-            recommender: desc.recommender,
-            status: desc.status,
-            descriptionId : desc.descriptionId,
-            order: desc.order
-          }
-        }))
+        children: word.descriptions
+          .filter(desc => desc.status === 'Onaylı')
+          .sort((a, b) => a.order - b.order) // Sort by order
+          .map(desc => ({
+            key: desc.descriptionId,
+            data: {
+              wordContent: word.wordContent,
+              descriptionContent: desc.descriptionContent,
+              lastEditedDate: desc.lastEditedDate,
+              recommender: desc.recommender,
+              status: desc.status,
+              descriptionId: desc.descriptionId,
+              order: desc.order
+            }
+          }))
       }));
-      setNodes(mappedNodes);
+
+      const nodesWithChildren = mappedNodes.filter(node => node.children.length > 0);
+      setNodes(nodesWithChildren);
     }
-  }, [wordsArray,a]);
+  }, [wordsArray, a]);
 
   const onEditorValueChange = (options, value) => {
     const newNodes = JSON.parse(JSON.stringify(nodes));
@@ -178,23 +188,7 @@ const WordTree = ({
           placeholder="Tümünde ara"
         />
       </span>
-      {/* <Button
-        tooltip="Yeni kelime ekle"
-        tooltipOptions={{ showDelay: 250, mouseTrack: true }}
-        label="Yeni Kelime Ekle"
-        icon="pi pi-plus"
-        className="custom-button-word"
-        onClick={() => {
-          setOpenWordModal(true);
-          setIsWordOnly(true);
-         
-        }}
-        style={{ marginLeft: "2rem" }}
-        size={36}
-      /> */}
       <Button
-       // tooltip="Yeni Kelime ve Anlam ekle"
-      //  tooltipOptions={{ showDelay: 250, mouseTrack: true }}
         label="Yeni Kelime ve Anlam Ekle"
         icon="pi pi-plus"
         className="custom-button-meaning"
@@ -219,37 +213,82 @@ const WordTree = ({
       const newEditingRows = { ...editingRows };
       delete newEditingRows[editingNode.key];
       setEditingRows(newEditingRows);
-     
     } catch (error) {
       console.error("Row edit failed:", error);
-      
     }
     setVisibleEditConfirm(false);
   };
 
-  // const arrow = (id,newOrder) =>{
-  //   console.log(id,newOrder);
-  //   const _response = descriptionApi.UpdateOrder(id,newOrder);
-  //   console.log(_response);
+  const confirmOrderUpdate = (node, direction) => {
+    const currentOrder = node.data.order;
+    const parentNode = nodes.find(n => 
+      n.children.some(child => child.key === node.key)
+    );
+    
+    const siblings = parentNode.children;
+    const currentIndex = siblings.findIndex(child => child.key === node.key);
+    
+    // Check boundaries (top & bottom)
+    if (direction === 'up' && currentIndex === 0) {
+      return;
+    }
+    if (direction === 'down' && currentIndex === siblings.length - 1) {
+      return;
+    }
 
-  // }
+    const siblingIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const siblingOrder = siblings[siblingIndex].data.order;
 
-  const confirmOrderUpdate = (id, newOrder) => {
-    setOrderToBeUpdated({ id, newOrder });
+    setOrderToBeUpdated({
+      id: node.data.descriptionId,
+      currentOrder: currentOrder,
+      newOrder: siblingOrder,
+      siblingId: siblings[siblingIndex].data.descriptionId,
+      siblingCurrentOrder: siblingOrder,
+      siblingNewOrder: currentOrder
+    });
+    
     setShowRemoveOrderConfirm(true);
   };
   
   const handleOrderUpdate = async () => {
+    if (!orderToBeUpdated) return;
+    
+    setLoading(true);
     try {
-      const response = await descriptionApi.UpdateOrder(orderToBeUpdated.id, orderToBeUpdated.newOrder);
-      if (response.isSuccess) {
-       
+      // Update both descriptions simultaneously
+      const [moveResponse, siblingResponse] = await Promise.all([
+        descriptionApi.UpdateOrder(
+          orderToBeUpdated.id, 
+          orderToBeUpdated.newOrder
+        ),
+        descriptionApi.UpdateOrder(
+          orderToBeUpdated.siblingId,
+          orderToBeUpdated.siblingNewOrder
+        )
+      ]);
+
+      if (moveResponse.isSuccess && siblingResponse.isSuccess) {
+        const updatedArray = [...wordsArray];
+        updatedArray.forEach(word => {
+          word.descriptions.forEach(desc => {
+            if (desc.descriptionId === orderToBeUpdated.id) {
+              desc.order = orderToBeUpdated.newOrder;
+            } else if (desc.descriptionId === orderToBeUpdated.siblingId) {
+              desc.order = orderToBeUpdated.siblingNewOrder;
+            }
+          });
+        });
+        
+        setA(prev => prev + 1);
       }
     } catch (error) {
       console.error("Error updating order:", error);
+    } finally {
+      setLoading(false);
+      setShowRemoveOrderConfirm(false);
+      setOrderToBeUpdated(null);
     }
-    setShowRemoveOrderConfirm(false);
-    setOrderToBeUpdated(null);
   };
 
   const arrows = (node) => {
@@ -257,27 +296,38 @@ const WordTree = ({
       return(
         <>      
         <div>
-          <div onClick={() => confirmOrderUpdate(node.data.descriptionId,node.data.order-1)}>  {/* 1 --> Yukarı*/}
-            <i className="pi pi-arrow-circle-up" style={{cursor: 'pointer'}}></i>
+          <div onClick={() => confirmOrderUpdate(node, 'up')}>
+            <i className="pi pi-arrow-circle-up" 
+               style={{
+                 cursor: 'pointer',
+                 opacity: loading ? 0.5 : 1,
+                 pointerEvents: loading ? 'none' : 'auto'
+               }}/>
           </div> 
-          <div onClick={() => confirmOrderUpdate(node.data.descriptionId,node.data.order+1)}>  {/* 2 --> Aşağı*/}
-            <i className="pi pi-arrow-circle-down" style={{cursor: 'pointer'}}></i>
+          <div onClick={() => confirmOrderUpdate(node, 'down')}>
+            <i className="pi pi-arrow-circle-down" 
+               style={{
+                 cursor: 'pointer',
+                 opacity: loading ? 0.5 : 1,
+                 pointerEvents: loading ? 'none' : 'auto'
+               }}/>
           </div>
         </div>
         <ConfirmDialog
           visible={showRemoveOrderConfirm}
           onHide={() => setShowRemoveOrderConfirm(false)}
-          message={`Bu anlamın sırasını güncellemek istediğinizden emin misiniz?`}
+          message="Bu anlamın sırasını güncellemek istediğinizden emin misiniz?"
           header="Anlam Sırasının Güncellenmesi"
           icon="pi pi-exclamation-triangle"
           accept={handleOrderUpdate}
           reject={() => setShowRemoveOrderConfirm(false)}
-          modal={false} //bunu sor
+          modal={false}
         />
         </>
-      )
+      );
     }
-  }
+    return null;
+  };
 
   const actionTemplate = (node) => {
     if (editingRows[node.key]) {
@@ -300,7 +350,6 @@ const WordTree = ({
       <div style={{ display: 'inline-flex', gap: '5px'}}>
         {!node.children && (
           <>
-         
             <Button
               icon={<BsPencil />}
               className="p-button-rounded p-button-success p-mr-2"
@@ -322,7 +371,6 @@ const WordTree = ({
                 setVisibleInfoDialog(true);
               }}
             />
-            
           </>
         )}
       </div>
@@ -333,7 +381,14 @@ const WordTree = ({
     if (node.children) {
       return (
         <>
-          <Tooltip target={`.delete-word-${node.key}`} content="Kelimeyi Sil" tooltipOptions={{ position: 'top' }} />
+
+          <Tooltip
+          target={`.delete-word-${node.key}`}
+          content="Kelimeyi Sil"
+          tooltipOptions={{ position: 'top '}}
+          tooltipClassName='tooltip-word-delete'
+          />
+
           <span
             className={`delete-word delete-word-${node.key}`}
             onClick={() => {
@@ -387,7 +442,6 @@ const WordTree = ({
       </Dialog>
     );
   };
-
 
 
   return (
