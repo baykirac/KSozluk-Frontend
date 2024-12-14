@@ -109,6 +109,8 @@ function Header({ onSearch }) {
         <a href="/">
           <img src="logo.png" alt="Logo" className="header-logo" />
         </a>
+        <a href="/" className="no-underline">
+      </a>
         <a href="/" style={{ textDecoration: "none" }}>
           <h2>Kavramlar Sözlüğü</h2>
         </a>
@@ -131,6 +133,7 @@ function Header({ onSearch }) {
                 isDisabled={false}
                 
               />
+              
             )}
             <div className="theme-toggle">
               <InputSwitch

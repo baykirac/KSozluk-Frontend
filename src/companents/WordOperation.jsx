@@ -201,6 +201,7 @@ const WordOperation = ({
 
   const isInputDisabled = isDisabled || !isWordEntered();
 
+
   return (
     <div className="modal">
       <Toast ref={toast} />
@@ -212,7 +213,7 @@ const WordOperation = ({
           : "Yeni kelime ve anlamlar eklenecektir. Onaylıyor musunuz?"}
         header={existingWord ? "Anlam Ekle" : "Kelime ve Anlam Ekle"}
         icon="pi pi-check-square"
-        acceptClassName="p-button-success"
+        acceptClassName="p-button-accept"
         accept={confirmAdd}
         reject={() => setShowConfirm(false)}
       />
@@ -278,6 +279,13 @@ const WordOperation = ({
                 onClick={() => handleRemoveDescription(desc.id)}
                 disabled={descriptions.length === 1 || isInputDisabled}
               />
+             <div className="text-sm text-gray-500 flex gap-2">
+            <span>
+              {desc.text.length}/2000
+            </span>
+            
+          </div>
+
             </div>
           ))}
         </div>

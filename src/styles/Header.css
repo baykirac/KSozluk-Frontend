@@ -75,10 +75,8 @@ main {
   padding: 1em;
 }
 
-
-
 .custom-header {
-  color: #fff;
+  color: #ffffff;
   border-bottom: 1px solid #eaeaea;
   display: flex;
   justify-content: space-between;
@@ -427,3 +425,4 @@ body.dark .p-accordion-header-link {
   background-color: black;
   color: #4296f4;
 }
+

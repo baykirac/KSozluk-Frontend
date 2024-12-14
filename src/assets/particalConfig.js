@@ -9,7 +9,7 @@ export const particlesConfig = {
       }
     },
     color: {
-      value: "#f1829d"
+      value: "#0000ff"
     },
     shape: {
       type: "circle",

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Orbitron:wght@400..900&display=swap');
 .align-left {
     float: left;
 }
@@ -25,7 +25,7 @@
 
 
 *{
-    font-family: "Itim", cursive;
+    font-family: "Orbitron", cursive;
 }
 .roboto-thin {
     font-family: "Roboto", sans-serif;

@@ -401,7 +401,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               data={data}
               width={500}
               height={320}
-              font="Itim"
+              font="Orbitron"
               fontStyle="italic"
               fontWeight="bold"
               fontSize={(word) => Math.log2(word.value) * 8}

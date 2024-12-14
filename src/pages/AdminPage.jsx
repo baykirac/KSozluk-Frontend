@@ -68,7 +68,6 @@ function AdminPage() {
 
   const [pendingCount, setPendingCount] = useState(0);
 
-  const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
 
   const [visibleDeleteDescription, setVisibleDeleteDescription] =
     useState(false);
@@ -100,6 +99,8 @@ function AdminPage() {
   const [message, setMessage] = useState(" ");
   const [headerName, setHeaderName] = useState("");
   const [customRejectionReason, setCustomReasonReason] = useState("");
+  const [needOrderUpdate, setNeedOrderUpdate] = useState(false);
+  const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
 
   const rejectionReasons = [
     { name: "Uygunsuz", value: 1 },
@@ -258,6 +259,7 @@ function AdminPage() {
         life: 3000,
       });
 
+      setNeedOrderUpdate(true);//flag
       fetchData();
     }
   };
@@ -824,7 +826,10 @@ function AdminPage() {
                       setOpenWordModal={setOpenWordModal}
                       setOpenDescriptionModal={setOpenDescriptionModal}
                       setVisibleDeleteDescription={setVisibleDeleteDescription}
+                      deletedDescriptionId={deletedDescriptionId}                  
                       setDeletedDescriptionId={setDeletedDescriptionId}
+                      needOrderUpdate={needOrderUpdate}
+                      setNeedOrderUpdate={setNeedOrderUpdate}
                       setVisibleDeleteWord={setVisibleDeleteWord}
                       deleteWordHandler={deleteWordHandler}
                       setWordId={setWordId}

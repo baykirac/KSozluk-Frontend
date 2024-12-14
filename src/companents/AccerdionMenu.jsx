@@ -12,7 +12,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
   const [pageNumber, setPageNumber] = useState(1);
   const [loadedAllWords, setLoadedAllWords] = useState(false);
 
-  const alphabet = 'ABCÇDEFGHIİJKLMNOÖPQRSŞTUÜVYZ'.split('');
+  const alphabet = 'ABCÇDEFGHIİJKLMNOÖPQRSŞTUÜVWXYZ'.split('');
 
   const handleLetterClick = async (letter) => {
     if (selectedLetter === letter) {

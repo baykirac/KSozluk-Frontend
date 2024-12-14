@@ -64,12 +64,35 @@ const WordOperationMeaning = ({
   };
 
   const handleDescriptionChange = (id, newText) => {
-    if (!isWordEntered()) return;
+    if (newText.length > 2000) {
+      toast.current.show({
+        severity: "error",
+        summary: "Hata",
+        detail: "2000 karakter sınırını aşamazsınız.",
+        life: 3000,
+      });
+      return;
+    }
+  
     const updatedDescriptions = descriptions.map((desc) =>
       desc.id === id ? { ...desc, text: newText } : desc
     );
     setDescriptions(updatedDescriptions);
   };
+  
+  const handleSingleDescriptionChange = (newText) => {
+    if (newText.length > 2000) {
+      toast.current.show({
+        severity: "error",
+        summary: "Karakter Sınırı",
+        detail: "2000 karakter sınırını aşamazsınız.",
+        life: 3000,
+      });
+      return;
+    }
+    setDescription(newText);
+  };
+  
 
   const showToaster = (response) => {
     setLoading(false);
@@ -231,12 +254,8 @@ const WordOperationMeaning = ({
               <div key={desc.id} className="flex align-items-center gap-2 mb-2">
                 <InputTextarea
                   value={desc.text}
-                  onChange={(e) =>
-                    handleDescriptionChange(desc.id, e.target.value)
-                  }
-                  placeholder={
-                    isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
-                  }
+                  onChange={(e) =>handleDescriptionChange(desc.id, e.target.value)}
+                  placeholder={isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"}
                   disabled={isInputDisabled ? recommendMode === 3 : recommendMode === 1}
                   className="input-text-area-desc"
                   autoResize
@@ -254,6 +273,9 @@ const WordOperationMeaning = ({
                   onClick={() => handleRemoveDescription(desc.id)}
                   disabled={descriptions.length === 1}
                 />
+                <span className="text-sm text-gray-500">
+              {desc.text.length}/2000
+            </span>
               </div>
             ))
           ) : (
@@ -261,7 +283,7 @@ const WordOperationMeaning = ({
             <div className="flex align-items-center gap-2 mb-2">
               <InputTextarea
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => handleSingleDescriptionChange(e.target.value)}
                 placeholder={
                   isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
                 }
@@ -271,6 +293,9 @@ const WordOperationMeaning = ({
                 rows={7}
                 cols={38}
               />
+             <span className="text-sm text-gray-500">
+              {description.length}/2000
+            </span>
             </div>
           )}
         </div>
@@ -286,7 +311,7 @@ const WordOperationMeaning = ({
                 ? !descriptions.some((desc) => desc.text.trim() !== "")
                 : description.trim() === ""
             }
-          />
+          />          
         </div>
       </Dialog>
     </div>

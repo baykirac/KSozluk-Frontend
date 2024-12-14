@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { TreeTable } from 'primereact/treetable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
+import React, { useState, useEffect, useRef } from "react";
+import { TreeTable } from "primereact/treetable";
+import { Column } from "primereact/column";
+import { Button } from "primereact/button";
+import { InputText } from "primereact/inputtext";
 import { BsPencil } from "react-icons/bs";
 import { BiTrash } from "react-icons/bi";
 import { BsInfoCircle } from "react-icons/bs";
-import { ConfirmDialog } from 'primereact/confirmdialog';
-import { Tooltip } from 'primereact/tooltip';
-import { Dialog } from 'primereact/dialog';
-import 'primeicons/primeicons.css';
-import descriptionApi from '../api/descriptionApi';
+import { ConfirmDialog } from "primereact/confirmdialog";
+import { Tooltip } from "primereact/tooltip";
+import { Dialog } from "primereact/dialog";
+import "primeicons/primeicons.css";
+import descriptionApi from "../api/descriptionApi";
 
-const WordTree = ({ 
-  wordsArray, 
-  onRowEditComplete, 
-  setVisibleDeleteDescription, 
-  setDeletedDescriptionId, 
+const WordTree = ({
+  wordsArray,
+  onRowEditComplete,
+  setVisibleDeleteDescription,
+  setDeletedDescriptionId,
   setWordId,
   setVisibleDeleteWord,
   deleteWordHandler,
@@ -24,41 +24,45 @@ const WordTree = ({
   setOpenDescriptionModal,
   setOpenWordModal,
   setIsWordOnly,
+  needOrderUpdate,
+  setNeedOrderUpdate,
+  deletedDescriptionId
 }) => {
   const [nodes, setNodes] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState({});
-  const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [editingRows, setEditingRows] = useState({});
   const [filters, setFilters] = useState({});
   const [visibleEditConfirm, setVisibleEditConfirm] = useState(false);
   const [editingNode, setEditingNode] = useState(false);
   const [visibleInfoDialog, setVisibleInfoDialog] = useState(false);
   const [currentNode, setCurrentNode] = useState(null);
-  const [a, setA] = useState('');
+  const [a, setA] = useState("");
   const [showRemoveOrderConfirm, setShowRemoveOrderConfirm] = useState(false);
   const [orderToBeUpdated, setOrderToBeUpdated] = useState(null);
   const [loading, setLoading] = useState(false);
   const cm2 = useRef(null);
+  const [orderQueue, setOrderQueue] = useState([]);
 
   useEffect(() => {
     if (wordsArray) {
-      const approvedWords = wordsArray.filter(word => 
-        word.descriptions.some(desc => desc.status === 'Onaylı')
+      const approvedWords = wordsArray.filter((word) =>
+        word.descriptions.some((desc) => desc.status === "Onaylı")
       );
-
-      const mappedNodes = approvedWords.map(word => ({
+  
+      const mappedNodes = approvedWords.map((word) => ({
         key: word.wordId,
-        data: { 
+        data: {
           wordContent: word.wordContent,
-          descriptionContent: '',
-          lastEditedDate: '',
-          recommender: '',
-          status: ''
+          descriptionContent: "",
+          lastEditedDate: "",
+          recommender: "",
+          status: "",
         },
         children: word.descriptions
-          .filter(desc => desc.status === 'Onaylı')
+          .filter((desc) => desc.status === "Onaylı")
           .sort((a, b) => a.order - b.order) // Sort by order
-          .map(desc => ({
+          .map((desc) => ({
             key: desc.descriptionId,
             data: {
               wordContent: word.wordContent,
@@ -67,15 +71,43 @@ const WordTree = ({
               recommender: desc.recommender,
               status: desc.status,
               descriptionId: desc.descriptionId,
-              order: desc.order
-            }
-          }))
+              order: desc.order,
+            },
+          })),
       }));
-
-      const nodesWithChildren = mappedNodes.filter(node => node.children.length > 0);
+  
+      const nodesWithChildren = mappedNodes.filter(
+        (node) => node.children.length > 0
+      );
+      
+     
+      if (needOrderUpdate && deletedDescriptionId) {
+        // Silinen açıklamanın parent word'ünü bul
+        const parentWord = wordsArray.find(word => 
+          word.descriptions.some(desc => desc.descriptionId === deletedDescriptionId)
+        );
+  
+        if (parentWord) {
+          const updatedDescriptions = parentWord.descriptions
+            .filter(desc => desc.status === "Onaylı")
+            .sort((a, b) => a.order - b.order);
+  
+          
+          updatedDescriptions.forEach((desc, index) => {
+            desc.order = index + 1;
+          });
+        }
+      }
+  
       setNodes(nodesWithChildren);
+      if (needOrderUpdate) {
+        setNeedOrderUpdate(false);
+      }
+
     }
-  }, [wordsArray, a]);
+    handleOrderUpdate();
+   
+  }, [wordsArray, a, needOrderUpdate, deletedDescriptionId]);
 
   const onEditorValueChange = (options, value) => {
     const newNodes = JSON.parse(JSON.stringify(nodes));
@@ -85,7 +117,7 @@ const WordTree = ({
       setNodes(newNodes);
     }
   };
-  
+
   const findNodeByKey = (nodes, key) => {
     for (let node of nodes) {
       if (node.key === key) return node;
@@ -110,7 +142,7 @@ const WordTree = ({
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
     setGlobalFilterValue(value);
-    
+
     if (!value) {
       setExpandedKeys({});
     } else {
@@ -120,25 +152,39 @@ const WordTree = ({
     }
   };
 
-  const expandNodesMatchingFilter = (nodes, filterValue, expandedKeys, parentKey = null) => {
-    nodes.forEach(node => {
+  const expandNodesMatchingFilter = (
+    nodes,
+    filterValue,
+    expandedKeys,
+    parentKey = null
+  ) => {
+    nodes.forEach((node) => {
       if (nodeMatchesFilter(node, filterValue)) {
         if (parentKey) expandedKeys[parentKey] = true;
         expandedKeys[node.key] = true;
       }
       if (node.children) {
-        expandNodesMatchingFilter(node.children, filterValue, expandedKeys, node.key);
+        expandNodesMatchingFilter(
+          node.children,
+          filterValue,
+          expandedKeys,
+          node.key
+        );
       }
     });
   };
 
   const nodeMatchesFilter = (node, filterValue, field = null) => {
     if (field) {
-      return typeof node.data[field] === 'string' && 
-             node.data[field].toLowerCase().includes(filterValue.toLowerCase());
+      return (
+        typeof node.data[field] === "string" &&
+        node.data[field].toLowerCase().includes(filterValue.toLowerCase())
+      );
     }
-    return Object.values(node.data).some(value => 
-      typeof value === 'string' && value.toLowerCase().includes(filterValue.toLowerCase())
+    return Object.values(node.data).some(
+      (value) =>
+        typeof value === "string" &&
+        value.toLowerCase().includes(filterValue.toLowerCase())
     );
   };
 
@@ -148,8 +194,10 @@ const WordTree = ({
   };
 
   const applyFilters = (currentFilters) => {
-    const hasActiveFilters = Object.values(currentFilters).some(filter => filter.value);
-    
+    const hasActiveFilters = Object.values(currentFilters).some(
+      (filter) => filter.value
+    );
+
     if (!hasActiveFilters) {
       setExpandedKeys({});
       return;
@@ -160,12 +208,19 @@ const WordTree = ({
     setExpandedKeys(newExpandedKeys);
   };
 
-  const expandNodesMatchingColumnFilters = (nodes, filters, expandedKeys, parentKey = null) => {
-    nodes.forEach(node => {
-      const nodeMatches = Object.entries(filters).every(([field, { value, matchMode }]) => {
-        if (!value) return true;
-        return nodeMatchesFilter(node, value, field);
-      });
+  const expandNodesMatchingColumnFilters = (
+    nodes,
+    filters,
+    expandedKeys,
+    parentKey = null
+  ) => {
+    nodes.forEach((node) => {
+      const nodeMatches = Object.entries(filters).every(
+        ([field, { value, matchMode }]) => {
+          if (!value) return true;
+          return nodeMatchesFilter(node, value, field);
+        }
+      );
 
       if (nodeMatches) {
         if (parentKey) expandedKeys[parentKey] = true;
@@ -173,15 +228,92 @@ const WordTree = ({
       }
 
       if (node.children) {
-        expandNodesMatchingColumnFilters(node.children, filters, expandedKeys, node.key);
+        expandNodesMatchingColumnFilters(
+          node.children,
+          filters,
+          expandedKeys,
+          node.key
+        );
       }
     });
+  };
+
+  const confirmOrderUpdate = (node, direction) => {
+    const parentNode = nodes.find(
+      (n) => n.children && n.children.some((child) => child.key === node.key)
+    );
+
+    if (!parentNode) return;
+
+    const siblings = parentNode.children;
+    const currentIndex = siblings.findIndex((child) => child.key === node.key);
+
+    const siblingIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+    if (siblingIndex < 0 || siblingIndex >= siblings.length) return;
+
+    // Swap order values
+    const tempOrder = siblings[currentIndex].data.order;
+    siblings[currentIndex].data.order = siblings[siblingIndex].data.order;
+    siblings[siblingIndex].data.order = tempOrder;
+
+    setOrderToBeUpdated({
+      id: siblings[currentIndex].data.descriptionId,
+      siblingId: siblings[siblingIndex].data.descriptionId,
+      siblingCurrentOrder: siblings[siblingIndex].data.order,
+      currentOrder: siblings[currentIndex].data.order,
+    });
+
+    setShowRemoveOrderConfirm(true);
+  };
+
+  const handleOrderUpdate = async () => {
+    if (!orderToBeUpdated) return;
+
+    setLoading(true);
+    try {
+      const [moveResponse, siblingResponse] = await Promise.all([
+        descriptionApi.UpdateOrder(
+          orderToBeUpdated.id,
+          orderToBeUpdated.currentOrder
+        ),
+        descriptionApi.UpdateOrder(
+          orderToBeUpdated.siblingId,
+          orderToBeUpdated.siblingCurrentOrder
+        ),
+      ]);
+
+      if (moveResponse.isSuccess && siblingResponse.isSuccess) {
+        const updatedArray = [...wordsArray];
+        updatedArray.forEach((word) => {
+          word.descriptions.forEach((desc) => {
+            if (desc.descriptionId === orderToBeUpdated.id) {
+              desc.order = orderToBeUpdated.currentOrder;
+            } else if (desc.descriptionId === orderToBeUpdated.siblingId) {
+              desc.order = orderToBeUpdated.siblingCurrentOrder;
+            }
+          });
+        });
+
+        setA((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error updating order:", error);
+    } finally {
+      setLoading(false);
+      setShowRemoveOrderConfirm(false);
+      setOrderToBeUpdated(null);
+    }
   };
 
   const headerTemplate = (
     <div className="flex justify-content-between align-items-center">
       <span className="p-input-icon-left">
-        <i className="pi pi-search" style={{ marginLeft: 190, marginTop: -10 }}/>
+        <i
+          className="pi pi-search"
+          style={{ marginLeft: 190, marginTop: -10 }}
+        />
         <InputText
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
@@ -209,7 +341,10 @@ const WordTree = ({
 
   const confirmEdit = async () => {
     try {
-      await onRowEditComplete({ newData: editingNode.data, index: editingNode });
+      await onRowEditComplete({
+        newData: editingNode.data,
+        index: editingNode,
+      });
       const newEditingRows = { ...editingRows };
       delete newEditingRows[editingNode.key];
       setEditingRows(newEditingRows);
@@ -219,110 +354,60 @@ const WordTree = ({
     setVisibleEditConfirm(false);
   };
 
-  const confirmOrderUpdate = (node, direction) => {
-    const currentOrder = node.data.order;
-    const parentNode = nodes.find(n => 
-      n.children.some(child => child.key === node.key)
-    );
-    
-    const siblings = parentNode.children;
-    const currentIndex = siblings.findIndex(child => child.key === node.key);
-    
-    // Check boundaries (top & bottom)
-    if (direction === 'up' && currentIndex === 0) {
-      return;
-    }
-    if (direction === 'down' && currentIndex === siblings.length - 1) {
-      return;
-    }
-
-    const siblingIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    const siblingOrder = siblings[siblingIndex].data.order;
-
-    setOrderToBeUpdated({
-      id: node.data.descriptionId,
-      currentOrder: currentOrder,
-      newOrder: siblingOrder,
-      siblingId: siblings[siblingIndex].data.descriptionId,
-      siblingCurrentOrder: siblingOrder,
-      siblingNewOrder: currentOrder
-    });
-    
-    setShowRemoveOrderConfirm(true);
-  };
-  
-  const handleOrderUpdate = async () => {
-    if (!orderToBeUpdated) return;
-    
-    setLoading(true);
-    try {
-      // Update both descriptions simultaneously
-      const [moveResponse, siblingResponse] = await Promise.all([
-        descriptionApi.UpdateOrder(
-          orderToBeUpdated.id, 
-          orderToBeUpdated.newOrder
-        ),
-        descriptionApi.UpdateOrder(
-          orderToBeUpdated.siblingId,
-          orderToBeUpdated.siblingNewOrder
-        )
-      ]);
-
-      if (moveResponse.isSuccess && siblingResponse.isSuccess) {
-        const updatedArray = [...wordsArray];
-        updatedArray.forEach(word => {
-          word.descriptions.forEach(desc => {
-            if (desc.descriptionId === orderToBeUpdated.id) {
-              desc.order = orderToBeUpdated.newOrder;
-            } else if (desc.descriptionId === orderToBeUpdated.siblingId) {
-              desc.order = orderToBeUpdated.siblingNewOrder;
-            }
-          });
-        });
-        
-        setA(prev => prev + 1);
-      }
-    } catch (error) {
-      console.error("Error updating order:", error);
-    } finally {
-      setLoading(false);
-      setShowRemoveOrderConfirm(false);
-      setOrderToBeUpdated(null);
-    }
-  };
-
   const arrows = (node) => {
+    const parentNode = nodes.find(
+      (n) => n.children && n.children.some((child) => child.key === node.key)
+    );
+
+    if (!parentNode || parentNode.children.length <= 1) {
+      return null;
+    }
+
+    const siblings = parentNode.children;
+    const currentIndex = siblings.findIndex((child) => child.key === node.key);
+    const isFirst = currentIndex === 0;
+    const isLast = currentIndex === siblings.length - 1;
+
     if (!node.children) {
-      return(
-        <>      
-        <div>
-          <div onClick={() => confirmOrderUpdate(node, 'up')}>
-            <i className="pi pi-arrow-circle-up" 
-               style={{
-                 cursor: 'pointer',
-                 opacity: loading ? 0.5 : 1,
-                 pointerEvents: loading ? 'none' : 'auto'
-               }}/>
-          </div> 
-          <div onClick={() => confirmOrderUpdate(node, 'down')}>
-            <i className="pi pi-arrow-circle-down" 
-               style={{
-                 cursor: 'pointer',
-                 opacity: loading ? 0.5 : 1,
-                 pointerEvents: loading ? 'none' : 'auto'
-               }}/>
+      return (
+        <>
+          <div>
+            {!isFirst && (
+              <div onClick={() => confirmOrderUpdate(node, "up")}>
+                <i
+                  className="pi pi-arrow-circle-up"
+                  style={{
+                    cursor: "pointer",
+                    opacity: loading ? 0.5 : 1,
+                    pointerEvents: loading ? "none" : "auto",
+                  }}
+                />
+              </div>
+            )}
+
+            {!isLast && (
+              <div onClick={() => confirmOrderUpdate(node, "down")}>
+                <i
+                  className="pi pi-arrow-circle-down"
+                  style={{
+                    cursor: "pointer",
+                    opacity: loading ? 0.5 : 1,
+                    pointerEvents: loading ? "none" : "auto",
+                  }}
+                />
+              </div>
+            )}
           </div>
-        </div>
-        <ConfirmDialog
-          visible={showRemoveOrderConfirm}
-          onHide={() => setShowRemoveOrderConfirm(false)}
-          message="Bu anlamın sırasını güncellemek istediğinizden emin misiniz?"
-          header="Anlam Sırasının Güncellenmesi"
-          icon="pi pi-exclamation-triangle"
-          accept={handleOrderUpdate}
-          reject={() => setShowRemoveOrderConfirm(false)}
-          modal={false}
-        />
+          <ConfirmDialog
+            visible={showRemoveOrderConfirm}
+            onHide={() => setShowRemoveOrderConfirm(false)}
+            message="Bu anlamın sırasını güncellemek istediğinizden emin misiniz?"
+            header="Anlam Sırasının Güncellenmesi"
+            icon="pi pi-exclamation-triangle"
+            accept={handleOrderUpdate}
+            reject={() => setShowRemoveOrderConfirm(false)}
+            modal={false}
+          />
         </>
       );
     }
@@ -347,7 +432,7 @@ const WordTree = ({
       );
     }
     return (
-      <div style={{ display: 'inline-flex', gap: '5px'}}>
+      <div style={{ display: "inline-flex", gap: "5px" }}>
         {!node.children && (
           <>
             <Button
@@ -381,12 +466,11 @@ const WordTree = ({
     if (node.children) {
       return (
         <>
-
           <Tooltip
-          target={`.delete-word-${node.key}`}
-          content="Kelimeyi Sil"
-          tooltipOptions={{ position: 'top '}}
-          tooltipClassName='tooltip-word-delete'
+            target={`.delete-word-${node.key}`}
+            content="Kelimeyi Sil"
+            tooltipOptions={{ position: "top " }}
+            tooltipClassName="tooltip-word-delete"
           />
 
           <span
@@ -421,7 +505,7 @@ const WordTree = ({
         onHide={() => setVisibleInfoDialog(false)}
         header="Anlam Bilgileri"
         modal
-        style={{ width: '50vw' }}
+        style={{ width: "50vw" }}
       >
         {currentNode && (
           <div className="info-dialog-grid">
@@ -443,7 +527,6 @@ const WordTree = ({
     );
   };
 
-
   return (
     <>
       {renderInfoDialog()}
@@ -455,10 +538,9 @@ const WordTree = ({
         icon="pi pi-exclamation-triangle"
         accept={confirmEdit}
         reject={cancelEdit}
-        
       />
-      <TreeTable 
-        value={nodes} 
+      <TreeTable
+        value={nodes}
         filters={filters}
         filterMode="lenient"
         onFilter={onColumnFilterChange}
@@ -471,11 +553,14 @@ const WordTree = ({
         filterDisplay="menu"
         resizableColumns
         columnResizeMode="expand"
+        paginator
+        rows={10}
+    
       >
-        <Column 
-          field="wordContent" 
-          header="Kelimeler" 
-          expander 
+        <Column
+          field="wordContent"
+          header="Kelimeler"
+          expander
           filter
           filterPlaceholder="Kelimeleri Ara"
           filterMatchMode="contains"
@@ -494,70 +579,68 @@ const WordTree = ({
                 e.preventDefault();
               }}
             >
-              {node.children ? node.data.wordContent : ''}
+              {node.children ? node.data.wordContent : ""}
             </div>
           )}
           style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
           bodyStyle={{ padding: 25 }}
-          headerStyle={{ paddingLeft: '30px' }}
+          headerStyle={{ paddingLeft: "30px" }}
         />
-        <Column 
-            header="Anlam"
-            field="descriptionContent"
-            filter
-            filterMatchMode="contains"
-            filterPlaceholder="Anlamları Ara"
-            body={(node) => (
-              editingRows[node.key] ? (
-                inputTextEditor({ rowData: node.data, field: 'descriptionContent', node })
-              ) : (
-                <>
-                  <div
-                    className={`description-content-${node.key}`}
-                    style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px'}} 
-                  >
-                    {node.data.descriptionContent}
-                  </div>
-                </>
-              )
-            )}
-            style={{ minWidth: "12rem" }}
-            headerStyle={{ paddingLeft: '30px' }}
-          />
+        <Column
+          header="Anlam"
+          field="descriptionContent"
+          filter
+          filterMatchMode="contains"
+          filterPlaceholder="Anlamları Ara"
+          body={(node) =>
+            editingRows[node.key] ? (
+              inputTextEditor({
+                rowData: node.data,
+                field: "descriptionContent",
+                node,
+              })
+            ) : (
+              <>
+                <div
+                  className={`description-content-${node.key}`}
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "300px",
+                  }}
+                >
+                  {node.data.descriptionContent}
+                </div>
+              </>
+            )
+          }
+          style={{ minWidth: "12rem" }}
+          headerStyle={{ paddingLeft: "30px" }}
+        />
 
-        <Column 
+        <Column
           header="Son Düzenleme Tarihi"
           field="lastEditedDate"
           filter
           filterMatchMode="contains"
           filterPlaceholder="Son Düzenleme Tarihine Göre Ara"
           style={{ minWidth: "12rem" }}
-          headerStyle={{ paddingLeft: '30px' }}
+          headerStyle={{ paddingLeft: "30px" }}
         />
-        <Column 
+        <Column
           header="Anlamı Öneren"
           field="recommender"
           filter
           filterMatchMode="contains"
           filterPlaceholder="Öneren Ara"
           style={{ minWidth: "12rem" }}
-          headerStyle={{ paddingLeft: '30px' }}
+          headerStyle={{ paddingLeft: "30px" }}
         />
-        <Column
-        body={arrows}
-        style={{width:'2rem'}}
-        />
-        <Column 
-          body={actionTemplate}
-          style={{ width: '10rem' }}
-        />
+        <Column body={arrows} style={{ width: "2rem" }} />
+        <Column body={actionTemplate} style={{ width: "10rem" }} />
 
-        <Column 
-        body={wordDeleteTemplate}
-       style={{ width: '4rem' }}
-      />
-
-
+        <Column body={wordDeleteTemplate} style={{ width: "4rem" }} />
       </TreeTable>
     </>
   );

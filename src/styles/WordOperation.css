@@ -217,3 +217,7 @@ body.dark .p-confirm-dialog-accept{
     padding: 20px;
   }
 }
+
+.text-sm{
+  padding-left:25px;
+}
