@@ -14,6 +14,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
 import WordOperationMeaning from "./WordOperationMeaning";
 import { useDispatch } from "react-redux";
+import DigitalBackground from "../companents/DigitalBackground"; 
 
 function Header({ onSearch }) {
   const { isAuthenticated, user, revoke } = useAuth();
@@ -105,13 +106,14 @@ function Header({ onSearch }) {
 
   return (
     <header className="custom-header">
+      
       <div className="header-left">
         <a href="/">
-          <img src="logo.png" alt="Logo" className="header-logo" />
+          <img src="basarsoft-logo-beyaz.png" alt="Logo" className="header-logo" />
         </a>
         <a href="/" className="no-underline">
       </a>
-        <a href="/" style={{ textDecoration: "none" }}>
+        <a href="/" style={{ textDecoration: "none"}}>
           <h2>Kavramlar Sözlüğü</h2>
         </a>
       </div>
@@ -135,14 +137,14 @@ function Header({ onSearch }) {
               />
               
             )}
-            <div className="theme-toggle">
+            {/* <div className="theme-toggle">
               <InputSwitch
                 checked={isDarkMode}
                 onChange={toggleTheme}
                 tooltip={isDarkMode ? "Açık Tema" : "Koyu Tema"}
                 tooltipOptions={{ position: "left" }}
               />
-            </div>
+            </div> */}
             <Button
               icon="pi pi-question"
               className="p-button-rounded p-button-text info-button"
@@ -164,6 +166,7 @@ function Header({ onSearch }) {
         )}
         {isAuthenticated ? (
           <>
+          
             <Button
               icon="pi pi-user"
               onClick={(e) => op.current.toggle(e)}

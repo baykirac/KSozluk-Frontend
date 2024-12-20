@@ -4,6 +4,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { InputTextarea } from "primereact/inputtextarea";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { RadioButton } from "primereact/radiobutton";
 import Searcher from "./Searcher";
 import { useSelector } from "react-redux";
 import descriptionApi from "../api/descriptionApi";
@@ -24,6 +25,7 @@ const WordOperationMeaning = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [descriptions, setDescriptions] = useState([{ id: 1, text: "" }]);
+  const [textCase, setTextCase] = useState("lowercase");
   const toast = useRef(null);
 
   const recommendMode = useSelector(
@@ -41,12 +43,35 @@ const WordOperationMeaning = ({
 
   const isInputDisabled = isDisabled || !isWordEntered();
 
-  const normalizeWord = (word) => {
-    return word?.trim().toLowerCase() || "";
+  const toTurkishUpperCase = (text) => {
+    return text.replace(/i/g, "İ").replace(/ı/g, "I").toUpperCase();
+  };
+
+  const toTurkishLowerCase = (text) => {
+    return text.replace(/İ/g, "i").replace(/I/g, "ı").toLowerCase();
+  };
+
+  const formatWord = (word) => {
+    if (!word) return "";
+    const trimmedWord = word.trim();
+
+    switch (textCase) {
+      case "capitalize":
+        return (
+          toTurkishUpperCase(trimmedWord.charAt(0)) +
+          toTurkishLowerCase(trimmedWord.slice(1))
+        );
+      case "uppercase":
+        return toTurkishUpperCase(trimmedWord);
+      case "lowercase":
+        return toTurkishLowerCase(trimmedWord);
+      default:
+        return trimmedWord;
+    }
   };
 
   const setTheWord = (wordParam) => {
-    setWord(normalizeWord(wordParam));
+    setWord(formatWord(wordParam));
     setErrorMessage("");
   };
 
@@ -73,13 +98,13 @@ const WordOperationMeaning = ({
       });
       return;
     }
-  
+
     const updatedDescriptions = descriptions.map((desc) =>
       desc.id === id ? { ...desc, text: newText } : desc
     );
     setDescriptions(updatedDescriptions);
   };
-  
+
   const handleSingleDescriptionChange = (newText) => {
     if (newText.length > 2000) {
       toast.current.show({
@@ -92,7 +117,6 @@ const WordOperationMeaning = ({
     }
     setDescription(newText);
   };
-  
 
   const showToaster = (response) => {
     setLoading(false);
@@ -105,10 +129,16 @@ const WordOperationMeaning = ({
   };
 
   const handleSubmitWord = () => {
-    const trimmedWord = normalizeWord(newWord);
+    const trimmedWord = formatWord(newWord);
 
     if (trimmedWord === "") {
       setErrorMessage("Kelime boş olamaz.");
+      setLoading(false);
+      return;
+    }
+
+    if (recommendMode === 3 && !textCase) {
+      setErrorMessage("Lütfen bir metin biçimi seçin.");
       setLoading(false);
       return;
     }
@@ -136,7 +166,7 @@ const WordOperationMeaning = ({
 
   const confirmAdd = async () => {
     setLoading(true);
-    const trimmedWord = normalizeWord(newWord);
+    const trimmedWord = formatWord(newWord);
 
     try {
       if (recommendMode === 1 || recommendMode === 3) {
@@ -207,11 +237,81 @@ const WordOperationMeaning = ({
     if (visible) {
       setDescription("");
       setDescriptions([{ id: 1, text: "" }]);
+      setTextCase(null);
       if (word) {
-        setWord(normalizeWord(word));
+        setWord(formatWord(word));
       }
     }
   }, [visible, word]);
+
+  const renderRadioButtons = () =>
+    recommendMode === 3 &&
+    isWordEntered() && (
+      <>
+        <div
+          className="flex flex-row justify-content-start align-items-center mb-3"
+          style={{
+            padding: "20px 0 0 25px",
+            marginBottom: "1.5rem",
+            fontSize: "14px"
+          }}
+        >
+          <div className="flex align-items-center whitespace-nowrap">
+            <RadioButton
+              inputId="capitalize"
+              name="textCase"
+              value="capitalize"
+              onChange={(e) => setTextCase(e.value)}
+              checked={textCase === "capitalize"}
+            />
+            <label
+              htmlFor="capitalize"
+              style={{ marginLeft: "5px"}}
+              className="ml-2"
+            >
+              İlk harfi büyük
+            </label>
+          </div>
+          <div className="flex align-items-center whitespace-nowrap">
+            <RadioButton
+              inputId="uppercase"
+              name="textCase"
+              value="uppercase"
+              onChange={(e) => setTextCase(e.value)}
+              checked={textCase === "uppercase"}
+            />
+            <label
+              htmlFor="uppercase"
+              style={{ marginLeft: "5px" }}
+              className="ml-2"
+            >
+              Tüm harfleri büyük
+            </label>
+          </div>
+          <div className="flex align-items-center whitespace-nowrap">
+            <RadioButton
+              inputId="lowercase"
+              name="textCase"
+              value="lowercase"
+              onChange={(e) => setTextCase(e.value)}
+              checked={textCase === "lowercase"}
+            />
+            <label
+              htmlFor="lowercase"
+              style={{ marginLeft: "5px" }}
+              className="ml-2"
+            >
+              Tüm harfleri küçük
+            </label>
+          </div>
+        </div>
+        {textCase === null && errorMessage && (
+          <small className="p-error block mb-2">
+            Lütfen bir metin biçimi seçin.
+          </small>
+        )}
+      </>
+    );
 
   return (
     <div className="modal">
@@ -239,24 +339,30 @@ const WordOperationMeaning = ({
       >
         <div className="p-field">
           <Searcher
-            word={normalizeWord(word)}
+            word={formatWord(word)}
             forModal={true}
             setTheWordF={setTheWord}
             isDisabled={isDisabled}
           />
           {errorMessage && <small className="p-error">{errorMessage}</small>}
+          {renderRadioButtons()}
         </div>
+
         <div className="p-field">
-          <label htmlFor="description">Anlam Girin:</label>
           {recommendMode === 3 || recommendMode === 1 ? (
-            // Çoklu anlam girişi (sadece recommendMode 1 ve 3 için)
             descriptions.map((desc) => (
               <div key={desc.id} className="flex align-items-center gap-2 mb-2">
                 <InputTextarea
                   value={desc.text}
-                  onChange={(e) =>handleDescriptionChange(desc.id, e.target.value)}
-                  placeholder={isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"}
-                  disabled={isInputDisabled ? recommendMode === 3 : recommendMode === 1}
+                  onChange={(e) =>
+                    handleDescriptionChange(desc.id, e.target.value)
+                  }
+                  placeholder={
+                    isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
+                  }
+                  disabled={
+                    isInputDisabled ? recommendMode === 3 : recommendMode === 1
+                  }
                   className="input-text-area-desc"
                   autoResize
                   rows={7}
@@ -274,12 +380,11 @@ const WordOperationMeaning = ({
                   disabled={descriptions.length === 1}
                 />
                 <span className="text-sm text-gray-500">
-              {desc.text.length}/2000
-            </span>
+                  {desc.text.length}/2000
+                </span>
               </div>
             ))
           ) : (
-            // Tek anlam girişi (diğer modlar için)
             <div className="flex align-items-center gap-2 mb-2">
               <InputTextarea
                 value={description}
@@ -287,15 +392,14 @@ const WordOperationMeaning = ({
                 placeholder={
                   isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
                 }
-                //disabled={isInputDisabled}
                 className="input-text-area-desc"
                 autoResize
                 rows={7}
                 cols={38}
               />
-             <span className="text-sm text-gray-500">
-              {description.length}/2000
-            </span>
+              <span className="text-sm text-gray-500">
+                {description.length}/2000
+              </span>
             </div>
           )}
         </div>
@@ -311,7 +415,7 @@ const WordOperationMeaning = ({
                 ? !descriptions.some((desc) => desc.text.trim() !== "")
                 : description.trim() === ""
             }
-          />          
+          />
         </div>
       </Dialog>
     </div>

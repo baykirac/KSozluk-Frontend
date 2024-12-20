@@ -97,7 +97,7 @@ body.dark .p-confirm-dialog-accept{
   grid-column: 2; 
   margin: 0; 
   word-wrap: break-word; 
-  color: #333; /* Color for content */
+  color: #858585; /* Color for content */
 }
 
 

@@ -1,10 +1,10 @@
 
 .p-autocomplete-input {
     width: 200px; 
-    border: 1px solid #06b6d4;
     border-radius: 15px;
     padding: 8px;
     font-size: 18px; 
+    background: transparent;
 }
 
 

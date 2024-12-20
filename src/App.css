@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Itim&family=Orbitron:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap');
 .align-left {
     float: left;
 }
 
 
 .particles-background { /*bunu sor*/
-    display:block; /*none mı block mu*/
+    display:none; /*none mı block mu*/
     position: fixed;
     width: 100%;
     height: 100%;
@@ -25,7 +25,7 @@
 
 
 *{
-    font-family: "Orbitron", cursive;
+    font-family: "Chakra Petch", cursive;
 }
 .roboto-thin {
     font-family: "Roboto", sans-serif;

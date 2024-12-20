@@ -10,7 +10,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import "../App.css";
 
-
 function HomePage() {
   const [openModal, setOpenModal] = useState(false);
   const [openDescriptions, setOpenDescriptions] = useState(false); //true yap
@@ -19,19 +18,15 @@ function HomePage() {
   const { isAuthenticated } = useAuth();
   //const dispatch = useDispatch();
 
-
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
-    }).then(() => { });
+    }).then(() => {});
     document.body.classList.add("no-scroll");
     return () => {
       document.body.classList.remove("no-scroll");
     };
-
   }, []);
-
-
 
   const closingModalF = () => {
     setOpenModal(false);
@@ -46,34 +41,50 @@ function HomePage() {
   return (
     <>
       {isAuthenticated ? (
-        <>
-          <Header onSearch={handleSearch} />
-          <div className="align-left">
+        <div className="home-layout">
+          <div className="sidebar">
             <AccerdionMenu
               isSearched={() => handleSearch(true)}
               searchedWordF={setSearchedWord}
               searchedWordIdF={setSearchedWordId}
-            // defaultWord="poi" 
-            // defaultWordId="1" 
             />
           </div>
-          <Particles
-            id="tsparticles"
-            particlesLoaded={() => { }}
-            options={particlesConfig}
-            className="particles-background"
-          />
-          <DescriptionField
-            isSelected={openDescriptions}
-            searchedWord={searchedWord}
-            searchedWordId={searchedWordId}
-          />
+          <div className="content-area">
+            <div style={{position:'absolute', left: '0', top: '0', right: '0', bottom: '0'}}> 
+            <video
+            src="video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ width: "100%", height: "auto" }}
+      />
+            </div>
+          
+            <Header onSearch={handleSearch} />
+            <Particles
+              id="tsparticles"
+              particlesLoaded={() => {}}
+              options={particlesConfig}
+              className="particles-background"
+            />
+            <DescriptionField
+              isSelected={openDescriptions}
+              searchedWord={searchedWord}
+              searchedWordId={searchedWordId}
+            />
+            <WordOperation
+              visible={openModal}
+              closingModal={closingModalF}
+              isDisabled={false}
+            />
+          </div>
           <WordOperation
             visible={openModal}
             closingModal={closingModalF}
             isDisabled={false}
           />
-        </>
+        </div>
       ) : (
         <>{!isAuthenticated && <Navigate to="/SignIn" />}</>
       )}

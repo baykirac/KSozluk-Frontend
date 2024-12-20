@@ -23,6 +23,7 @@ import { AiFillEdit } from "react-icons/ai";
 import wordApi from "../api/wordApi";
 import { ConfirmDialog } from "primereact/confirmdialog";
 
+
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState("");
@@ -121,7 +122,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
           return x;
         });
         setDescriptionArray(tempArray);
-        
       }
     } catch (error) {
       console.error("Error handling like:", error);
@@ -252,6 +252,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
 
   return (
     <div className="description-container">
+      {/* <DigitalBackground /> */}
       <div className="description-content">
         {isSelected ? (
           <div className="descriptions">
@@ -299,7 +300,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   <AiFillStar />
                 </div>
               </div>
-              <Button
+              <Button className="recommend-style"
                 style={{
                   marginTop: 20,
                   padding: 10,
@@ -314,7 +315,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   dispatch(setSelectedDescription(""));
                 }}
               >
-                <span style={{ marginLeft: 10, fontSize: 18 }}>
+                <span style={{ marginLeft: 10, fontSize: 18, color: 'white' }}>
                   {searchedWord} kelimesi için öneride bulun
                 </span>
               </Button>
@@ -396,115 +397,128 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
             />
           </div>
         ) : (
-          <div style={{ userSelect: "none" , opacity: "0.8"}}>
-            <WordCloud
-              data={data}
-              width={500}
-              height={320}
-              font="Orbitron"
-              fontStyle="italic"
-              fontWeight="bold"
-              fontSize={(word) => Math.log2(word.value) * 8}
-              //spiral="rectangular"
-              rotate={0}
-              padding={1}
-              // random={Math.random}
-              fill={(d, i) => schemeCategory10ScaleOrdinal(i)}
-              onWordClick={(event, d) => {
-                console.log(`onWordClick: ${d.text}`);
-              }}
-            />
+          <div className="cards-container">
+           
+
+            <Card title="En Beğenilenler" className="card-sss">
+              <div
+                className="top-list d-flex flex-column"
+                style={{ gap: "0.6rem" }}
+              >
+                {topWords.map((word, index) => (
+                  <div key={index} className="d-flex align-items-center">
+                    <div className="number-box">{index + 1}</div>
+                    <div className="word-info">
+                      <span className="word-name">{word.word}</span>
+                      <span className="word-details">{word.count} Kelime</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Card title="Favori Kelimeler" className="card-sss">
+              {favoriteWords.length > 0 && (
+                <div className="favorite-words-list">
+                  {favoriteWords.map((word, index) => (
+                    <div key={index} className="d-flex align-items-center">
+                      <div className="star-icon">
+                        <i className="pi pi-star-fill" />
+                      </div>
+                      <div className="word-info-favorite">
+                        <span className="word-name">{word.wordContent}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card title="Öneriler" className="card-sss" style={{color: 'white'}}>
+              <p>
+                Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
+                katkıda bulunabilirsiniz. Her katkınız değerlidir!
+              </p>
+              <span>İletişim için: </span>
+              <a
+                href="ik@basarsoft.com.tr"
+                style={{ color: "blue", textDecoration: "underline" }}
+              >
+                ik@basarsoft.com.tr
+              </a>
+            </Card>
+
+            <Card title="Güncellemeler" className="card-sss" style={{color: 'white'}}>
+              <p>
+                Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
+                ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
+                kontrol etmeyi unutmayın!
+              </p>
+            </Card>
           </div>
         )}
       </div>
 
-      <div className="tip-section">
-        <Joyride
-          steps={steps}
-          run={runTips}
-          stepIndex={stepIndex}
-          continuous
-          showProgress
-          showSkipButton
-          scrollToFirstStep
-          disableOverlayClose={true}
-          styles={{
-            options: {
-              zIndex: 1000,
-              width: 200,
-            },
-          }}
-          callback={handleJoyrideCallback}
-          locale={{
-            back: "Geri",
-            close: "Kapat",
-            next: "Sıradaki",
-            last: "Son",
-            skip: "Atla",
-          }}
-        />
-        <Card
-          title="En Beğenilenler"
-          className="card-sss"
-          style={{ width: "100%" }}
-        >
-          <div
-            className="top-list d-flex flex-column"
-            style={{ gap: "0.6rem" }}
-          >
-            {topWords.map((word, index) => (
-              <div key={index} className="d-flex align-items-center">
-                <div className="number-box">{index + 1}</div>
-                <div className="word-info">
-                  <span className="word-name" >{word.word}</span>
-                  <span className="word-details">{word.count} Kelime</span>
-                </div>
+      <div className={`tip-section ${isSelected ? "with-cards" : ""}`}>
+        {isSelected && (
+          <div className="tip-section-cards">
+            <Card title="En Beğenilenler" className="card-sss">
+              <div
+                className="top-list d-flex flex-column"
+                style={{ gap: "0.6rem" }}
+              >
+                {topWords.map((word, index) => (
+                  <div key={index} className="d-flex align-items-center">
+                    <div className="number-box">{index + 1}</div>
+                    <div className="word-info">
+                      <span className="word-name">{word.word}</span>
+                      <span className="word-details">{word.count} Kelime</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </Card>
+            </Card>
 
-        <Card
-          title="Favori Kelimeler"
-          className="card-sss"
-          style={{ width: "100%" }}
-        >
-          {favoriteWords.length > 0 && (
-            <div className="favorite-words-list">
-              {favoriteWords.map((word, index) => (
-                <div key={index} className="d-flex align-items-center">
-                  {/* <div className="number-box">{index + 1}</div> */}
-                  <div className="star-icon">
-                    <i className="pi pi-star-fill" />
-                  </div>
-                  <div className="word-info-favorite">
-                    <span className="word-name">{word.wordContent}</span>
-                  </div>
+            <Card title="Favori Kelimeler" className="card-sss">
+              {favoriteWords.length > 0 && (
+                <div className="favorite-words-list">
+                  {favoriteWords.map((word, index) => (
+                    <div key={index} className="d-flex align-items-center">
+                      <div className="star-icon">
+                        <i className="pi pi-star-fill" />
+                      </div>
+                      <div className="word-info-favorite">
+                        <span className="word-name">{word.wordContent}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </Card>
-        <Card title="Öneriler" className="card-sss">
-          <p>
-            Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
-            katkıda bulunabilirsiniz. Her katkınız değerlidir!
-          </p>
-          <span>İletişim için: </span>
-          <a
-            href="ik@basarsoft.com.tr"
-            style={{ color: "blue", textDecoration: "underline" }}
-          >
-            ik@basarsoft.com.tr
-          </a>
-        </Card>
-        <Card title="Güncellemeler" className="card-sss">
-          <p>
-            Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları ve
-            yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak kontrol
-            etmeyi unutmayın!
-          </p>
-        </Card>
+              )}
+            </Card>
+
+            <Card title="Öneriler" className="card-sss" style={{color: 'white'}}>
+              <p>
+                Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
+                katkıda bulunabilirsiniz. Her katkınız değerlidir!
+              </p>
+              <span>İletişim için: </span>
+              <a
+                href="mailto: ik@basarsoft.com.tr"
+                style={{ color: "blue", textDecoration: "underline" }}
+              >
+                ik@basarsoft.com.tr
+              </a>
+            </Card>
+
+            <Card title="Güncellemeler" className="card-sss" style={{color: 'white'}}>
+              <p>
+                Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
+                ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
+                kontrol etmeyi unutmayın!
+              </p>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
