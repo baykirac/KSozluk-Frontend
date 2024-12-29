@@ -82,7 +82,6 @@ main {
   align-items: center;
   padding: 15px 0 0 20px;
   width: 100%;
-  background: url("earth.PNG");
 }
 
 body.dark .custom-header {
@@ -106,7 +105,7 @@ body.dark .custom-header {
 }
 
 .p-dialog-content {
-  padding: 1rem 2.5rem;
+  padding: 1rem 2.5rem 2rem;
   font-size: 1rem;
 }
 
@@ -119,6 +118,7 @@ body.dark .custom-header {
   font-size: 1rem;
   line-height: 1.5;
 }
+
 
 .info-button {
   color: #ccc;
@@ -217,7 +217,7 @@ body.dark {
 
 body.dark .p-card{
   background-color: #07080ba1 !important;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 body.dark .sidebar-menu-item,
@@ -272,6 +272,7 @@ body.dark .p-dialog-content {
   background-color: #111111;
   color: white;
 }
+
 
 /* body.dark .p-component {
   color: #d0d0d0;
@@ -373,7 +374,7 @@ body.dark .p-virtualscroller-content {
 body.dark .modal-searcher .p-autocomplete-input {
   background-color: #111111 !important;
   color: #ffffff !important;
-  border: 1px solid #444444 !important;
+  border: 1px solid #06b6d4 !important;
 }
 
 body.dark .p-orderlist-item {

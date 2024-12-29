@@ -14,7 +14,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
 import WordOperationMeaning from "./WordOperationMeaning";
 import { useDispatch } from "react-redux";
-import DigitalBackground from "../companents/DigitalBackground"; 
+import DigitalBackground from "../companents/DigitalBackground";
+import { Steps } from "primereact/steps";
+import descriptionApi from "../api/descriptionApi";
 
 function Header({ onSearch }) {
   const { isAuthenticated, user, revoke } = useAuth();
@@ -25,10 +27,24 @@ function Header({ onSearch }) {
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const dispatch = useDispatch();
+  const [timelineModal, setTimelineModal] = useState(false);
+  const [timelineData, setTimelineData] = useState([]);
 
   const isAdminPage = location.pathname === "/AdminPage";
 
   const isLoginPage = location.pathname === "/SignIn";
+
+  const timeline = [
+    {
+      label: "Önerildi",
+    },
+    {
+      label: "Değerlendiriliyor",
+    },
+    {
+      label: "Onaylandı/Reddedildi",
+    },
+  ];
 
   useEffect(() => {
     if (!isLoginPage) {
@@ -44,7 +60,19 @@ function Header({ onSearch }) {
       setIsDarkMode(false);
       document.body.classList.remove("dark");
     }
+    getTimeline();
   }, [isLoginPage]);
+
+  const getTimeline = async () => {
+    try {
+      const response = await descriptionApi.DescriptionTimeline();
+      if (response.isSuccess) {
+        setTimelineData(response.body);
+      }
+    } catch (error) {
+      console.error("Timeline fetch error:", error);
+    }
+  };
 
   const toggleTheme = () => {
     if (!isLoginPage) {
@@ -106,14 +134,16 @@ function Header({ onSearch }) {
 
   return (
     <header className="custom-header">
-      
       <div className="header-left">
         <a href="/">
-          <img src="basarsoft-logo-beyaz.png" alt="Logo" className="header-logo" />
+          <img
+            src="basarsoft-logo-beyaz.png"
+            alt="Logo"
+            className="header-logo"
+          />
         </a>
-        <a href="/" className="no-underline">
-      </a>
-        <a href="/" style={{ textDecoration: "none"}}>
+        <a href="/" className="no-underline"></a>
+        <a href="/" style={{ textDecoration: "none" }}>
           <h2>Kavramlar Sözlüğü</h2>
         </a>
       </div>
@@ -133,9 +163,7 @@ function Header({ onSearch }) {
                 setTheWordF={() => {}}
                 forAdmin={false}
                 isDisabled={false}
-                
               />
-              
             )}
             {/* <div className="theme-toggle">
               <InputSwitch
@@ -153,20 +181,18 @@ function Header({ onSearch }) {
               tooltipOptions={{ position: "left" }}
             />
             <Button
-              tooltip="Yeni kelime öner"
+              tooltip="Geçmiş Önerilerim"
               tooltipOptions={{ showDelay: 250, position: "left" }}
-              icon="pi pi-plus"
+              icon="pi pi-calendar"
               className="floating-button"
               onClick={() => {
-                setOpenModal(true);
-                dispatch(setRecommendMode(3));
+                setTimelineModal(true);
               }}
             />
           </>
         )}
         {isAuthenticated ? (
           <>
-          
             <Button
               icon="pi pi-user"
               onClick={(e) => op.current.toggle(e)}
@@ -239,6 +265,46 @@ function Header({ onSearch }) {
       >
         {infoModalContent}
       </Dialog>
+
+      <Dialog
+        visible={timelineModal}
+        style={{ width: "50vw" }}
+        onHide={() => setTimelineModal(false)}
+        dismissableMask={true}
+        closeOnEscape={true}
+      >
+        <div>
+          {timelineData.map((t, index) => (
+            <div style={{ marginTop: "5px" }}>
+              <div className="step-parent">
+                <div>Test - </div>
+                <div>
+                  <div className="step-parent">
+                    <div className="step-container blue">
+                      <div className="line"></div>
+                      <div className="circle">1</div>
+                      <div className="line"></div>
+                    </div>
+                    <div className="step-container">
+                      <div className="line"></div>
+                      <div className="circle">1</div>
+                      <div className="line"></div>
+                    </div>
+                    <div className="step-container">
+                      <div className="line"></div>
+                      <div className="circle">1</div>
+                      <div className="line"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+          ,
+        </div>
+        {/* <Steps model={timeline} /> */}
+      </Dialog>
+
       <WordOperationMeaning
         visible={openModal}
         closingModal={closingModalF}

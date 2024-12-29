@@ -24,6 +24,7 @@ import wordApi from "../api/wordApi";
 import { ConfirmDialog } from "primereact/confirmdialog";
 
 
+
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState("");
@@ -35,78 +36,11 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [isWordLike, setIsWordLike] = useState(false);
   const [topWords, setTopWords] = useState([]);
   const [favoriteWords, setFavoriteWords] = useState([]);
+ 
 
-  const data = [
-    { text: "başarsoft", value: 120 },
-    { text: "poi", value: 4 },
-    { text: "cbs", value: 3 },
-    { text: "harita", value: 4 },
-    { text: "ağ", value: 5 },
-    { text: "merhaba", value: 6 },
-    { text: "dünya", value: 7 },
-    { text: "örnek", value: 8 },
-    { text: "test", value: 9 },
-    { text: "veri", value: 15 },
-    { text: "metin", value: 1 },
-    { text: "deneme", value: 2 },
-    { text: "günler", value: 3 },
-    { text: "yazılım", value: 4 },
-    { text: "proje", value: 5 },
-    { text: "sonuç", value: 6 },
-    { text: "analiz", value: 7 },
-    { text: "çözümler", value: 8 },
-    { text: "yönetim", value: 9 },
-    { text: "işleme", value: 10 },
-    { text: "sonuçlar", value: 1 },
-    { text: "çözümler", value: 2 },
-    { text: "görsel", value: 3 },
-    { text: "doküman", value: 4 },
-    { text: "memnuniyet", value: 5 },
-    { text: "kalite", value: 6 },
-    { text: "geliştirme", value: 7 },
-    { text: "bilgi", value: 8 },
-    { text: "planlama", value: 9 },
-    { text: "birlik", value: 10 },
-    { text: "ekip", value: 1 },
-    { text: "deneyim", value: 2 },
-    { text: "öneriler", value: 3 },
-    { text: "testler", value: 4 },
-    { text: "inceleme", value: 5 },
-    { text: "fikirler", value: 6 },
-    { text: "tasarım", value: 7 },
-    { text: "strateji", value: 8 },
-    { text: "verim", value: 9 },
-    { text: "inceleme", value: 10 },
-    { text: "öneriler", value: 1 },
-    { text: "gelişim", value: 2 },
-    { text: "değerlendirme", value: 3 },
-    { text: "prensipler", value: 4 },
-    { text: "süreç", value: 5 },
-    { text: "rapor", value: 6 },
-    { text: "içerik", value: 7 },
-    { text: "teknik", value: 8 },
-    { text: "kullanıcı", value: 9 },
-    { text: "güvenlik", value: 10 },
-    { text: "hizmet", value: 1 },
-    { text: "kayıt", value: 2 },
-    { text: "ağ", value: 3 },
-    { text: "hata", value: 4 },
-    { text: "durum", value: 5 },
-    { text: "zaman", value: 6 },
-    { text: "model", value: 7 },
-    { text: "tablo", value: 8 },
-    { text: "grafik", value: 9 },
-    { text: "sunum", value: 10 },
-    { text: "iş", value: 1 },
-    { text: "açıklama", value: 2 },
-    { text: "işlem", value: 3 },
-    { text: "yönetici", value: 4 },
-    { text: "yöntem", value: 5 },
-    { text: "formül", value: 6 },
-    { text: "çalışma", value: 7 },
-    { text: "hesaplama", value: 8 },
-    { text: "çözüm", value: 9 },
-  ];
+
+
+ 
 
   const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
@@ -399,6 +333,39 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
         ) : (
           <div className="cards-container">
            
+           <Card className="card-sss" style={{ color: "white" }}>
+            <div className="card-header">
+              <h3 className="card-title">Kelime Öner</h3>
+              <Button
+                tooltip="Yeni kelime öner"
+                tooltipOptions={{ showDelay: 250, position: "left" }}
+                icon="pi pi-plus"
+                className="floating-button"
+                onClick={() => {
+                  setOpenModal(true);
+                  dispatch(setRecommendMode(3));
+                }}
+              />
+            </div>
+             
+              <p>
+                Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
+                katkıda bulunabilirsiniz. Her katkınız değerlidir!
+              </p>
+              <span>İletişim için: </span>
+              <a
+                href="ik@basarsoft.com.tr"
+                style={{ color: "aqua", textDecoration: "underline" }}
+              >
+                ik@basarsoft.com.tr
+              </a>
+
+              <WordOperationMeaning
+              visible={openModal}
+              closingModal={closingModalF}
+              isDisabled={false}
+            />
+            </Card>
 
             <Card title="En Beğenilenler" className="card-sss">
               <div
@@ -417,7 +384,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               </div>
             </Card>
 
-            <Card title="Favori Kelimeler" className="card-sss">
+            <Card title="Favori Kelimelerim" className="card-sss">
               {favoriteWords.length > 0 && (
                 <div className="favorite-words-list">
                   {favoriteWords.map((word, index) => (
@@ -434,21 +401,10 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               )}
             </Card>
 
-            <Card title="Öneriler" className="card-sss" style={{color: 'white'}}>
-              <p>
-                Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
-                katkıda bulunabilirsiniz. Her katkınız değerlidir!
-              </p>
-              <span>İletişim için: </span>
-              <a
-                href="ik@basarsoft.com.tr"
-                style={{ color: "blue", textDecoration: "underline" }}
-              >
-                ik@basarsoft.com.tr
-              </a>
-            </Card>
+            
 
             <Card title="Güncellemeler" className="card-sss" style={{color: 'white'}}>
+            {/* <Steps model={timeline} /> */}
               <p>
                 Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
                 ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
@@ -479,7 +435,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               </div>
             </Card>
 
-            <Card title="Favori Kelimeler" className="card-sss">
+            <Card title="Favori Kelimelerim" className="card-sss">
               {favoriteWords.length > 0 && (
                 <div className="favorite-words-list">
                   {favoriteWords.map((word, index) => (
@@ -504,7 +460,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               <span>İletişim için: </span>
               <a
                 href="mailto: ik@basarsoft.com.tr"
-                style={{ color: "blue", textDecoration: "underline" }}
+                style={{ color: "aqua", textDecoration: "underline" }}
               >
                 ik@basarsoft.com.tr
               </a>

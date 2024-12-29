@@ -435,6 +435,34 @@ function AdminPage() {
       return Promise.reject(error); // Hata durumu
     }
   };
+
+  const handleWordEdit = async (wordId, wordContent) => {
+    try {
+      const response = await wordApi.UpdateWordById(wordId, wordContent);
+      if (response.isSuccess) {
+        toastForNotification.current.show({
+          severity: "success",
+          summary: "Başarılı",
+          detail: response.message,
+        });
+        setWordsArray(prevWords => 
+          prevWords.map(word => {
+            if (word.wordId === wordId) {
+              return { ...word, wordContent: wordContent };
+            }
+            return word;
+          })
+        );
+        return true;
+        
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+
   const updateDescriptionStatusHandler = async (status) => {
     try {
       let reasonToSend = status === 3 ? rejectionReason : 0;
@@ -818,6 +846,7 @@ function AdminPage() {
                   <div className="datatable-for-edit">
                     <WordTree
                       wordsArray={expandedWordsArray}
+                      onWordEditComplete={handleWordEdit}
                       onRowEditComplete={onRowEditComplete}
                       filters={filters}
                       header={header}

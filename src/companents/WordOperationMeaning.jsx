@@ -17,7 +17,7 @@ const WordOperationMeaning = ({
   word = "",
   isAdd,
   isDisabled,
-  isSuccessfull,
+  isSuccessfull
 }) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
@@ -248,63 +248,66 @@ const WordOperationMeaning = ({
     recommendMode === 3 &&
     isWordEntered() && (
       <>
-        <div
-          className="flex flex-row justify-content-start align-items-center mb-3"
-          style={{
-            padding: "20px 0 0 25px",
-            marginBottom: "1.5rem",
-            fontSize: "14px"
-          }}
-        >
-          <div className="flex align-items-center whitespace-nowrap">
-            <RadioButton
-              inputId="capitalize"
-              name="textCase"
-              value="capitalize"
-              onChange={(e) => setTextCase(e.value)}
-              checked={textCase === "capitalize"}
-            />
-            <label
-              htmlFor="capitalize"
-              style={{ marginLeft: "5px"}}
-              className="ml-2"
-            >
-              İlk harfi büyük
-            </label>
-          </div>
-          <div className="flex align-items-center whitespace-nowrap">
-            <RadioButton
-              inputId="uppercase"
-              name="textCase"
-              value="uppercase"
-              onChange={(e) => setTextCase(e.value)}
-              checked={textCase === "uppercase"}
-            />
-            <label
-              htmlFor="uppercase"
-              style={{ marginLeft: "5px" }}
-              className="ml-2"
-            >
-              Tüm harfleri büyük
-            </label>
-          </div>
-          <div className="flex align-items-center whitespace-nowrap">
-            <RadioButton
-              inputId="lowercase"
-              name="textCase"
-              value="lowercase"
-              onChange={(e) => setTextCase(e.value)}
-              checked={textCase === "lowercase"}
-            />
-            <label
-              htmlFor="lowercase"
-              style={{ marginLeft: "5px" }}
-              className="ml-2"
-            >
-              Tüm harfleri küçük
-            </label>
-          </div>
+      <div
+        className="flex flex-row justify-content-start align-items-center mb-3"
+        style={{
+          padding: "20px 0 0 25px",
+          fontSize: "14px"
+        }}
+      >
+        <div className="flex align-items-center" style={{ marginRight: "1rem", marginBottom: "5px" }}>
+          <RadioButton
+            inputId="capitalize"
+            name="textCase"
+            value="capitalize"
+            onChange={(e) => setTextCase(e.value)}
+            checked={textCase === "capitalize"}
+          />
+          <label
+            htmlFor="capitalize"
+            style={{ marginLeft: "10px" }}
+            className="ml-2"
+          >
+            İlk harfi büyük
+          </label>
         </div>
+
+        <div className="flex align-items-center" style={{ marginRight: "1rem", marginBottom: "5px" }}>
+          <RadioButton
+            inputId="uppercase"
+            name="textCase"
+            value="uppercase"
+            onChange={(e) => setTextCase(e.value)}
+            checked={textCase === "uppercase"}
+          />
+          <label
+            htmlFor="uppercase"
+            style={{ marginLeft: "10px" }}
+            className="ml-2"
+          >
+            Tüm harfleri büyük
+          </label>
+        </div>
+
+        <div className="flex align-items-center" style={{ marginRight: "1rem", marginBottom: "5px" }}>
+          <RadioButton
+            inputId="lowercase"
+            name="textCase"
+            value="lowercase"
+            onChange={(e) => setTextCase(e.value)}
+            checked={textCase === "lowercase"}
+          />
+          <label
+            htmlFor="lowercase"
+            style={{ marginLeft: "10px" }}
+            className="ml-2"
+          >
+            Tüm harfleri küçük
+          </label>
+        </div>
+      </div>
+
+
         {textCase === null && errorMessage && (
           <small className="p-error block mb-2">
             Lütfen bir metin biçimi seçin.

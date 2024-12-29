@@ -41,6 +41,7 @@ function HomePage() {
   return (
     <>
       {isAuthenticated ? (
+    
         <div className="home-layout">
           <div className="sidebar">
             <AccerdionMenu
@@ -58,8 +59,8 @@ function HomePage() {
             muted
             playsInline
             style={{ width: "100%", height: "auto" }}
-      />
-            </div>
+            />
+          </div>
           
             <Header onSearch={handleSearch} />
             <Particles

@@ -29,12 +29,47 @@
 
 .cards-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 20px;
+  grid-template-columns: repeat(2, 1fr); 
+  grid-gap: 16px; 
 }
+
+.card-sss {
+  background-color: #f4f4f4;
+  border-radius: 0 !important;
+  padding: 16px;
+  text-align: left;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cards-container > .card-sss:nth-child(4n-3) {
+  grid-column: span 2; 
+  background-color: #e3e3e3; 
+}
+
+.cards-container > .card-sss:nth-child(4n-2),
+.cards-container > .card-sss:nth-child(4n-1) {
+  grid-column: span 1; 
+}
+
+.cards-container > .card-sss:nth-child(4n) {
+  grid-column: span 2; 
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem; 
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: white;
+  margin: 0; 
+}
+
+
 
 .tip-section {
   position: fixed;
@@ -100,22 +135,9 @@
   gap: 20px;
 }
 
-
-/* Card styles */
-.card-sss {
-  border-radius: 0 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  transition: all 0.3s ease;
-}
-
-
 body.dark .card-sss{
-  background-color: #07080ba1 !important;
-  backdrop-filter: blur(2px);
+  background-color: #07080bc3 !important;
+  backdrop-filter: blur(3px);
 }
 
 .descriptions {
@@ -174,6 +196,7 @@ body.dark .empty-state {
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   margin-left: 30px;
+  border-radius: 0 !important;
 }
 
 .card-content {

@@ -11,6 +11,7 @@ import { Tooltip } from "primereact/tooltip";
 import { Dialog } from "primereact/dialog";
 import "primeicons/primeicons.css";
 import descriptionApi from "../api/descriptionApi";
+import wordApi from "../api/wordApi";
 
 const WordTree = ({
   wordsArray,
@@ -26,7 +27,8 @@ const WordTree = ({
   setIsWordOnly,
   needOrderUpdate,
   setNeedOrderUpdate,
-  deletedDescriptionId
+  deletedDescriptionId,
+  onWordEditComplete,
 }) => {
   const [nodes, setNodes] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState({});
@@ -43,13 +45,16 @@ const WordTree = ({
   const [loading, setLoading] = useState(false);
   const cm2 = useRef(null);
   const [orderQueue, setOrderQueue] = useState([]);
+  const [editingWordRows, setEditingWordRows] = useState({}); 
+  const [editingWordNode, setEditingWordNode] = useState(null); 
+  const [visibleWordEditConfirm, setVisibleWordEditConfirm] = useState(false); 
 
   useEffect(() => {
     if (wordsArray) {
       const approvedWords = wordsArray.filter((word) =>
         word.descriptions.some((desc) => desc.status === "Onaylı")
       );
-  
+
       const mappedNodes = approvedWords.map((word) => ({
         key: word.wordId,
         data: {
@@ -75,38 +80,36 @@ const WordTree = ({
             },
           })),
       }));
-  
+
       const nodesWithChildren = mappedNodes.filter(
         (node) => node.children.length > 0
       );
-      
-     
+
       if (needOrderUpdate && deletedDescriptionId) {
         // Silinen açıklamanın parent word'ünü bul
-        const parentWord = wordsArray.find(word => 
-          word.descriptions.some(desc => desc.descriptionId === deletedDescriptionId)
+        const parentWord = wordsArray.find((word) =>
+          word.descriptions.some(
+            (desc) => desc.descriptionId === deletedDescriptionId
+          )
         );
-  
+
         if (parentWord) {
           const updatedDescriptions = parentWord.descriptions
-            .filter(desc => desc.status === "Onaylı")
+            .filter((desc) => desc.status === "Onaylı")
             .sort((a, b) => a.order - b.order);
-  
-          
+
           updatedDescriptions.forEach((desc, index) => {
             desc.order = index + 1;
           });
         }
       }
-  
+
       setNodes(nodesWithChildren);
       if (needOrderUpdate) {
         setNeedOrderUpdate(false);
       }
-
     }
     handleOrderUpdate();
-   
   }, [wordsArray, a, needOrderUpdate, deletedDescriptionId]);
 
   const onEditorValueChange = (options, value) => {
@@ -527,17 +530,165 @@ const WordTree = ({
     );
   };
 
+   const startWordEdit = (node) => {
+  
+    const newNode = {
+      key: node.key,
+      data: { ...node.data },
+      originalContent: node.data.wordContent
+    };
+    setEditingWordNode(newNode);
+    setEditingWordRows({ ...editingWordRows, [node.key]: true });
+  };
+
+
+  const onWordEditorValueChange = (options, value) => {
+
+
+    const newNodes = [...nodes];
+    const editedNode = findNodeByKey(newNodes, options.node.key);
+    if (editedNode) {
+      editedNode.data[options.field] = value;
+      setNodes(newNodes);
+    }
+
+
+    setEditingWordNode(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        [options.field]: value
+      }
+    }));
+  };
+
+  const handleWordEditComplete = (node) => {
+    setVisibleWordEditConfirm(true);
+  };
+
+  const confirmWordEdit = async () => {
+
+    if (!editingWordNode) {
+      return;
+    }
+
+    try {
+      const success = await onWordEditComplete(
+        editingWordNode.key,
+        editingWordNode.data.wordContent
+      );
+
+      if (success) {
+        const newEditingWordRows = { ...editingWordRows };
+        delete newEditingWordRows[editingWordNode.key];
+        setEditingWordRows(newEditingWordRows);
+        
+        const newNodes = nodes.map(node => {
+          if (node.key === editingWordNode.key) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                wordContent: editingWordNode.data.wordContent
+              }
+            };
+          }
+          return node;
+        });
+        setNodes(newNodes);
+      }
+    } catch (error) {
+    }
+
+    setVisibleWordEditConfirm(false);
+    setEditingWordNode(null);
+  };
+
+
+  const cancelWordEdit = (node) => {
+ 
+    const newEditingWordRows = { ...editingWordRows };
+    delete newEditingWordRows[node.key];
+    setEditingWordRows(newEditingWordRows);
+    
+   
+    const newNodes = [...nodes];
+    const nodeToReset = findNodeByKey(newNodes, node.key);
+    if (nodeToReset && editingWordNode) {
+      nodeToReset.data.wordContent = editingWordNode.originalContent;
+      setNodes(newNodes);
+    }
+    
+    setEditingWordNode(null);
+  };
+
+  const wordContentTemplate = (node) => {
+    if (node.children) {
+      if (editingWordRows[node.key]) {
+        return (
+          <div className="flex align-items-center">
+            <InputText
+              type="text"
+              value={node.data.wordContent}
+              onChange={(e) => onWordEditorValueChange({ node, field: 'wordContent' }, e.target.value)}
+              className="mr-2"
+            />
+            <Button
+              icon="pi pi-check"
+              className="p-button-rounded p-button-success p-mr-2"
+              onClick={() => handleWordEditComplete(node)}
+              style={{marginLeft:"10px"}} 
+            />
+            <Button
+              icon="pi pi-times"
+              className="p-button-rounded p-button-danger"
+              onClick={() => cancelWordEdit(node)}
+              style={{marginLeft:"4px"}} 
+            />
+          </div>
+        );
+      }
+      return (
+        <div className="flex align-items-center">
+          <span className="mr-2">{node.data.wordContent}</span>
+          <Button
+            icon={<BsPencil />}
+            className="p-button-rounded p-button-success"
+            style={{background: "transparent", marginLeft: "10px", border: "transparent"}}
+            onClick={() => startWordEdit(node)}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <>
       {renderInfoDialog()}
       <ConfirmDialog
         visible={visibleEditConfirm}
         onHide={() => setVisibleEditConfirm(false)}
-        message="Bu kelimeyi güncellemek istediğinizden emin misiniz?"
-        header="Güncellemeyi Onayla"
+        message="Bu anlamı güncellemek istediğinizden emin misiniz?"
+        header="Anlamı Güncellemeyi Onayla"
         icon="pi pi-exclamation-triangle"
         accept={confirmEdit}
         reject={cancelEdit}
+      />
+      <ConfirmDialog
+        visible={visibleWordEditConfirm}
+        onHide={() => {
+          setVisibleWordEditConfirm(false);
+          setEditingWordNode(null);
+        }}
+        message="Bu kelimeyi güncellemek istediğinizden emin misiniz?"
+        header="Kelime Güncellemeyi Onayla"
+        icon="pi pi-exclamation-triangle"
+        accept={confirmWordEdit}
+        reject={() => {
+          cancelWordEdit(editingWordNode);
+          setVisibleWordEditConfirm(false);
+        }}
       />
       <TreeTable
         value={nodes}
@@ -555,7 +706,6 @@ const WordTree = ({
         columnResizeMode="expand"
         paginator
         rows={10}
-    
       >
         <Column
           field="wordContent"
@@ -564,24 +714,7 @@ const WordTree = ({
           filter
           filterPlaceholder="Kelimeleri Ara"
           filterMatchMode="contains"
-          body={(node) => (
-            <div
-              onClick={() => {
-                const newExpandedKeys = { ...expandedKeys };
-                newExpandedKeys[node.key] = !newExpandedKeys[node.key];
-                setExpandedKeys(newExpandedKeys);
-              }}
-              onContextMenu={(e) => {
-                if (node.children) {
-                  setWordId(node.key);
-                  cm2.current.show(e);
-                }
-                e.preventDefault();
-              }}
-            >
-              {node.children ? node.data.wordContent : ""}
-            </div>
-          )}
+          body={wordContentTemplate}
           style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
           bodyStyle={{ padding: 25 }}
           headerStyle={{ paddingLeft: "30px" }}

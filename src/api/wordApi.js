@@ -24,6 +24,11 @@ const wordApi = {
   RecommendWord: async (wordContent, descriptionContent) => await api.post("Word/RecommendWord", {wordContent, descriptionContent}),
   LikeWord: async (wordId) => await api.post("Word/LikeWord", {wordId}),
   GetTopList: async () => await api.get("Word/WeeklyLiked", {}),
+  UpdateWordById: async (wordId, wordContent) =>
+    await api.post("Word/UpdateWordById", {
+      wordId,
+      wordContent,
+    }),
 
 };
 

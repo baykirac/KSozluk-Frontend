@@ -29,6 +29,8 @@ const descriptionApi = {
     await api.post("Description/HeadersDescription", { wordContent }),
   FavouriteWordsOnScreen: async () =>
     await api.post("Description/FavouriteWordsOnScreen", {}),
+  DescriptionTimeline: async () =>
+    await api.post("Description/DescriptionTimeline", {}),
 };
 
 export default descriptionApi;
