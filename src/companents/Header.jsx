@@ -181,7 +181,7 @@ function Header({ onSearch }) {
               tooltipOptions={{ position: "left" }}
             />
             <Button
-              tooltip="Geçmiş Önerilerim"
+              tooltip="Önerilerim"
               tooltipOptions={{ showDelay: 250, position: "left" }}
               icon="pi pi-calendar"
               className="floating-button"
@@ -265,45 +265,47 @@ function Header({ onSearch }) {
       >
         {infoModalContent}
       </Dialog>
-
       <Dialog
-        visible={timelineModal}
-        style={{ width: "50vw" }}
-        onHide={() => setTimelineModal(false)}
-        dismissableMask={true}
-        closeOnEscape={true}
-      >
-        <div>
-          {timelineData.map((t, index) => (
-            <div style={{ marginTop: "5px" }}>
-              <div className="step-parent">
-                <div>Test - </div>
-                <div>
-                  <div className="step-parent">
-                    <div className="step-container blue">
-                      <div className="line"></div>
-                      <div className="circle">1</div>
-                      <div className="line"></div>
-                    </div>
-                    <div className="step-container">
-                      <div className="line"></div>
-                      <div className="circle">1</div>
-                      <div className="line"></div>
-                    </div>
-                    <div className="step-container">
-                      <div className="line"></div>
-                      <div className="circle">1</div>
-                      <div className="line"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    visible={timelineModal}
+    style={{ width: "50vw" }}
+    onHide={() => setTimelineModal(false)}
+    dismissableMask={true}
+    closeOnEscape={true}
+    header="Önerilerim"
+  >
+    <div className="timeline-container">
+      {timelineData.map((item, index) => (
+        <div key={index} className="timeline-item">
+          <div className="timeline-word">{item.wordContent}</div>
+          <div className="timeline-description">{item.descriptionContent}</div>
+          <div className={`step-parent status-${item.status}`}>
+            <div className="step-container">
+              <div className="name">Önerildi</div>
+              <div className="line"></div>
+              <div className="circle">1</div>
+              <div className="line"></div>
             </div>
-          ))}
-          ,
+            <div className="step-container">
+              <div className="name">Değerlendiriliyor</div>
+              <div className="line"></div>
+              <div className="circle">2</div>
+              <div className="line"></div>
+            </div>
+            <div className="step-container">
+            <div className="name">
+                {item.status === 1 ? 'Onaylandı' : 
+                 item.status === 3 ? 'Reddedildi' : 'Onaylandı/Reddedildi'}
+            </div>
+              <div className="line"></div>
+              <div className="circle">3</div>
+              <div className="line"></div>
+            </div>
+          </div>
+          <div style={{ clear: 'both' }}></div>
         </div>
-        {/* <Steps model={timeline} /> */}
-      </Dialog>
+      ))}
+    </div>
+  </Dialog>
 
       <WordOperationMeaning
         visible={openModal}

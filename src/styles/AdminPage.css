@@ -107,6 +107,7 @@ body.dark .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link 
   body.dark .p-contextmenu.p-component.p-ripple-disabled.p-contextmenu-enter-done
  {
     background-color: #222222;
+    transition: none !important;
   }
 
 
@@ -271,6 +272,7 @@ body.dark tr.p-row-odd{
 
 .ps-sidebar-root {
     border: none !important;
+    
 }
 
 .sidebar-menu-item:hover {

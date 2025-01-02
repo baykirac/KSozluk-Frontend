@@ -356,6 +356,11 @@ body.dark .tip-section::-webkit-scrollbar-track {
 /* Card content styles */
 .p-card .p-card-content {
   padding: 0;
+  color:white;
+}
+
+.p-card-title{
+  color:white;
 }
 
 .word-info {

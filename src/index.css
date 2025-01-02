@@ -3,28 +3,102 @@ body {
   margin: 0;
 }
 
+
+.timeline-description {
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
 .step-parent {
+  margin: 50px 0;
+}
+
+.step-container {
   display: flex;
   align-items: center;
-  justify-content: center;
+  position: relative;
+  width: 33.33%;
+  float: left;
 }
-.step-container {
+
+.name {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 14px;
+  color: #b5b5b5;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  font-weight: bold;
+  z-index: 2;
 }
-.step-container .line {
-  height: 2px;
-  width: 40px;
-  background-color: white;
+
+.line {
+  height: 3px;
+  background-color: #ccc;
+  flex: 1;
 }
-.step-container .circle {
-  height: 40px;
-  width: 40px;
-  border-radius: 100%;
-  border: 2px solid white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+
+.step-container.blue .circle,
+.step-container.blue .line {
+  background-color: #2196f3;
+}
+
+
+.status-1 .step-container:nth-child(n-3) .circle,
+.status-1 .step-container:nth-child(n-3) .line {
+  background-color: #2196f3;
+}
+
+
+.status-2 .step-container:nth-child(-n+2) .circle,
+.status-2 .step-container:nth-child(-n+2) .line {
+  background-color: #2196f3;
+}
+
+
+.status-4 .step-container:nth-child(1) .circle,
+.status-4 .step-container:nth-child(1) .line {
+  background-color: #2196f3;
+}
+
+.status-3 .step-container .circle,
+.status-3 .step-container .line {
+  background-color: #2196f3;
+}
+
+
+.status-1 .step-container:nth-child(3) .circle,
+.status-1 .step-container:nth-child(3) .line {
+  background-color: #4caf50; 
+}
+
+
+.status-3 .step-container:nth-child(3) .circle,
+.status-3 .step-container:nth-child(3) .line {
+  background-color: #f44336;
+}
+
+.timeline-item {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+
+.timeline-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
