@@ -700,6 +700,8 @@ function AdminPage() {
             header={headerName}
             icon="pi pi-check-square"
             acceptClassName="p-button-accept"
+            acceptLabel="Evet"
+            rejectLabel="Hayır"
             accept={() => {
               if (nextStatus === 3) {
                 setShowConfirm(false);
@@ -802,6 +804,8 @@ function AdminPage() {
             header="Silmeyi Onayla"
             acceptClassName="p-button-accept"
             icon="pi pi-exclamation-triangle"
+            acceptLabel="Evet"
+            rejectLabel="Hayır"
             accept={acceptDeleteDescription}
           />
           <ConfirmDialog
@@ -811,6 +815,8 @@ function AdminPage() {
             message="Bu kelimeyi tamamıyla silmek istediğinize emin misiniz?"
             header="Silmeyi Onayla"
             acceptClassName="p-button-accept"
+            acceptLabel="Evet"
+            rejectLabel="Hayır"
             icon="pi pi-exclamation-triangle"
             accept={acceptDeleteWord}
           />

@@ -300,6 +300,7 @@ body.dark .tip-section::-webkit-scrollbar-track {
   padding-top: 10px;
   margin: 0;
   width: 100%;
+  text-transform: capitalize;
 }
 
 .number-box {
@@ -381,6 +382,7 @@ body.dark .tip-section::-webkit-scrollbar-track {
   max-height: 250px;
   overflow-y: auto;
   width: auto;
+  text-transform: capitalize;
 }
 
 .word-name {

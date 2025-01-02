@@ -174,8 +174,8 @@ const WordOperationMeaning = ({
           .map((desc) => desc.text.trim())
           .filter((text) => text !== "");
 
-        for (const descText of validDescriptions) {
-          const response = await wordApi.RecommendWord(trimmedWord, descText);
+        for (const description of validDescriptions) {
+          const response = await wordApi.RecommendWord(trimmedWord, description);
 
           if (!response.isSuccess) {
             toast.current.show({
@@ -327,6 +327,8 @@ const WordOperationMeaning = ({
         icon="pi pi-check-square"
         acceptClassName="p-button-accept"
         accept={confirmAdd}
+        acceptLabel="Evet"
+        rejectLabel="Hayır"
         reject={() => setShowConfirm(false)}
       />
       <Dialog

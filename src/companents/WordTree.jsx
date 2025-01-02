@@ -408,6 +408,8 @@ const WordTree = ({
             header="Anlam Sırasının Güncellenmesi"
             icon="pi pi-exclamation-triangle"
             accept={handleOrderUpdate}
+            acceptLabel="Evet"
+            rejectLabel="Hayır"
             reject={() => setShowRemoveOrderConfirm(false)}
             modal={false}
           />
@@ -674,6 +676,8 @@ const WordTree = ({
         icon="pi pi-exclamation-triangle"
         accept={confirmEdit}
         reject={cancelEdit}
+        acceptLabel="Evet"
+        rejectLabel="Hayır"
       />
       <ConfirmDialog
         visible={visibleWordEditConfirm}
@@ -682,6 +686,8 @@ const WordTree = ({
           setEditingWordNode(null);
         }}
         message="Bu kelimeyi güncellemek istediğinizden emin misiniz?"
+        acceptLabel="Evet"
+        rejectLabel="Hayır"
         header="Kelime Güncellemeyi Onayla"
         icon="pi pi-exclamation-triangle"
         accept={confirmWordEdit}

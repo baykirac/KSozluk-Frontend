@@ -414,8 +414,12 @@ body.dark .p-accordion-header-link {
 
 .home-layout {
   display: flex;
-  background-color: red;
   background-image: url('full-screen.PNG');
+  background-repeat: no-repeat;
+  background-position: center center; /*yatay ve dikey ortalandı*/
+  background-size: cover;
+  margin:0;
+  padding:0;
 }
 
 .sidebar {

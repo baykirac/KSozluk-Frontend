@@ -74,6 +74,8 @@ const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
         icon="pi pi-check-square"
         acceptClassName="p-button-success"
         accept={confirmAdd}
+        acceptLabel="Evet"
+        rejectLabel="Hayır"
         reject={() => setShowConfirm(false)}
       />
       <Dialog

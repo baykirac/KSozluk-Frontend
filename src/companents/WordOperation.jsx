@@ -215,6 +215,8 @@ const WordOperation = ({
         icon="pi pi-check-square"
         acceptClassName="p-button-accept"
         accept={confirmAdd}
+        acceptLabel="Evet"
+        rejectLabel="Hayır"
         reject={() => setShowConfirm(false)}
       />
       <Dialog
