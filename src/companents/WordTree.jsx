@@ -471,22 +471,26 @@ const WordTree = ({
     if (node.children) {
       return (
         <>
-          <Tooltip
+          {/* <Tooltip
             target={`.delete-word-${node.key}`}
             content="Kelimeyi Sil"
-            tooltipOptions={{ position: "top " }}
+            tooltipOptions={{ position: "left " }}
             tooltipClassName="tooltip-word-delete"
-          />
+          /> */}
+          
 
-          <span
+          <Button
+          tooltip="Kelimeyi Sil"
+          tooltipOptions={{ showDelay: 250, position: "left" }}
             className={`delete-word delete-word-${node.key}`}
+            icon="pi pi-trash"
             onClick={() => {
               setWordId(node.key);
               setVisibleDeleteWord(true);
             }}
           >
-            <BiTrash />
-          </span>
+           
+          </Button>
         </>
       );
     }

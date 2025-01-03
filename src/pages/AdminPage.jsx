@@ -930,7 +930,7 @@ function AdminPage() {
                         body={(rowData) =>
                           rowData.previousDescription.descriptionContent
                             ? rowData.previousDescription.descriptionContent
-                            : "Boş"
+                            : " "
                         }
                         style={{ minWidth: "12rem" }}
                         editor={(options) => textEditor(options)}
