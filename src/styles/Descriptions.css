@@ -140,6 +140,11 @@ body.dark .card-sss{
   backdrop-filter: blur(3px);
 }
 
+.add-button {
+  margin-left: auto;
+  display: block; 
+}
+
 .descriptions {
   width: 100%;
   max-width: 90%;
@@ -301,6 +306,7 @@ body.dark .tip-section::-webkit-scrollbar-track {
   margin: 0;
   width: 100%;
   text-transform: capitalize;
+ 
 }
 
 .number-box {
@@ -316,6 +322,7 @@ body.dark .tip-section::-webkit-scrollbar-track {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   margin-right: 1em;
   color: white;
+  cursor:pointer;
 }
 
 .number-box:hover {
@@ -472,3 +479,4 @@ body.dark .recommend-style{
 .recommend-style{
   border-radius: 0 !important;
 }
+

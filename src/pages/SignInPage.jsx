@@ -75,22 +75,22 @@ function SignInPage() {
 
       usedPositions.add(`${row}-${col}`);
 
-      elements.push(
-        <div
-          key={i}
-          className={`floating-element ${
-            isLetter ? "floating-letter" : "floating-icon"
-          }`}
-          style={{
-            top: `${row * (100 / gridRows)}%`,
-            left: `${col * (100 / gridCols)}%`,
-            transform: `rotate(${(i * 17) % 360}deg)`,
-            fontSize: `${((i % 3) + 2) * 8}px`,
-          }}
-        >
-          {isLetter ? content : <FontAwesomeIcon icon={content} />}
-        </div>
-      );
+      // elements.push(
+      //   <div
+      //     key={i}
+      //     className={`floating-element ${
+      //       isLetter ? "floating-letter" : "floating-icon"
+      //     }`}
+      //     style={{
+      //       top: `${row * (100 / gridRows)}%`,
+      //       left: `${col * (100 / gridCols)}%`,
+      //       transform: `rotate(${(i * 17) % 360}deg)`,
+      //       fontSize: `${((i % 3) + 2) * 8}px`,
+      //     }}
+      //   >
+      //     {isLetter ? content : <FontAwesomeIcon icon={content} />}
+      //   </div>
+      // );
     }
     setElements(elements);
   };
@@ -109,10 +109,10 @@ function SignInPage() {
           <div className="left-section">
             <div>
               <img
-                src="logo.png"
-                style={{ width: "18rem", paddingRight: "4rem" }}
+                src="basarsoft-logo-beyaz.png"
+                style={{ width: "20rem", paddingRight: "2rem" }}
               />
-              <div style={{ paddingRight: "3rem" }}>
+              <div style={{ paddingRight: "1rem", color: "white" }}>
                 <h2>Kavramlar Sözlüğü</h2>
                 <h2>Giriş Ekranı</h2>
               </div>
@@ -120,36 +120,29 @@ function SignInPage() {
           </div>
           <div className="right-section">
             <form className="signin-form" onSubmit={handleLogin}>
-              <div className="p-field">
+              <div className="p-field" style={{ color: "white" }}>
                 <label htmlFor="email" className="p-d-block">
                   Email
                 </label>
-                <span className="p-input-icon-left">
-                  <i className="pi pi-envelope" style={{ marginLeft: 20 }} />
-                  <InputText
-                    style={{ width: "17rem" }}
-                    id="email"
-                    type="email"
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                </span>
+
+                <InputText
+                  style={{ width: "17rem" }}
+                  id="email"
+                  type="email"
+                  onChange={(e) => setUsername(e.target.value)}
+                />
               </div>
-              <div className="p-field">
+              <div className="p-field" style={{ color: "white" }}>
                 <label htmlFor="password" className="p-d-block">
                   Password
                 </label>
-                <span className="p-input-icon-left">
-                  <i
-                    className="pi pi-lock"
-                    style={{ zIndex: 1, marginLeft: 20 }}
-                  />
-                  <Password
-                    toggleMask
-                    id="password"
-                    feedback={false}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </span>
+
+                <Password
+                  toggleMask
+                  id="password"
+                  feedback={false}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
               <div className="p-field">
                 <Button

@@ -76,7 +76,7 @@ main {
 
 .custom-header {
   color: #ffffff;
-  border-bottom: 1px solid #eaeaea;
+  
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -215,7 +215,7 @@ body.dark {
 }
 
 body.dark .p-card {
-  background-color: #07080ba1 !important;
+  background-color: #07080bce !important;
   backdrop-filter: blur(4px);
 }
 

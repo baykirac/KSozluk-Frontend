@@ -69,8 +69,8 @@ body {
 }
 
 
-.status-4 .step-container:nth-child(1) .circle,
-.status-4 .step-container:nth-child(1) .line {
+.status-4 .step-container:nth-child(-n+2) .circle,
+.status-4 .step-container:nth-child(-n+2) .line {
   background-color: #2196f3;
 }
 

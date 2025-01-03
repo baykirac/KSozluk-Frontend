@@ -39,7 +39,6 @@ body.dark .letter:hover {
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 18px;
-  border-radius: 3px;
   border-bottom: 1px solid rgb(246, 246, 246);
   color: #0e1261;
   margin-left: 40px;

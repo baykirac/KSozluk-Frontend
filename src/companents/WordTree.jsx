@@ -313,10 +313,10 @@ const WordTree = ({
   const headerTemplate = (
     <div className="flex justify-content-between align-items-center">
       <span className="p-input-icon-left">
-        <i
+        {/* <i
           className="pi pi-search"
           style={{ marginLeft: 190, marginTop: -10 }}
-        />
+        /> */}
         <InputText
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
