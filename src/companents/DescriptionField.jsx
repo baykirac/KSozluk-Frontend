@@ -26,7 +26,7 @@ import { Toast } from "primereact/toast";
 
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState([]);
   const [runTips, setRunTips] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [descriptionArray, setDescriptionArray] = useState([]);

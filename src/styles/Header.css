@@ -303,6 +303,10 @@ body.dark .p-treetable-header {
   background-color: #111111;
 }
 
+body.dark .p-editable-column{
+  border-radius: 0 !important;
+}
+
 body.dark .p-row-odd {
   background-color: #111111;
 }

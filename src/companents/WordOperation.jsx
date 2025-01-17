@@ -102,45 +102,44 @@ const WordOperation = ({
 
     let isSuccess = true;
 
+    let _obj = {
+      WordContent: trimmedWord, 
+      Description: validDescriptions  
+    };
+    
     try {
-      for (const description of validDescriptions) {
-        const response = await wordApi.AddWord(trimmedWord, description);
-        if (!response.isSuccess) {
-          isSuccess = false;
+        const response = await wordApi.AddWord(_obj);
+        if (response.isSuccess) {
+          const message = existingWord 
+            ? "Yeni anlamlar başarıyla eklendi."
+            : "Kelime ve anlamlar başarıyla eklendi.";
+          showToaster({ message });
+          setWord("");
+          setDescriptions([{ id: 1, text: "" }]);
+          setExistingWord(false);
+          if (isSuccessfull) {
+            isSuccessfull(true);
+          }
+        } else {
           toast.current.show({
             severity: "error",
             summary: "Hata",
             detail: response.message || "İşlem sırasında bir hata oluştu.",
             life: 3000,
           });
-          break;
         }
+      } catch (error) {
+        console.error("Error adding word/description:", error);
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: "İşlem sırasında bir hata oluştu.",
+          life: 3000,
+        });
       }
-
-      if (isSuccess) {
-        const message = existingWord 
-          ? "Yeni anlamlar başarıyla eklendi."
-          : "Kelime ve anlamlar başarıyla eklendi.";
-        showToaster({ message });
-        setWord("");
-        setDescriptions([{ id: 1, text: "" }]);
-        setExistingWord(false);
-        if (isSuccessfull) {
-          isSuccessfull(true);
-        }
-      }
-    } catch (error) {
-      console.error("Error adding word/description:", error);
-      toast.current.show({
-        severity: "error",
-        summary: "Hata",
-        detail: "İşlem sırasında bir hata oluştu.",
-        life: 3000,
-      });
-    }
-
-    setLoading(false);
-    setShowConfirm(false);
+    
+      setLoading(false);
+      setShowConfirm(false);
   };
 
   const handleSubmitWord = () => {

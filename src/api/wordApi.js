@@ -6,8 +6,12 @@ const wordApi = {
     await api.get("Word/GetWordsByLetter", { letter, pageNumber, pageSize }),
   GetWordsByContains: async (content) =>
     await api.get("Word/GetWordsByContains", { content }),
-  AddWord: async (wordcontent, description) =>
-    await api.post("Word/AddWord", { wordcontent, description }),
+  AddWord: async (obj) =>
+    await api.post("Word/AddWord", {
+      WordContent: obj.WordContent,
+      Description: obj.Description
+    }),
+
   AddWords: async (wordcontent, description) =>
     await api.post("Word/AddWords", { wordcontent }),
   GetAllWords: async () => await api.get("Word/GetAllWords"),
@@ -21,7 +25,11 @@ const wordApi = {
       descriptionContent,
     }),
   DeleteWord: async (wordId) => await api.post("Word/DeleteWord", { wordId }),
-  RecommendWord: async (wordContent, descriptionContent) => await api.post("Word/RecommendWord", {wordContent, descriptionContent}),
+  RecommendWord: async (obj) =>
+    await api.post("Word/RecommendWord", {
+      WordContent: obj.WordContent,
+      DescriptionContent: obj.DescriptionContent
+    }),
   LikeWord: async (wordId) => await api.post("Word/LikeWord", {wordId}),
   GetTopList: async () => await api.get("Word/WeeklyLiked", {}),
   UpdateWordById: async (wordId, wordContent) =>

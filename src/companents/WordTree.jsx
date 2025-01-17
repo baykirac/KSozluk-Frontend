@@ -569,6 +569,7 @@ const WordTree = ({
                       value={editedDialogContent}
                       onChange={(e) => setEditedDialogContent(e.target.value)}
                       className="w-full"
+                      autoResize
                     />
                     <Button
                       icon="pi pi-check"
@@ -583,7 +584,6 @@ const WordTree = ({
                   </>
                 ) : (
                   <>
-                    <div style={{ display: "flex" }}>
                       <p className="mr-2">
                         {currentNode.data.descriptionContent}
                       </p>
@@ -593,11 +593,10 @@ const WordTree = ({
                         style={{
                           background: "transparent",
                           border: "transparent",
-                          marginLeft: "10px",
+                          margin: 'auto',
                         }}
                         onClick={handleDialogEdit}
                       />
-                    </div>
                   </>
                 )}
               </div>

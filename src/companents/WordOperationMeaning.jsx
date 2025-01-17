@@ -174,12 +174,12 @@ const WordOperationMeaning = ({
           .map((desc) => desc.text.trim())
           .filter((text) => text !== "");
 
-        for (const description of validDescriptions) {
-          const response = await wordApi.RecommendWord(
-            trimmedWord,
-            description,
-          
-          );
+          let _obj = {
+            WordContent: trimmedWord,
+            DescriptionContent: validDescriptions
+          };
+
+          const response = await wordApi.RecommendWord(_obj);
 
           if (!response.isSuccess) {
             toast.current.show({
@@ -188,9 +188,8 @@ const WordOperationMeaning = ({
               detail: response.message || "Öneri eklenirken bir hata oluştu.",
               life: 3000,
             });
-            break;
           }
-        }
+        
 
         showToaster({ message: "Öneriler başarıyla eklendi." });
         setWord("");
@@ -249,7 +248,7 @@ const WordOperationMeaning = ({
   }, [visible, word]);
 
   const renderRadioButtons = () =>
-    (recommendMode === 3 || recommendMode == 1) &&
+    recommendMode === 3 &&
     isWordEntered() && (
       <>
         <div

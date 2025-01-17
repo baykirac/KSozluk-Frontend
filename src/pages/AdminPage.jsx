@@ -74,7 +74,7 @@ function AdminPage() {
 
   const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
 
-  const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi", "Önerildi"]);
+  const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
 
   const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
 
@@ -193,8 +193,8 @@ function AdminPage() {
       case "Bekliyor":
         return "info";
 
-      case "Önerildi":
-        return "info";
+      // case "Önerildi":
+      //   return "info";
     }
   };
 
@@ -211,9 +211,8 @@ function AdminPage() {
   const statusFilter = (status) => {
     const statusMap = {
       1: "Onaylı",
-      2: "Bekliyor",
+      4: "Bekliyor",
       3: "Reddedildi",
-      4: "Önerildi",
     };
 
     return statusMap[status];
