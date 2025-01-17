@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import WordOperationMeaning from "./WordOperationMeaning";
@@ -22,8 +22,7 @@ import { AiFillStar } from "react-icons/ai";
 import { AiFillEdit } from "react-icons/ai";
 import wordApi from "../api/wordApi";
 import { ConfirmDialog } from "primereact/confirmdialog";
-
-
+import { Toast } from "primereact/toast";
 
 function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [openModal, setOpenModal] = useState(false);
@@ -36,11 +35,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const [isWordLike, setIsWordLike] = useState(false);
   const [topWords, setTopWords] = useState([]);
   const [favoriteWords, setFavoriteWords] = useState([]);
- 
-
-
-
- 
+  const toast = useRef(null);
 
   const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
@@ -69,21 +64,47 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
         setIsWordLike(!isWordLike);
         await GetTopList();
       }
+      else {
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: _response.data.header.message,
+        });
+      }
+      
     } catch (error) {
       console.error("Error handling like:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Hata",
+        detail: "Beğenme işlemi sırasında bir hata oluştu",
+      });
     }
   };
 
   const handleFavoriteClick = async (wordId) => {
     try {
-      const _response = await descriptionApi.FavouriteWord(wordId);
+      const response = await descriptionApi.FavouriteWord(wordId);
 
-      if (_response.isSuccess) {
+      if (response.data.header.isSuccess) {
         setIsFavorite(!isFavorite);
         await FavouriteWordsOnScreen();
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: response.data.header.message,
+        });
       }
     } catch (error) {
       console.error("Error handling favourite:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Hata",
+        detail: "Favori işlemi sırasında bir hata oluştu",
+      });
+
+      return;
     }
   };
 
@@ -186,6 +207,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
 
   return (
     <div className="description-container">
+      <Toast ref={toast} />
       {/* <DigitalBackground /> */}
       <div className="description-content">
         {isSelected ? (
@@ -234,7 +256,8 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   <AiFillStar />
                 </div>
               </div>
-              <Button className="recommend-style"
+              <Button
+                className="recommend-style"
                 style={{
                   marginTop: 20,
                   padding: 10,
@@ -249,7 +272,7 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   dispatch(setSelectedDescription(""));
                 }}
               >
-                <span style={{ marginLeft: 10, fontSize: 18, color: 'white' }}>
+                <span style={{ marginLeft: 10, fontSize: 18, color: "white" }}>
                   {searchedWord} kelimesi için öneride bulun
                 </span>
               </Button>
@@ -332,22 +355,21 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
           </div>
         ) : (
           <div className="cards-container">
-           
-           <Card className="card-sss" style={{ color: "white" }}>
-            <div className="card-header">
-              <h3 className="card-title">Kelime Öner</h3>
-              <Button
-                tooltip="Yeni kelime öner"
-                tooltipOptions={{ showDelay: 250, position: "left" }}
-                icon="pi pi-plus"
-                className="floating-button"
-                onClick={() => {
-                  setOpenModal(true);
-                  dispatch(setRecommendMode(3));
-                }}
-              />
-            </div>
-             
+            <Card className="card-sss" style={{ color: "white" }}>
+              <div className="card-header">
+                <h3 className="card-title">Kelime Öner</h3>
+                <Button
+                  tooltip="Yeni kelime öner"
+                  tooltipOptions={{ showDelay: 250, position: "left" }}
+                  icon="pi pi-plus"
+                  className="floating-button"
+                  onClick={() => {
+                    setOpenModal(true);
+                    dispatch(setRecommendMode(3));
+                  }}
+                />
+              </div>
+
               <p>
                 Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
                 katkıda bulunabilirsiniz. Her katkınız değerlidir!
@@ -361,10 +383,10 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               </a>
 
               <WordOperationMeaning
-              visible={openModal}
-              closingModal={closingModalF}
-              isDisabled={false}
-            />
+                visible={openModal}
+                closingModal={closingModalF}
+                isDisabled={false}
+              />
             </Card>
 
             <Card title="En Beğenilenler" className="card-sss">
@@ -401,10 +423,12 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               )}
             </Card>
 
-            
-
-            <Card title="Güncellemeler" className="card-sss" style={{color: 'white'}}>
-            {/* <Steps model={timeline} /> */}
+            <Card
+              title="Güncellemeler"
+              className="card-sss"
+              style={{ color: "white" }}
+            >
+              {/* <Steps model={timeline} /> */}
               <p>
                 Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
                 ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
@@ -452,7 +476,11 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               )}
             </Card>
 
-            <Card title="Öneriler" className="card-sss" style={{color: 'white'}}>
+            <Card
+              title="Öneriler"
+              className="card-sss"
+              style={{ color: "white" }}
+            >
               <p>
                 Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
                 katkıda bulunabilirsiniz. Her katkınız değerlidir!
@@ -466,7 +494,11 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               </a>
             </Card>
 
-            <Card title="Güncellemeler" className="card-sss" style={{color: 'white'}}>
+            <Card
+              title="Güncellemeler"
+              className="card-sss"
+              style={{ color: "white" }}
+            >
               <p>
                 Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
                 ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak

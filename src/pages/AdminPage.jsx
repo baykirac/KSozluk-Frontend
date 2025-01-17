@@ -101,6 +101,7 @@ function AdminPage() {
   const [customRejectionReason, setCustomReasonReason] = useState("");
   const [needOrderUpdate, setNeedOrderUpdate] = useState(false);
   const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
+  
 
   const rejectionReasons = [
     { name: "Uygunsuz", value: 1 },

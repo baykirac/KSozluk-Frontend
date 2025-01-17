@@ -17,7 +17,7 @@ const WordOperationMeaning = ({
   word = "",
   isAdd,
   isDisabled,
-  isSuccessfull
+  isSuccessfull,
 }) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
@@ -175,7 +175,11 @@ const WordOperationMeaning = ({
           .filter((text) => text !== "");
 
         for (const description of validDescriptions) {
-          const response = await wordApi.RecommendWord(trimmedWord, description);
+          const response = await wordApi.RecommendWord(
+            trimmedWord,
+            description,
+          
+          );
 
           if (!response.isSuccess) {
             toast.current.show({
@@ -245,68 +249,76 @@ const WordOperationMeaning = ({
   }, [visible, word]);
 
   const renderRadioButtons = () =>
-    recommendMode === 3 &&
+    (recommendMode === 3 || recommendMode == 1) &&
     isWordEntered() && (
       <>
-      <div
-        className="flex flex-row justify-content-start align-items-center mb-3"
-        style={{
-          padding: "20px 0 0 25px",
-          fontSize: "14px"
-        }}
-      >
-        <div className="flex align-items-center" style={{ marginRight: "1rem", marginBottom: "5px" }}>
-          <RadioButton
-            inputId="capitalize"
-            name="textCase"
-            value="capitalize"
-            onChange={(e) => setTextCase(e.value)}
-            checked={textCase === "capitalize"}
-          />
-          <label
-            htmlFor="capitalize"
-            style={{ marginLeft: "10px" }}
-            className="ml-2"
+        <div
+          className="flex flex-row justify-content-start align-items-center mb-3"
+          style={{
+            padding: "20px 0 0 25px",
+            fontSize: "14px",
+          }}
+        >
+          <div
+            className="flex align-items-center"
+            style={{ marginRight: "1rem", marginBottom: "5px" }}
           >
-            İlk harfi büyük
-          </label>
-        </div>
+            <RadioButton
+              inputId="capitalize"
+              name="textCase"
+              value="capitalize"
+              onChange={(e) => setTextCase(e.value)}
+              checked={textCase === "capitalize"}
+            />
+            <label
+              htmlFor="capitalize"
+              style={{ marginLeft: "10px" }}
+              className="ml-2"
+            >
+              İlk harfi büyük
+            </label>
+          </div>
 
-        <div className="flex align-items-center" style={{ marginRight: "1rem", marginBottom: "5px" }}>
-          <RadioButton
-            inputId="uppercase"
-            name="textCase"
-            value="uppercase"
-            onChange={(e) => setTextCase(e.value)}
-            checked={textCase === "uppercase"}
-          />
-          <label
-            htmlFor="uppercase"
-            style={{ marginLeft: "10px" }}
-            className="ml-2"
+          <div
+            className="flex align-items-center"
+            style={{ marginRight: "1rem", marginBottom: "5px" }}
           >
-            Tüm harfleri büyük
-          </label>
-        </div>
+            <RadioButton
+              inputId="uppercase"
+              name="textCase"
+              value="uppercase"
+              onChange={(e) => setTextCase(e.value)}
+              checked={textCase === "uppercase"}
+            />
+            <label
+              htmlFor="uppercase"
+              style={{ marginLeft: "10px" }}
+              className="ml-2"
+            >
+              Tüm harfleri büyük
+            </label>
+          </div>
 
-        <div className="flex align-items-center" style={{ marginRight: "1rem", marginBottom: "5px" }}>
-          <RadioButton
-            inputId="lowercase"
-            name="textCase"
-            value="lowercase"
-            onChange={(e) => setTextCase(e.value)}
-            checked={textCase === "lowercase"}
-          />
-          <label
-            htmlFor="lowercase"
-            style={{ marginLeft: "10px" }}
-            className="ml-2"
+          <div
+            className="flex align-items-center"
+            style={{ marginRight: "1rem", marginBottom: "5px" }}
           >
-            Tüm harfleri küçük
-          </label>
+            <RadioButton
+              inputId="lowercase"
+              name="textCase"
+              value="lowercase"
+              onChange={(e) => setTextCase(e.value)}
+              checked={textCase === "lowercase"}
+            />
+            <label
+              htmlFor="lowercase"
+              style={{ marginLeft: "10px" }}
+              className="ml-2"
+            >
+              Tüm harfleri küçük
+            </label>
+          </div>
         </div>
-      </div>
-
 
         {textCase === null && errorMessage && (
           <small className="p-error block mb-2">
@@ -408,7 +420,7 @@ const WordOperationMeaning = ({
             </div>
           )}
         </div>
-        <div className="p-field position-right" >
+        <div className="p-field position-right">
           <Button
             className="add-button"
             icon="pi pi-plus"

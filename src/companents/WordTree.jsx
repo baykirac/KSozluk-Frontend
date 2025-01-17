@@ -12,6 +12,7 @@ import { Dialog } from "primereact/dialog";
 import "primeicons/primeicons.css";
 import descriptionApi from "../api/descriptionApi";
 import wordApi from "../api/wordApi";
+import { InputTextarea } from "primereact/inputtextarea";
 
 const WordTree = ({
   wordsArray,
@@ -45,9 +46,11 @@ const WordTree = ({
   const [loading, setLoading] = useState(false);
   const cm2 = useRef(null);
   const [orderQueue, setOrderQueue] = useState([]);
-  const [editingWordRows, setEditingWordRows] = useState({}); 
-  const [editingWordNode, setEditingWordNode] = useState(null); 
-  const [visibleWordEditConfirm, setVisibleWordEditConfirm] = useState(false); 
+  const [editingWordRows, setEditingWordRows] = useState({});
+  const [editingWordNode, setEditingWordNode] = useState(null);
+  const [visibleWordEditConfirm, setVisibleWordEditConfirm] = useState(false);
+  const [editingDialogNode, setEditingDialogNode] = useState(null);
+  const [editedDialogContent, setEditedDialogContent] = useState("");
 
   useEffect(() => {
     if (wordsArray) {
@@ -420,20 +423,26 @@ const WordTree = ({
   };
 
   const actionTemplate = (node) => {
-    if (editingRows[node.key]) {
+    if (!node.children) {
       return (
-        <>
+        <div style={{ display: "inline-flex", gap: "5px" }}>
           <Button
-            icon="pi pi-check"
-            className="p-button-rounded p-button-success p-mr-2"
-            onClick={() => handleRowEditComplete(node)}
-          />
-          <Button
-            icon="pi pi-times"
+            icon="pi pi-trash"
             className="p-button-rounded p-button-danger"
-            onClick={() => cancelEdit(node)}
+            onClick={() => {
+              setVisibleDeleteDescription(true);
+              setDeletedDescriptionId(node.key);
+            }}
           />
-        </>
+          <Button
+            icon={<BsInfoCircle />}
+            className="p-button-rounded p-button-info"
+            onClick={() => {
+              setCurrentNode(node);
+              setVisibleInfoDialog(true);
+            }}
+          />
+        </div>
       );
     }
     return (
@@ -477,20 +486,17 @@ const WordTree = ({
             tooltipOptions={{ position: "left " }}
             tooltipClassName="tooltip-word-delete"
           /> */}
-          
 
           <Button
-          tooltip="Kelimeyi Sil"
-          tooltipOptions={{ showDelay: 250, position: "left" }}
+            tooltip="Kelimeyi Sil"
+            tooltipOptions={{ showDelay: 250, position: "left" }}
             className={`delete-word delete-word-${node.key}`}
             icon="pi pi-trash"
             onClick={() => {
               setWordId(node.key);
               setVisibleDeleteWord(true);
             }}
-          >
-           
-          </Button>
+          ></Button>
         </>
       );
     }
@@ -507,11 +513,47 @@ const WordTree = ({
     setEditingRows(newEditingRows);
   };
 
+  const handleDialogEdit = () => {
+    if (!currentNode) return;
+    setEditingDialogNode(currentNode);
+    setEditedDialogContent(currentNode.data.descriptionContent);
+  };
+
+  const handleDialogEditComplete = async () => {
+    if (!editingDialogNode) return;
+
+    const editData = {
+      newData: {
+        ...editingDialogNode.data,
+        descriptionContent: editedDialogContent,
+      },
+      index: editingDialogNode,
+    };
+
+    try {
+      await onRowEditComplete(editData);
+      setEditingDialogNode(null);
+
+      // Update the node in the tree
+      const newNodes = [...nodes];
+      const editedNode = findNodeByKey(newNodes, editingDialogNode.key);
+      if (editedNode) {
+        editedNode.data.descriptionContent = editedDialogContent;
+        setNodes(newNodes);
+      }
+    } catch (error) {
+      console.error("Dialog edit failed:", error);
+    }
+  };
+
   const renderInfoDialog = () => {
     return (
       <Dialog
         visible={visibleInfoDialog}
-        onHide={() => setVisibleInfoDialog(false)}
+        onHide={() => {
+          setVisibleInfoDialog(false);
+          setEditingDialogNode(null);
+        }}
         header="Anlam Bilgileri"
         modal
         style={{ width: "50vw" }}
@@ -520,7 +562,45 @@ const WordTree = ({
           <div className="info-dialog-grid">
             <div className="info-item">
               <strong>Açıklama:</strong>
-              <p>{currentNode.data.descriptionContent}</p>
+              <div className="flex align-items-center">
+                {editingDialogNode ? (
+                  <>
+                    <InputTextarea
+                      value={editedDialogContent}
+                      onChange={(e) => setEditedDialogContent(e.target.value)}
+                      className="w-full"
+                    />
+                    <Button
+                      icon="pi pi-check"
+                      className="p-button-rounded p-button-success p-mr-2"
+                      onClick={handleDialogEditComplete}
+                    />
+                    <Button
+                      icon="pi pi-times"
+                      className="p-button-rounded p-button-danger ml-2"
+                      onClick={() => setEditingDialogNode(null)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: "flex" }}>
+                      <p className="mr-2">
+                        {currentNode.data.descriptionContent}
+                      </p>
+                      <Button
+                        icon={<BsPencil />}
+                        className="p-button-rounded p-button-success"
+                        style={{
+                          background: "transparent",
+                          border: "transparent",
+                          marginLeft: "10px",
+                        }}
+                        onClick={handleDialogEdit}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <div className="info-item">
               <strong>Son Düzenleme Tarihi:</strong>
@@ -536,21 +616,17 @@ const WordTree = ({
     );
   };
 
-   const startWordEdit = (node) => {
-  
+  const startWordEdit = (node) => {
     const newNode = {
       key: node.key,
       data: { ...node.data },
-      originalContent: node.data.wordContent
+      originalContent: node.data.wordContent,
     };
     setEditingWordNode(newNode);
     setEditingWordRows({ ...editingWordRows, [node.key]: true });
   };
 
-
   const onWordEditorValueChange = (options, value) => {
-
-
     const newNodes = [...nodes];
     const editedNode = findNodeByKey(newNodes, options.node.key);
     if (editedNode) {
@@ -558,13 +634,12 @@ const WordTree = ({
       setNodes(newNodes);
     }
 
-
-    setEditingWordNode(prev => ({
+    setEditingWordNode((prev) => ({
       ...prev,
       data: {
         ...prev.data,
-        [options.field]: value
-      }
+        [options.field]: value,
+      },
     }));
   };
 
@@ -573,7 +648,6 @@ const WordTree = ({
   };
 
   const confirmWordEdit = async () => {
-
     if (!editingWordNode) {
       return;
     }
@@ -588,43 +662,39 @@ const WordTree = ({
         const newEditingWordRows = { ...editingWordRows };
         delete newEditingWordRows[editingWordNode.key];
         setEditingWordRows(newEditingWordRows);
-        
-        const newNodes = nodes.map(node => {
+
+        const newNodes = nodes.map((node) => {
           if (node.key === editingWordNode.key) {
             return {
               ...node,
               data: {
                 ...node.data,
-                wordContent: editingWordNode.data.wordContent
-              }
+                wordContent: editingWordNode.data.wordContent,
+              },
             };
           }
           return node;
         });
         setNodes(newNodes);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
 
     setVisibleWordEditConfirm(false);
     setEditingWordNode(null);
   };
 
-
   const cancelWordEdit = (node) => {
- 
     const newEditingWordRows = { ...editingWordRows };
     delete newEditingWordRows[node.key];
     setEditingWordRows(newEditingWordRows);
-    
-   
+
     const newNodes = [...nodes];
     const nodeToReset = findNodeByKey(newNodes, node.key);
     if (nodeToReset && editingWordNode) {
       nodeToReset.data.wordContent = editingWordNode.originalContent;
       setNodes(newNodes);
     }
-    
+
     setEditingWordNode(null);
   };
 
@@ -636,20 +706,25 @@ const WordTree = ({
             <InputText
               type="text"
               value={node.data.wordContent}
-              onChange={(e) => onWordEditorValueChange({ node, field: 'wordContent' }, e.target.value)}
+              onChange={(e) =>
+                onWordEditorValueChange(
+                  { node, field: "wordContent" },
+                  e.target.value
+                )
+              }
               className="mr-2"
             />
             <Button
               icon="pi pi-check"
               className="p-button-rounded p-button-success p-mr-2"
               onClick={() => handleWordEditComplete(node)}
-              style={{marginLeft:"10px"}} 
+              style={{ marginLeft: "10px" }}
             />
             <Button
               icon="pi pi-times"
               className="p-button-rounded p-button-danger"
               onClick={() => cancelWordEdit(node)}
-              style={{marginLeft:"4px"}} 
+              style={{ marginLeft: "4px" }}
             />
           </div>
         );
@@ -660,7 +735,11 @@ const WordTree = ({
           <Button
             icon={<BsPencil />}
             className="p-button-rounded p-button-success"
-            style={{background: "transparent", marginLeft: "10px", border: "transparent"}}
+            style={{
+              background: "transparent",
+              marginLeft: "10px",
+              border: "transparent",
+            }}
             onClick={() => startWordEdit(node)}
           />
         </div>

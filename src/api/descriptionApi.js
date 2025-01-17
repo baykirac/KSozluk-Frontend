@@ -1,5 +1,8 @@
+import axios from "axios";
 import descriptionSlice from "../data/descriptionSlice";
 import api from "./api";
+
+const accessToken = localStorage.getItem("accessToken");
 
 const descriptionApi = {
   GetDescriptions: async (wordid) =>
@@ -8,12 +11,17 @@ const descriptionApi = {
     await api.post("Description/DeleteDescription", { descriptionId }),
   UpdateOrder: async (descriptionId, order) =>
     await api.post("Description/UpdateOrder", { descriptionId, order }),
-  UpdateStatus: async (descriptionId, status, rejectionReasons, customRejectionReason) =>
+  UpdateStatus: async (
+    descriptionId,
+    status,
+    rejectionReasons,
+    customRejectionReason
+  ) =>
     await api.post("Description/UpdateStatus", {
       descriptionId,
       status,
       rejectionReasons,
-      customRejectionReason
+      customRejectionReason,
     }),
   RecommendDescription: async (wordId, previousDescriptionId, content) =>
     await api.post("Description/RecommendDescription", {
@@ -24,7 +32,16 @@ const descriptionApi = {
   LikeDescription: async (descriptionId) =>
     await api.post("Description/DescriptionLike", { descriptionId }),
   FavouriteWord: async (wordId) =>
-    await api.post("Description/FavouriteWord", { wordId }),
+    await axios.post(
+      import.meta.env.VITE_API_URL + "Description/FavouriteWord",
+      { wordId },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    ),
   HeadersDescription: async (wordContent) =>
     await api.post("Description/HeadersDescription", { wordContent }),
   FavouriteWordsOnScreen: async () =>

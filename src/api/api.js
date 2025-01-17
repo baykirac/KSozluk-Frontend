@@ -1,5 +1,6 @@
 import axios from "axios";
 import { store } from "../data/store";
+import { toast } from "react-toastify";
 
 const ax = axios.create({
   baseURL: import.meta.env.VITE_API_URL
@@ -29,13 +30,27 @@ ax.interceptors.response.use(
     return response;
   },
   async function (error) {
+
+   
+
     if (error.response.status === 401 && (await sendSignInRefreshRequest())) {
       store.dispatch(authenticate());
       return ax(error.config);
     }
 
-    window.location.href = "/SignIn";
-    return Promise.reject(error);
+    if (error.response?.status === 429) {
+      toast.error(
+        error.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin."
+      );
+      return Promise.reject(error);
+    }
+    else{
+      toast.error("Bir hatayla karşılaşıldı!swsw");
+      return Promise.reject(error);
+    }
+
+    // window.location.href = "/SignIn";
+    // return Promise.reject(error);
   }
 );
 
@@ -67,6 +82,7 @@ async function sendSignInRefreshRequest() {
   return true;
 }
 
+
 const api = {
   get: async function (path, params = {}) {
     try {
@@ -76,6 +92,19 @@ const api = {
       return parseApiResponse(response);
     } catch (e) {
       console.error(e);
+
+      if (e.response?.status === 429) {
+        toast.error(
+          e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin."
+        );
+        return {
+          isSuccess: false,
+          isRateLimit: true,
+          message: e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
+        };
+      }
+
+      toast.error("Bilinmeyen bir hata oluştu!");
       return {
         isSuccess: false,
         message: "Bilinmeyen bir hata oluştu!",
@@ -89,6 +118,18 @@ const api = {
     } catch (e) {
       console.error(e);
 
+      if (e.response?.status === 429) {
+        toast.error(
+          e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin."
+        );
+        return {
+          isSuccess: false,
+          isRateLimit: true,
+          message: e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
+        };
+      }
+
+      toast.error("Bilinmeyen bir hata oluştu!");
       return {
         isSuccess: false,
         message: "Bilinmeyen bir hata oluştu!",
@@ -103,12 +144,17 @@ function parseApiResponse(response) {
   const validationMessages = response.data.header.validationMessages;
   const body = response.data.body;
 
+  
+
   return {
     isSuccess,
     message,
     validationMessages,
     body,
   };
+
 }
+
+
 
 export default api;
