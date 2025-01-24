@@ -32,8 +32,10 @@ ax.interceptors.response.use(
   async function (error) {
 
    
+    //? kullanıcı "authenticate" eylemi açılır, Redux store'unda kullanıcı durumu güncellenir.
 
     if (error.response.status === 401 && (await sendSignInRefreshRequest())) {
+      // eslint-disable-next-line no-undef
       store.dispatch(authenticate());
       return ax(error.config);
     }

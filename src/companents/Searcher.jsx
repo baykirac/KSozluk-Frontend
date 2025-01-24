@@ -1,5 +1,5 @@
 import { AutoComplete } from "primereact/autocomplete";
-import React, { useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { useState } from "react";
 import "../styles/Searcher.css";
 import wordApi from "../api/wordApi";

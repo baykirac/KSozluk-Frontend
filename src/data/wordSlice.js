@@ -33,7 +33,6 @@ const initialState = {
   ],
   selectedWordId: ""
 };
-
 export const wordSlice = createSlice({
   name: "word",
   initialState,

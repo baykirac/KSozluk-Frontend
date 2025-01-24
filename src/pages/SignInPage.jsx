@@ -1,11 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Card } from "primereact/card";
+import { useState, useEffect, useRef } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
-
-import Header from "../companents/Header";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMap,
   faMapMarkerAlt,
@@ -63,6 +59,7 @@ function SignInPage() {
 
     for (let i = 0; i < gridRows * gridCols; i++) {
       const isLetter = Math.random() > 0.75;
+      // eslint-disable-next-line no-unused-vars
       const content = isLetter
         ? alphabet[Math.floor(Math.random() * alphabet.length)]
         : icons[Math.floor(Math.random() * icons.length)];

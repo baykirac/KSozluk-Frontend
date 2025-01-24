@@ -366,4 +366,4 @@ export const WordsService = {
   
       return fetch(queryParams).then((res) => res.json());
     },
-  };
+};

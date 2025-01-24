@@ -1,4 +1,5 @@
-import descriptionSlice from "../data/descriptionSlice";
+//Bu kısımlarda da bazı Slice işlemleri yapılabilir
+//import descriptionSlice from "../data/descriptionSlice";
 import api from "./api";
 
 const wordApi = {
@@ -12,7 +13,7 @@ const wordApi = {
       Description: obj.Description
     }),
 
-  AddWords: async (wordcontent, description) =>
+  AddWords: async (wordcontent) =>
     await api.post("Word/AddWords", { wordcontent }),
   GetAllWords: async () => await api.get("Word/GetAllWords"),
   GetApprovedWordsPaginated: async (pageNumber, pageSize) =>
@@ -27,8 +28,8 @@ const wordApi = {
   DeleteWord: async (wordId) => await api.post("Word/DeleteWord", { wordId }),
   RecommendWord: async (obj) =>
     await api.post("Word/RecommendWord", {
-      WordContent: obj.WordContent,
-      DescriptionContent: obj.DescriptionContent
+      wordContent: obj.WordContent,
+      descriptionContent: obj.DescriptionContent
     }),
   LikeWord: async (wordId) => await api.post("Word/LikeWord", {wordId}),
   GetTopList: async () => await api.get("Word/WeeklyLiked", {}),

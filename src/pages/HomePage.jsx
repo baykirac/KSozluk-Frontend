@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../companents/Header";
 import AccerdionMenu from "../companents/AccerdionMenu";
 import Particles, { initParticlesEngine } from "@tsparticles/react";

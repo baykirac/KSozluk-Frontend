@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
@@ -11,14 +11,8 @@ import descriptionApi from "../api/descriptionApi";
 import wordApi from "../api/wordApi";
 import "../styles/WordOperation.css";
 
-const WordOperationMeaning = ({
-  visible,
-  closingModal,
-  word = "",
-  isAdd,
-  isDisabled,
-  isSuccessfull,
-}) => {
+// eslint-disable-next-line react/prop-types
+const WordOperationMeaning = ({ visible, closingModal, word = "", isDisabled, isSuccessfull,}) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
   const [description, setDescription] = useState("");
@@ -174,22 +168,21 @@ const WordOperationMeaning = ({
           .map((desc) => desc.text.trim())
           .filter((text) => text !== "");
 
-          let _obj = {
-            WordContent: trimmedWord,
-            DescriptionContent: validDescriptions
-          };
+        let _obj = {
+          WordContent: trimmedWord,
+          DescriptionContent: validDescriptions,
+        };
 
-          const response = await wordApi.RecommendWord(_obj);
+        const response = await wordApi.RecommendWord(_obj);
 
-          if (!response.isSuccess) {
-            toast.current.show({
-              severity: "error",
-              summary: "Hata",
-              detail: response.message || "Öneri eklenirken bir hata oluştu.",
-              life: 3000,
-            });
-          }
-        
+        if (!response.isSuccess) {
+          toast.current.show({
+            severity: "error",
+            summary: "Hata",
+            detail: response.message || "Öneri eklenirken bir hata oluştu.",
+            life: 3000,
+          });
+        }
 
         showToaster({ message: "Öneriler başarıyla eklendi." });
         setWord("");

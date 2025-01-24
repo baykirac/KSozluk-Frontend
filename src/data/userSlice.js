@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { useEffect } from "react";
-import { useFetcher } from "react-router-dom";
+
 const initialState = {
     name: '',
     email: '',

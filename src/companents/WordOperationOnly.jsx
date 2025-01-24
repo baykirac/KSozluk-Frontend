@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
@@ -7,6 +7,7 @@ import Searcher from "./Searcher";
 import wordApi from "../api/wordApi";
 import "../styles/WordOperation.css";
 
+// eslint-disable-next-line react/prop-types
 const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);

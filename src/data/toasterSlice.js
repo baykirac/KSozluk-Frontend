@@ -16,6 +16,7 @@ export const toasterSlice = createSlice({
       state.severity = "warn"
       state.summary = "Başarısız"
       state.detail = action.payload.message
+      // eslint-disable-next-line no-undef
       life = 3000
     },
     showWarn: (state, action) => {

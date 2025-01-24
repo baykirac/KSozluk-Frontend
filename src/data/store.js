@@ -8,4 +8,5 @@ export const store = configureStore({
     descriptions: descriptionReducer,
     user: userReducer
   },
+  
 });

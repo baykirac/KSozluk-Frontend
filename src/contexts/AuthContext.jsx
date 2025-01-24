@@ -1,11 +1,13 @@
 import { jwtDecode } from "jwt-decode";
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 export const AuthContext = createContext();
+
 export function useAuth() {
   return useContext(AuthContext);
 }
 
+// eslint-disable-next-line react/prop-types
 export default function AuthProvider({ children }) {
   function isTokenValid() {
     const accessToken = localStorage.getItem("accessToken");

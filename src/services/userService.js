@@ -11,7 +11,6 @@ export async function signIn(email, password) {
   } else if (response.message) {
     // notification set et
   }
-
   return response;
 }
 

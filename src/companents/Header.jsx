@@ -1,65 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
-import { InputSwitch } from "primereact/inputswitch";
 import { Dialog } from "primereact/dialog";
 import { signOut } from "../services/userService";
-import { setRecommendMode } from "../data/descriptionSlice";
-import "../styles/Header.css";
-
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
 import WordOperationMeaning from "./WordOperationMeaning";
-import { useDispatch } from "react-redux";
-import DigitalBackground from "../companents/DigitalBackground";
-import { Steps } from "primereact/steps";
 import descriptionApi from "../api/descriptionApi";
+import "../styles/Header.css";
 
+// eslint-disable-next-line react/prop-types
 function Header({ onSearch }) {
   const { isAuthenticated, user, revoke } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const op = useRef(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const dispatch = useDispatch();
   const [timelineModal, setTimelineModal] = useState(false);
   const [timelineData, setTimelineData] = useState([]);
+  
 
   const isAdminPage = location.pathname === "/AdminPage";
 
   const isLoginPage = location.pathname === "/SignIn";
 
-  const timeline = [
-    {
-      label: "Önerildi",
-    },
-    {
-      label: "Değerlendiriliyor",
-    },
-    {
-      label: "Onaylandı/Reddedildi",
-    },
-  ];
 
   useEffect(() => {
-    if (!isLoginPage) {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "dark") {
-        setIsDarkMode(true);
-        document.body.classList.add("dark");
-      } else {
-        setIsDarkMode(false);
-        document.body.classList.remove("dark");
-      }
-    } else {
-      setIsDarkMode(false);
-      document.body.classList.remove("dark");
-    }
+    document.body.classList.add("dark");
     getTimeline();
   }, [isLoginPage]);
 
@@ -73,22 +44,6 @@ function Header({ onSearch }) {
       console.error("Timeline fetch error:", error);
     }
   };
-
-  const toggleTheme = () => {
-    if (!isLoginPage) {
-      setIsDarkMode(!isDarkMode);
-      if (isDarkMode) {
-        document.body.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      } else {
-        document.body.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      }
-    }
-  };
-
-  if (isAdminPage) {
-  }
 
   function handleSignOut() {
     revoke();
@@ -264,7 +219,7 @@ function Header({ onSearch }) {
         closeOnEscape={true}
       >
         {infoModalContent}
-      </Dialog>
+      </Dialog>z
       <Dialog
     visible={timelineModal}
     style={{ width: "50vw" }}

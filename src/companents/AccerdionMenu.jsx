@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setCurrentWords, setSelectedWordId } from "../data/wordSlice";
 import wordApi from "../api/wordApi";
 import "../styles/AccerdionMenu.css";
 
+// eslint-disable-next-line react/prop-types
 function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
   const dispatch = useDispatch();
   const [selectedLetter, setSelectedLetter] = useState(null);

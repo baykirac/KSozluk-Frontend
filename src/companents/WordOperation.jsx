@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
@@ -9,16 +9,9 @@ import "../styles/WordOperation.css";
 import { InputTextarea } from "primereact/inputtextarea";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import descriptionApi from "../api/descriptionApi";
-import { Card } from 'primereact/card';
 
-const WordOperation = ({
-  visible,
-  closingModal,
-  word = "",
-  isAdd,
-  isDisabled,
-  isSuccessfull
-}) => {
+// eslint-disable-next-line react/prop-types
+const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessfull}) => {
   const recommendMode = useSelector((state) => state.descriptions.recommendMode);
   const description = useSelector((state) => state.descriptions.selectedDescription);
 
