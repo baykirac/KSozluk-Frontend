@@ -565,7 +565,9 @@ const WordTree = ({
               <div className="flex align-items-center">
                 {editingDialogNode ? (
                   <>
+                  
                     <InputTextarea
+                      cols = {40}
                       value={editedDialogContent}
                       onChange={(e) => setEditedDialogContent(e.target.value)}
                       className="w-full"

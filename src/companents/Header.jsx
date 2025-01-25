@@ -219,7 +219,7 @@ function Header({ onSearch }) {
         closeOnEscape={true}
       >
         {infoModalContent}
-      </Dialog>z
+      </Dialog>
       <Dialog
     visible={timelineModal}
     style={{ width: "50vw" }}
@@ -234,26 +234,29 @@ function Header({ onSearch }) {
           <div className="timeline-word">{item.wordContent}</div>
           <div className="timeline-description">{item.descriptionContent}</div>
           <div className={`step-parent status-${item.status}`}>
-            <div className="step-container">
+            <div className="step-container">             
+              <div className="line"></div>
+              <div className="circle">!</div>
+              <div className="line"></div>
               <div className="name">Önerildi</div>
-              <div className="line"></div>
-              <div className="circle">1</div>
-              <div className="line"></div>
             </div>
-            <div className="step-container">
+            <div className="step-container">          
+              <div className="line"></div>
+              <div className="circle">?</div>
+              <div className="line"></div>
               <div className="name">Değerlendiriliyor</div>
-              <div className="line"></div>
-              <div className="circle">2</div>
-              <div className="line"></div>
             </div>
-            <div className="step-container">
-            <div className="name">
+            <div className="step-container">        
+              <div className="line"></div>
+              <div className="circle">
+              {item.status === 1 ? '✓' : 
+              item.status === 3 ? 'X' : '?'}
+              </div>
+              <div className="line"></div>
+              <div className="name">
                 {item.status === 1 ? 'Onaylandı' : 
-                 item.status === 3 ? 'Reddedildi' : 'Onaylandı/Reddedildi'}
+                 item.status === 3 ? 'Reddedildi' : 'Bekliyor'}
             </div>
-              <div className="line"></div>
-              <div className="circle">3</div>
-              <div className="line"></div>
             </div>
           </div>
           <div style={{ clear: 'both' }}></div>

@@ -37,6 +37,7 @@ const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessf
     const normalizedWord = normalizeWord(value);
     setWord(normalizedWord);
     setErrorMessage("");
+    console.error(errorMessage, "")
     
     if (normalizedWord.length > 0) {
       await descriptionList(normalizedWord);
@@ -92,8 +93,6 @@ const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessf
     const validDescriptions = descriptions
       .map(desc => desc.text.trim())
       .filter(text => text !== "");
-
-    let isSuccess = true;
 
     let _obj = {
       WordContent: trimmedWord, 

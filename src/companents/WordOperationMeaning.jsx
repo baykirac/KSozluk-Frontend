@@ -12,7 +12,8 @@ import wordApi from "../api/wordApi";
 import "../styles/WordOperation.css";
 
 // eslint-disable-next-line react/prop-types
-const WordOperationMeaning = ({ visible, closingModal, word = "", isDisabled, isSuccessfull,}) => {
+const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isSuccessfull,
+}) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
   const [description, setDescription] = useState("");
@@ -361,33 +362,37 @@ const WordOperationMeaning = ({ visible, closingModal, word = "", isDisabled, is
           {recommendMode === 3 || recommendMode === 1 ? (
             descriptions.map((desc) => (
               <div key={desc.id} className="flex align-items-center gap-2 mb-2">
-                <InputTextarea
-                  value={desc.text}
-                  onChange={(e) =>
-                    handleDescriptionChange(desc.id, e.target.value)
-                  }
-                  placeholder={
-                    isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
-                  }
-                  disabled={
-                    isInputDisabled ? recommendMode === 3 : recommendMode === 1
-                  }
-                  className="input-text-area-desc"
-                  autoResize
-                  rows={7}
-                  cols={38}
-                />
-                <Button
-                  icon="pi pi-plus"
-                  className="p-button-rounded p-button-success-plus"
-                  onClick={handleAddDescription}
-                />
-                <Button
-                  icon="pi pi-minus"
-                  className="p-button-rounded p-button-danger-minus"
-                  onClick={() => handleRemoveDescription(desc.id)}
-                  disabled={descriptions.length === 1}
-                />
+                <div className="input-text-area-container">
+                  <InputTextarea
+                    value={desc.text}
+                    onChange={(e) =>
+                      handleDescriptionChange(desc.id, e.target.value)
+                    }
+                    placeholder={
+                      isWordEntered() ? "Öneride bulunun" : "Önce Kelime Girin"
+                    }
+                    disabled={
+                      isInputDisabled
+                        ? recommendMode === 3
+                        : recommendMode === 1
+                    }
+                    className="input-text-area-desc"
+                    autoResize
+                    rows={7}
+                    cols={52}
+                  />
+                  <Button
+                    icon="pi pi-plus"
+                    className="p-button-rounded p-button-success-plus"
+                    onClick={handleAddDescription}
+                  />
+                  <Button
+                    icon="pi pi-minus"
+                    className="p-button-rounded p-button-danger-minus"
+                    onClick={() => handleRemoveDescription(desc.id)}
+                    disabled={descriptions.length === 1}
+                  />
+                </div>
                 <span className="text-sm text-gray-500">
                   {desc.text.length}/2000
                 </span>

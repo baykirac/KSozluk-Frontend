@@ -10,7 +10,6 @@
 
 .modal-searcher {
   width: 100px;
-  margin-left: 20px;
 }
 
 /* .p-inputtext {
@@ -26,23 +25,30 @@
   border-color: #06b6d4;
 }
 
+.input-text-area-container {
+  position: relative;
+}
+
 .input-text-area-desc {
   margin-top: 20px;
   border-radius: 15px;
   max-height: 200px;
   overflow-y: auto;
-  margin-left: 20px;
   border-color: #06b6d4;
 }
 
 .p-button-danger-minus {
-  margin-left: 5px;
+  position: absolute;
+  bottom: 12px; 
+  right: 55px; 
   background-color: #ef4444;
   border-color: #ef4444;
 }
 
 .p-button-success-plus {
-  margin-left: 20px;
+  position: absolute;
+  bottom: 12px; 
+  right: 8px; 
 }
 
 .p-field label {
@@ -215,3 +221,4 @@ body.dark .p-confirm-dialog-accept {
 .text-sm {
   padding-left: 25px;
 }
+

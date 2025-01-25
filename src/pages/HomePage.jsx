@@ -73,6 +73,9 @@ function HomePage() {
               isSelected={openDescriptions}
               searchedWord={searchedWord}
               searchedWordId={searchedWordId}
+              isSearched={() => handleSearch(true)}
+              searchedWordF={setSearchedWord}
+              searchedWordIdF={setSearchedWordId}
             />
             <WordOperation
               visible={openModal}

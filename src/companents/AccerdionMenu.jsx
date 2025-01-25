@@ -35,7 +35,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
         id: wordObj.id,
         wordContent: wordObj.wordContent,
       }));
-      setAllWords(prev => ({
+      setAllWords(prev => ({        
         ...prev,
         [letter]: page === 1 ? newWordContents : [...(prev[letter] || []), ...newWordContents]
       }));

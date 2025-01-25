@@ -3,14 +3,23 @@ body {
   margin: 0;
 }
 
+.timeline-word {
+  font-size: 18px;
+  background-color: #20211c;
+  padding: 8px 10px; 
+  color: #f2f2f2;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  display: inline-block; 
+}
 
 .timeline-description {
-  color: #ffffff;
+  color: #f2f2f2f2;
   margin-bottom: 20px;
 }
 
 .step-parent {
-  margin: 50px 0;
+  margin: 50px 100px ;
 }
 
 .step-container {
@@ -18,12 +27,13 @@ body {
   align-items: center;
   position: relative;
   width: 33.33%;
+  padding-bottom: 10px;
   float: left;
 }
 
 .name {
   position: absolute;
-  top: -25px;
+  top: 33px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -45,7 +55,7 @@ body {
 }
 
 .line {
-  height: 3px;
+  height: 2px;
   background-color: #ccc;
   flex: 1;
 }
@@ -53,42 +63,42 @@ body {
 
 .step-container.blue .circle,
 .step-container.blue .line {
-  background-color: #2196f3;
+  background-color: #ffce34;
 }
 
 
 .status-1 .step-container:nth-child(n-3) .circle,
 .status-1 .step-container:nth-child(n-3) .line {
-  background-color: #2196f3;
+  background-color: #ffcf2c;
 }
 
 
 .status-2 .step-container:nth-child(-n+2) .circle,
 .status-2 .step-container:nth-child(-n+2) .line {
-  background-color: #2196f3;
+  background-color:  #ffcf2c;
 }
 
 
 .status-4 .step-container:nth-child(-n+2) .circle,
 .status-4 .step-container:nth-child(-n+2) .line {
-  background-color: #2196f3;
+  background-color:  #ffcf2c;
 }
 
 .status-3 .step-container .circle,
 .status-3 .step-container .line {
-  background-color: #2196f3;
+  background-color: #ffcf2c;
 }
 
 
 .status-1 .step-container:nth-child(3) .circle,
 .status-1 .step-container:nth-child(3) .line {
-  background-color: #4caf50; 
+  background-color: #69d500; 
 }
 
 
 .status-3 .step-container:nth-child(3) .circle,
 .status-3 .step-container:nth-child(3) .line {
-  background-color: #f44336;
+  background-color: #fb002e;
 }
 
 .timeline-item {

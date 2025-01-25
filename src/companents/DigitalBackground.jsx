@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 const DigitalBackground = () => {
   const [characters, setCharacters] = useState([]);
 
+
   const colorPalette = [
     'rgba(13, 67, 97, 0.5)',
     'rgba(17, 24, 39, 0.5)',

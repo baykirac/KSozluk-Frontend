@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import WordOperationMeaning from "./WordOperationMeaning";
-import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import { RibbonContainer, Ribbon } from "react-ribbons";
 import descriptionApi from "../api/descriptionApi";
 import { useDispatch } from "react-redux";
-import WordCloud from "react-d3-cloud";
-import { scaleOrdinal } from "d3-scale";
-import { schemeCategory10 } from "d3-scale-chromatic";
 import {
   setRecommendMode,
   setSelectedDescription,
@@ -16,28 +12,24 @@ import {
 } from "../data/descriptionSlice";
 import { setSelectedWordId } from "../data/wordSlice";
 import "../styles/Descriptions.css";
-import { Tooltip } from "primereact/tooltip";
 import { AiFillLike } from "react-icons/ai";
 import { AiFillStar } from "react-icons/ai";
 import { AiFillEdit } from "react-icons/ai";
 import wordApi from "../api/wordApi";
-import { ConfirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 
-function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
+// eslint-disable-next-line react/prop-types
+function DescriptionField({isSelected, searchedWord, searchedWordId, isSearched, searchedWordF, searchedWordIdF}) 
+{
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState([]);
-  const [runTips, setRunTips] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
   const [descriptionArray, setDescriptionArray] = useState([]);
-  const [isLike, setIsLike] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWordLike, setIsWordLike] = useState(false);
   const [topWords, setTopWords] = useState([]);
   const [favoriteWords, setFavoriteWords] = useState([]);
+  const dispatch = useDispatch();
   const toast = useRef(null);
-
-  const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
@@ -63,15 +55,13 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       if (_response.isSuccess) {
         setIsWordLike(!isWordLike);
         await GetTopList();
-      }
-      else {
+      } else {
         toast.current.show({
           severity: "error",
           summary: "Hata",
           detail: _response.data.header.message,
         });
       }
-      
     } catch (error) {
       console.error("Error handling like:", error);
       toast.current.show({
@@ -108,7 +98,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
     }
   };
 
-  const dispatch = useDispatch();
   dispatch(setSelectedWordId(searchedWordId));
   const closingModalF = () => {
     setOpenModal(false);
@@ -117,50 +106,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
   const GetDescriptionContent = async (wordId) => {
     const response = await descriptionApi.GetDescriptions(wordId);
     return response;
-  };
-
-  const steps = [
-    {
-      target: ".p-accordion-header-link",
-      content: "Kelimeleri buradan görüntüle.",
-    },
-    {
-      target: ".p-autocomplete-input",
-      content: "Buradan kelimeleri arayabilirsiniz.",
-    },
-    {
-      target: ".floating-button",
-      content: "Buradan kelime ve anlam ekleyebilirsiniz.",
-    },
-  ];
-
-  const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
-
-    if (status === STATUS.RUNNING) {
-      document.querySelector(".react-joyride__beacon")?.click();
-    }
-    document.querySelectorAll(".react-joyride__beacon").forEach((element) => {
-      element.addEventListener("click", () => {
-        document.querySelectorAll(".custom-header").forEach((element) => {
-          element.style.display = "none";
-        });
-      });
-    });
-
-    if (type === EVENTS.TOUR_END || status === STATUS.FINISHED) {
-      setRunTips(false);
-      setStepIndex(0);
-    }
-    if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
-      setStepIndex(index + (action === ACTIONS.PREV ? -1 : 1));
-    } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      document.querySelectorAll(".custom-header").forEach((element) => {
-        element.style.display = "";
-      });
-      setRunTips(false);
-      setStepIndex(0);
-    }
   };
 
   useEffect(() => {
@@ -173,7 +118,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
     try {
       const response = await wordApi.GetTopList();
       setTopWords(response.body.responseTopWordListDtos);
-      console.log(response);
     } catch (e) {
       console.error(e);
     }
@@ -183,14 +127,13 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
     try {
       const response = await descriptionApi.FavouriteWordsOnScreen();
       setFavoriteWords(response.body.responseFavouriteWordsDtos);
-      console.log(response);
     } catch (e) {
       console.error(e);
     }
   };
 
   const fetchDescription = async () => {
-    if (searchedWord) {
+    if (searchedWordId) {
       const response = await GetDescriptionContent(searchedWordId);
       const { body } = response;
       setDescriptionArray(
@@ -203,6 +146,20 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
       setIsFavorite(body.isFavourited);
       setIsWordLike(body.isLikedWord);
     }
+  };
+
+  const handleTopWordClick = (word) => {
+    isSearched();
+    searchedWordF(word.word);
+    searchedWordIdF(word.wordId);
+    dispatch(setSelectedWordId(word.wordId));
+  };
+
+  const handleFavoriteWordClick = (word) => {
+    isSearched();
+    searchedWordF(word.wordContent);
+    searchedWordIdF(word.id);
+    dispatch(setSelectedWordId(word.id));
   };
 
   return (
@@ -222,19 +179,17 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                     marginLeft: 40,
                   }}
                 >
-                  <em>"{searchedWord}"</em>
+                  <em>{searchedWord} </em>
                 </span>
                 <span style={{ fontSize: "18px" }}>
                   {" "}
                   kelimesi için sonuçlar
                 </span>
                 <div
-                  id={`like-button-${searchedWord}`} /*bunu bi sor */
+                  id={`like-button-${searchedWord}`}
                   className={`custom-button-like p-button-text ${
                     isWordLike ? "liked" : ""
                   }`}
-                  tooltip="Beğen"
-                  tooltipOptions={{ position: "top" }}
                   onClick={() => {
                     handleWordLikeClick(searchedWordId);
                   }}
@@ -250,8 +205,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                   className={`custom-button-star p-button-text ${
                     isFavorite ? "favorited" : ""
                   }`}
-                  tooltip="Favorilere Ekle"
-                  tooltipOptions={{ position: "top" }}
                 >
                   <AiFillStar />
                 </div>
@@ -310,8 +263,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                               className={`custom-button-like p-button-text ${
                                 descriptions.isLike ? "liked" : ""
                               }`}
-                              tooltip="Beğen"
-                              tooltipOptions={{ position: "top" }}
                             >
                               <AiFillLike />
                             </div>
@@ -331,8 +282,6 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                                 );
                               }}
                               className="custom-button-recommend p-button-text"
-                              tooltip="Öneride Bulun"
-                              tooltipOptions={{ position: "top" }}
                             >
                               <AiFillEdit />
                             </div>
@@ -395,7 +344,12 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                 style={{ gap: "0.6rem" }}
               >
                 {topWords.map((word, index) => (
-                  <div key={index} className="d-flex align-items-center">
+                  <div
+                    key={index}
+                    className="d-flex align-items-center"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleTopWordClick(word)}
+                  >
                     <div className="number-box">{index + 1}</div>
                     <div className="word-info">
                       <span className="word-name">{word.word}</span>
@@ -410,7 +364,12 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               {favoriteWords.length > 0 && (
                 <div className="favorite-words-list">
                   {favoriteWords.map((word, index) => (
-                    <div key={index} className="d-flex align-items-center">
+                    <div
+                      key={index}
+                      className="d-flex align-items-center"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleFavoriteWordClick(word)}
+                    >
                       <div className="star-icon">
                         <i className="pi pi-star-fill" />
                       </div>
@@ -448,7 +407,14 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
                 style={{ gap: "0.6rem" }}
               >
                 {topWords.map((word, index) => (
-                  <div key={index} className="d-flex align-items-center">
+                  <div
+                    key={index}
+                    className="d-flex align-items-center"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      handleTopWordClick(word);
+                    }}
+                  >
                     <div className="number-box">{index + 1}</div>
                     <div className="word-info">
                       <span className="word-name">{word.word}</span>
@@ -463,7 +429,12 @@ function DescriptionField({ isSelected, searchedWord, searchedWordId }) {
               {favoriteWords.length > 0 && (
                 <div className="favorite-words-list">
                   {favoriteWords.map((word, index) => (
-                    <div key={index} className="d-flex align-items-center">
+                    <div
+                      key={index}
+                      className="d-flex align-items-center"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleFavoriteWordClick(word)}
+                    >
                       <div className="star-icon">
                         <i className="pi pi-star-fill" />
                       </div>
