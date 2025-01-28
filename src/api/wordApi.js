@@ -1,5 +1,4 @@
-//Bu kısımlarda da bazı Slice işlemleri yapılabilir
-//import descriptionSlice from "../data/descriptionSlice";
+
 import api from "./api";
 
 const wordApi = {

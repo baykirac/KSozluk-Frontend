@@ -19,7 +19,7 @@ import wordApi from "../api/wordApi";
 import { Toast } from "primereact/toast";
 
 // eslint-disable-next-line react/prop-types
-function DescriptionField({isSelected, searchedWord, searchedWordId, isSearched, searchedWordF, searchedWordIdF}) 
+function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= "", isSearched, searchedWordF, searchedWordIdF}) 
 {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState([]);
@@ -34,7 +34,6 @@ function DescriptionField({isSelected, searchedWord, searchedWordId, isSearched,
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
       const _response = await descriptionApi.LikeDescription(descriptionId);
-
       if (_response.isSuccess) {
         const tempArray = descriptionArray.map((x) => {
           if (x.id == descriptionId) {
@@ -98,7 +97,7 @@ function DescriptionField({isSelected, searchedWord, searchedWordId, isSearched,
     }
   };
 
-  dispatch(setSelectedWordId(searchedWordId));
+ 
   const closingModalF = () => {
     setOpenModal(false);
   };
@@ -109,6 +108,7 @@ function DescriptionField({isSelected, searchedWord, searchedWordId, isSearched,
   };
 
   useEffect(() => {
+    dispatch(setSelectedWordId(searchedWordId));
     GetTopList();
     fetchDescription();
     FavouriteWordsOnScreen();
@@ -135,16 +135,15 @@ function DescriptionField({isSelected, searchedWord, searchedWordId, isSearched,
   const fetchDescription = async () => {
     if (searchedWordId) {
       const response = await GetDescriptionContent(searchedWordId);
-      const { body } = response;
       setDescriptionArray(
-        body.body.map((descriptions) => ({
+        response.body.body.map((descriptions) => ({
           id: descriptions.id,
           descriptionContent: descriptions.descriptionContent,
           isLike: descriptions.isLike,
         }))
       );
-      setIsFavorite(body.isFavourited);
-      setIsWordLike(body.isLikedWord);
+      setIsFavorite(response.body.isFavourited);
+      setIsWordLike(response.body.isLikedWord);
     }
   };
 

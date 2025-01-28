@@ -186,8 +186,8 @@ body.dark tr.p-row-odd{
 .p-button-rounded{
     height:40px;
     width: 40px;
+    margin-left: 10px;
 }
-
 
 .sidebar {
     /* margin-top: 100px; */

@@ -46,13 +46,6 @@ ax.interceptors.response.use(
       );
       return Promise.reject(error);
     }
-    else{
-      toast.error("Bir hatayla karşılaşıldı!swsw");
-      return Promise.reject(error);
-    }
-
-    // window.location.href = "/SignIn";
-    // return Promise.reject(error);
   }
 );
 
@@ -102,7 +95,7 @@ const api = {
         return {
           isSuccess: false,
           isRateLimit: true,
-          message: e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
+          message: e.response.data.message,
         };
       }
 
@@ -117,21 +110,20 @@ const api = {
     try {
       const response = await ax.post(path, body);
       return parseApiResponse(response);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
 
-      if (e.response?.status === 429) {
+      if (error.response?.status === 429) {
         toast.error(
-          e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin."
+          error.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin."
         );
         return {
           isSuccess: false,
           isRateLimit: true,
-          message: e.response.data.message || "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
+          message: error.response.data.message,
         };
       }
 
-      toast.error("Bilinmeyen bir hata oluştu!");
+      toast.error("Bilinmeyen bir hata oluştu!",error);
       return {
         isSuccess: false,
         message: "Bilinmeyen bir hata oluştu!",

@@ -1,6 +1,4 @@
 import axios from "axios";
-// Bazı Durumlarda Slice Kullanılabilir bu yapıda 
-//import descriptionSlice from "../data/descriptionSlice";
 import api from "./api";
 
 const accessToken = localStorage.getItem("accessToken");

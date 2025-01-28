@@ -1,98 +1,52 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TabMenu } from "primereact/tabmenu";
-
 import { TabView, TabPanel } from "primereact/tabview";
 import { InputText } from "primereact/inputtext";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
+import { FilterMatchMode } from "primereact/api";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import { Dialog } from "primereact/dialog";
 import { RadioButton } from "primereact/radiobutton";
 import { Dropdown } from "primereact/dropdown";
-import { OrderList } from "primereact/orderlist";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { ContextMenu } from "primereact/contextmenu";
 import { Toast } from "primereact/toast";
 import Header from "../companents/Header";
 import "../styles/AdminPage.css";
-
-import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
+import Particles from "@tsparticles/react";
 import { particlesConfig } from "../assets/particalConfig";
-
-import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-
-import { MdOutlineEdit } from "react-icons/md";
-import { AiOutlineOrderedList } from "react-icons/ai";
-import { GiTeamIdea } from "react-icons/gi";
-
-import { WordsService } from "./WordsService";
-
 import WordOperation from "../companents/WordOperation";
 import WordOperationOnly from "../companents/WordOperationOnly";
-//import WordOperationMeaning from "../companents/WordOperationMeaning";
-
 import { InputTextarea } from "primereact/inputtextarea";
-
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-
-import Searcher from "../companents/Searcher";
-
 import wordApi from "../api/wordApi";
 import descriptionApi from "../api/descriptionApi";
 import WordTree from "../companents/WordTree";
 
 function AdminPage() {
   const [page, setPage] = useState(0);
-
-  const [hoveredTab, setHoveredTab] = useState(null);
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [wordsArray, setWordsArray] = useState([]);
-
   const [editedWordsArray, setEditedWordsArray] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-
-  const [openModal, setOpenModal] = useState(false);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openWordModal, setOpenWordModal] = useState(false);
-
-  const [filteredWordArray, setFilteredWordArray] = useState([]);
-
-  const [isWordSearched, setIsWordSearched] = useState(false);
-
   const [pendingCount, setPendingCount] = useState(0);
-
-
-  const [visibleDeleteDescription, setVisibleDeleteDescription] =
-    useState(false);
-
+  const [visibleDeleteDescription, setVisibleDeleteDescription] = useState(false);
   const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
-
   const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
-
-  const [searchedWordforFilter, setSearchedWordforFilter] = useState("");
-
   const [wordId, setWordId] = useState("");
-
   const [descriptionId, setDescriptionId] = useState("");
-
   const [wordAddedSuccessfully, setWordAddedSuccessfully] = useState(false);
-
   const { isAuthenticated, user } = useAuth();
-
   const toast = useRef(null);
-
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
-
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showRejectionReasonModal, setShowRejectionReasonModal] =
-    useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
   const [showCustomReasonModal, setShowCustomReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [nextStatus, setNextStatus] = useState(null);
@@ -203,15 +157,10 @@ function AdminPage() {
   const cm = useRef(null); // context menu için
   const cm2 = useRef(null); // context menu2 için
 
-  const closingModalF = () => {
-    setOpenModal(false);
-  };
-
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
   const statusFilter = (status) => {
     const statusMap = {
       1: "Onaylı",
-      4: "Bekliyor",
+      2: "Bekliyor",
       3: "Reddedildi",
     };
 
@@ -233,15 +182,6 @@ function AdminPage() {
     },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
-
-  const handleMouseEnter = (index) => {
-    // hover işlemleri
-    setHoveredTab(index);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredTab(null);
-  };
 
   const textEditor = (options) => {
     return (
@@ -362,7 +302,6 @@ function AdminPage() {
     });
 
     setEditedWordsArray(sortedArray);
-
     // Yeni kelime ekle ve düzenle sayfası için
     const grouped = wordsArray.reduce((acc, item) => {
       if (!acc[item.id]) {
@@ -392,16 +331,6 @@ function AdminPage() {
     setExpandedWordsArray(Object.values(grouped));
   }, [wordsArray]);
 
-  const itemTemplate = (item) => {
-    return (
-      <div className="flex align-items-center gap-2">
-        <span style={{ fontWeight: "bold", marginRight: "1rem" }}>
-          {item.index + 1}-
-        </span>
-        <span>{item.descriptionContent}</span>
-      </div>
-    );
-  };
   const onRowEditComplete = async (e) => {
     try {
       let _wordsArray = [...editedWordsArray];
@@ -466,7 +395,6 @@ function AdminPage() {
     }
   };
 
-
   const updateDescriptionStatusHandler = async (status) => {
     try {
       let reasonToSend = status === 3 ? rejectionReason : 0;
@@ -520,18 +448,6 @@ function AdminPage() {
     }
   };
 
-  const acceptAddWord = async () => {
-    setOpenWordModal(true);
-  };
-
-  const searchedWordF = (word) => {
-    setSearchedWordforFilter(word);
-  };
-
-  const isSearched = () => {
-    setIsWordSearched(true);
-  };
-
   const statusRowFilterTemplate = (options) => {
     return (
       <Dropdown
@@ -542,10 +458,11 @@ function AdminPage() {
         placeholder="Duruma göre ara"
         className="p-column-filter"
         showClear
-        style={{ minWidth: "12rem" }}
+        style={{ minWidth: "10rem" }}
       />
     );
   };
+
   const statusBodyTemplate = (rowData) => {
     return (
       <Tag
@@ -562,35 +479,6 @@ function AdminPage() {
 
   const statusItemTemplate = (option) => {
     return <Tag value={option} severity={getSeverity(option)} />;
-  };
-
-  const changeOrder = async (e) => {
-    const values = e.value;
-    let isSucceded = true;
-    let message = "";
-    for (let i = 0; i < values.length; i++) {
-      var response = await descriptionApi.UpdateOrder(
-        values[i].descriptionId,
-        i
-      );
-      if (!response.isSuccess) {
-        isSucceded = false;
-        break;
-      }
-      message = response.message;
-    }
-    if (isSucceded) {
-      toast.current.show({
-        severity: "success",
-        summary: "Başarılı",
-        detail: message,
-        life: 3000,
-      });
-
-      setFilteredWordArray(values);
-
-      fetchData();
-    }
   };
 
   const items = [
@@ -646,13 +534,7 @@ function AdminPage() {
       },
     },
   ];
-  useEffect(() => {
-    setFilteredWordArray(
-      editedWordsArray.filter(
-        (item) => item.wordContent == searchedWordforFilter
-      )
-    );
-  }, [searchedWordforFilter]);
+
 
   useEffect(() => {
     if (wordAddedSuccessfully) {
@@ -861,7 +743,6 @@ function AdminPage() {
                       filters={filters}
                       header={header}
                       textEditor={textEditor}
-                      setOpenModal={setOpenModal}
                       setOpenWordModal={setOpenWordModal}
                       setOpenDescriptionModal={setOpenDescriptionModal}
                       setVisibleDeleteDescription={setVisibleDeleteDescription}
@@ -911,28 +792,35 @@ function AdminPage() {
                         filter
                         editor={(options) => textEditor(options)}
                         filterPlaceholder="Kelimeye göre ara"
-                        style={{ minWidth: "18rem", borderTopLeftRadius: 15 }}
+                        style={{ minWidth: "10rem", borderTopLeftRadius: 15 }}
                         bodyStyle={{ padding: 25 }}
                       />
                       <Column
                         header="Anlam"
                         field="descriptionContent"
                         filterField="descriptionContent"
-                        style={{ maxWidth: "40rem" }}
+                        style={{ minWidth: "20rem" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Anlama göre ara"
+                        body= {(rowData)=> {
+                          const content = rowData.descriptionContent;
+                          return content && content.length > 25 ? content.substring(0, 25) + "..." : content || " ";   
+                        }}
                       />
                       <Column
                         header="Önceki Anlam"
                         field="previousDescription.descriptionContent"
                         filterField="previousDescription.descriptionContent"
-                        body={(rowData) =>
-                          rowData.previousDescription.descriptionContent
+                        body={(rowData) => {
+                          const content = rowData.previousDescription.descriptionContent
                             ? rowData.previousDescription.descriptionContent
-                            : " "
+                            : " ";
+                          
+                          return content && content.length > 25 ? content.substring(0, 25) + "..." : content || " ";                     
+                        }                     
                         }
-                        style={{ minWidth: "12rem" }}
+                        style={{ minWidth: "20rem" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Önceki anlama göre ara"
@@ -941,7 +829,7 @@ function AdminPage() {
                         header="Öneren"
                         field="recommender"
                         filterField="recommender"
-                        style={{ minWidth: "12rem" }}
+                        style={{ minWidth: "10rem" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Önerene göre ara"
@@ -950,10 +838,10 @@ function AdminPage() {
                         header="Durum"
                         field="status"
                         filterField="status"
-                        style={{ minWidth: "12rem" }}
+                        style={{ minWidth: "10rem" }}
                         body={statusBodyTemplate}
                         showFilterMenu={false}
-                        filterMenuStyle={{ width: "14rem" }}
+                        filterMenuStyle={{ width: "8rem" }}
                         filter
                         filterElement={statusRowFilterTemplate}
                       />

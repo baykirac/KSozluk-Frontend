@@ -72,22 +72,6 @@ function SignInPage() {
 
       usedPositions.add(`${row}-${col}`);
 
-      // elements.push(
-      //   <div
-      //     key={i}
-      //     className={`floating-element ${
-      //       isLetter ? "floating-letter" : "floating-icon"
-      //     }`}
-      //     style={{
-      //       top: `${row * (100 / gridRows)}%`,
-      //       left: `${col * (100 / gridCols)}%`,
-      //       transform: `rotate(${(i * 17) % 360}deg)`,
-      //       fontSize: `${((i % 3) + 2) * 8}px`,
-      //     }}
-      //   >
-      //     {isLetter ? content : <FontAwesomeIcon icon={content} />}
-      //   </div>
-      // );
     }
     setElements(elements);
   };

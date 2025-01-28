@@ -409,7 +409,7 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
                 className="input-text-area-desc"
                 autoResize
                 rows={7}
-                cols={38}
+                cols={52}
               />
               <span className="text-sm text-gray-500">
                 {description.length}/2000

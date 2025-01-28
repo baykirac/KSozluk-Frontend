@@ -1,35 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { TreeTable } from "primereact/treetable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { BsPencil } from "react-icons/bs";
-import { BiTrash } from "react-icons/bi";
 import { BsInfoCircle } from "react-icons/bs";
 import { ConfirmDialog } from "primereact/confirmdialog";
-import { Tooltip } from "primereact/tooltip";
 import { Dialog } from "primereact/dialog";
 import "primeicons/primeicons.css";
 import descriptionApi from "../api/descriptionApi";
-import wordApi from "../api/wordApi";
 import { InputTextarea } from "primereact/inputtextarea";
 
-const WordTree = ({
-  wordsArray,
-  onRowEditComplete,
-  setVisibleDeleteDescription,
-  setDeletedDescriptionId,
-  setWordId,
-  setVisibleDeleteWord,
-  deleteWordHandler,
-  globalFilterFields,
-  setOpenDescriptionModal,
-  setOpenWordModal,
-  setIsWordOnly,
-  needOrderUpdate,
-  setNeedOrderUpdate,
-  deletedDescriptionId,
-  onWordEditComplete,
+// eslint-disable-next-line react/prop-types
+const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setDeletedDescriptionId,setWordId,setVisibleDeleteWord,
+  // eslint-disable-next-line react/prop-types
+  globalFilterFields,setOpenDescriptionModal,setIsWordOnly,needOrderUpdate,setNeedOrderUpdate,deletedDescriptionId,onWordEditComplete,
 }) => {
   const [nodes, setNodes] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState({});
@@ -37,15 +22,13 @@ const WordTree = ({
   const [editingRows, setEditingRows] = useState({});
   const [filters, setFilters] = useState({});
   const [visibleEditConfirm, setVisibleEditConfirm] = useState(false);
+  const [visibleEditDialog, setVisibleEditDialog] = useState(false); 
   const [editingNode, setEditingNode] = useState(false);
   const [visibleInfoDialog, setVisibleInfoDialog] = useState(false);
   const [currentNode, setCurrentNode] = useState(null);
   const [a, setA] = useState("");
-  const [showRemoveOrderConfirm, setShowRemoveOrderConfirm] = useState(false);
   const [orderToBeUpdated, setOrderToBeUpdated] = useState(null);
   const [loading, setLoading] = useState(false);
-  const cm2 = useRef(null);
-  const [orderQueue, setOrderQueue] = useState([]);
   const [editingWordRows, setEditingWordRows] = useState({});
   const [editingWordNode, setEditingWordNode] = useState(null);
   const [visibleWordEditConfirm, setVisibleWordEditConfirm] = useState(false);
@@ -54,6 +37,7 @@ const WordTree = ({
 
   useEffect(() => {
     if (wordsArray) {
+      // eslint-disable-next-line react/prop-types
       const approvedWords = wordsArray.filter((word) =>
         word.descriptions.some((desc) => desc.status === "Onaylı")
       );
@@ -89,7 +73,7 @@ const WordTree = ({
       );
 
       if (needOrderUpdate && deletedDescriptionId) {
-        // Silinen açıklamanın parent word'ünü bul
+        // eslint-disable-next-line react/prop-types
         const parentWord = wordsArray.find((word) =>
           word.descriptions.some(
             (desc) => desc.descriptionId === deletedDescriptionId
@@ -214,15 +198,12 @@ const WordTree = ({
     setExpandedKeys(newExpandedKeys);
   };
 
-  const expandNodesMatchingColumnFilters = (
-    nodes,
-    filters,
-    expandedKeys,
+  const expandNodesMatchingColumnFilters = (nodes, filters, expandedKeys,
     parentKey = null
   ) => {
     nodes.forEach((node) => {
       const nodeMatches = Object.entries(filters).every(
-        ([field, { value, matchMode }]) => {
+        ([field, { value }]) => {
           if (!value) return true;
           return nodeMatchesFilter(node, value, field);
         }
@@ -245,34 +226,42 @@ const WordTree = ({
   };
 
   const confirmOrderUpdate = (node, direction) => {
-    const parentNode = nodes.find(
-      (n) => n.children && n.children.some((child) => child.key === node.key)
-    );
+    setNodes((prevNodes) => {
+      const parentNode = prevNodes.find((n) =>
+        n.children && n.children.some((child) => child.key === node.key)
+      );
+  
+      if (!parentNode) return prevNodes; 
+  
+      const siblings = [...parentNode.children];
+      const currentIndex = siblings.findIndex((child) => child.key === node.key);
+  
+      const siblingIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  
+      if (siblingIndex < 0 || siblingIndex >= siblings.length) return prevNodes;
+  
 
-    if (!parentNode) return;
+      [siblings[currentIndex], siblings[siblingIndex]] = [
+        siblings[siblingIndex],
+        siblings[currentIndex],
+      ];
+  
+      const updatedParentNode = { ...parentNode, children: siblings };
 
-    const siblings = parentNode.children;
-    const currentIndex = siblings.findIndex((child) => child.key === node.key);
-
-    const siblingIndex =
-      direction === "up" ? currentIndex - 1 : currentIndex + 1;
-
-    if (siblingIndex < 0 || siblingIndex >= siblings.length) return;
-
-    // Swap order values
-    const tempOrder = siblings[currentIndex].data.order;
-    siblings[currentIndex].data.order = siblings[siblingIndex].data.order;
-    siblings[siblingIndex].data.order = tempOrder;
-
-    setOrderToBeUpdated({
-      id: siblings[currentIndex].data.descriptionId,
-      siblingId: siblings[siblingIndex].data.descriptionId,
-      siblingCurrentOrder: siblings[siblingIndex].data.order,
-      currentOrder: siblings[currentIndex].data.order,
+      setOrderToBeUpdated({
+        id: node.data.descriptionId,
+        siblingId: siblings[siblingIndex].data.descriptionId,
+        siblingCurrentOrder: siblings[siblingIndex].data.order,
+        currentOrder: siblings[currentIndex].data.order,
+      });
+  
+      return prevNodes.map((node) =>
+        node.key === parentNode.key ? updatedParentNode : node
+      );
     });
-
-    setShowRemoveOrderConfirm(true);
+  
   };
+  
 
   const handleOrderUpdate = async () => {
     if (!orderToBeUpdated) return;
@@ -308,7 +297,6 @@ const WordTree = ({
       console.error("Error updating order:", error);
     } finally {
       setLoading(false);
-      setShowRemoveOrderConfirm(false);
       setOrderToBeUpdated(null);
     }
   };
@@ -404,18 +392,6 @@ const WordTree = ({
               </div>
             )}
           </div>
-          <ConfirmDialog
-            visible={showRemoveOrderConfirm}
-            onHide={() => setShowRemoveOrderConfirm(false)}
-            message="Bu anlamın sırasını güncellemek istediğinizden emin misiniz?"
-            header="Anlam Sırasının Güncellenmesi"
-            icon="pi pi-exclamation-triangle"
-            accept={handleOrderUpdate}
-            acceptLabel="Evet"
-            rejectLabel="Hayır"
-            reject={() => setShowRemoveOrderConfirm(false)}
-            modal={false}
-          />
         </>
       );
     }
@@ -567,7 +543,7 @@ const WordTree = ({
                   <>
                   
                     <InputTextarea
-                      cols = {40}
+                      cols = {50}
                       value={editedDialogContent}
                       onChange={(e) => setEditedDialogContent(e.target.value)}
                       className="w-full"
@@ -580,7 +556,7 @@ const WordTree = ({
                     />
                     <Button
                       icon="pi pi-times"
-                      className="p-button-rounded p-button-danger ml-2"
+                      className="p-button-rounded p-button-danger x"
                       onClick={() => setEditingDialogNode(null)}
                     />
                   </>
@@ -624,6 +600,7 @@ const WordTree = ({
       originalContent: node.data.wordContent,
     };
     setEditingWordNode(newNode);
+    setVisibleEditDialog(true); 
     setEditingWordRows({ ...editingWordRows, [node.key]: true });
   };
 
@@ -678,7 +655,9 @@ const WordTree = ({
         });
         setNodes(newNodes);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
 
     setVisibleWordEditConfirm(false);
     setEditingWordNode(null);
@@ -703,31 +682,51 @@ const WordTree = ({
     if (node.children) {
       if (editingWordRows[node.key]) {
         return (
-          <div className="flex align-items-center">
-            <InputText
-              type="text"
-              value={node.data.wordContent}
-              onChange={(e) =>
-                onWordEditorValueChange(
-                  { node, field: "wordContent" },
-                  e.target.value
-                )
+          <>
+          {/* Dialog bileşeni */}
+          <Dialog
+              header="Kelime Düzenle"
+              visible={visibleEditDialog}
+              onHide={() => setVisibleEditDialog(false)/cancelWordEdit(editingWordNode)} // Dialogu kapat
+              footer={
+                  <div className="flex align-items-center">
+                      <InputText
+                          type="text"
+                          value={editingWordNode?.data.wordContent} // Düzenlenecek kelimenin içeriği
+                          onChange={(e) =>
+                              onWordEditorValueChange(
+                                  { node: editingWordNode, field: "wordContent" },
+                                  e.target.value
+                              )
+                          }
+                          className="mr-2"
+                      />
+                      <Button
+                          icon="pi pi-check"
+                          className="p-button-rounded p-button-success p-mr-2"
+                          onClick={() => {
+                              handleWordEditComplete(editingWordNode); // Onay butonu
+                              setVisibleEditDialog(false); // Dialogu kapat
+                          }}
+                          style={{ marginLeft: "10px" }}
+                      />
+                      <Button
+                          icon="pi pi-times"
+                          className="p-button-rounded p-button-danger"
+                          onClick={() => {
+                              cancelWordEdit(editingWordNode); // İptal butonu
+                              setVisibleEditDialog(false); // Dialogu kapat
+                          }}
+                          style={{ marginLeft: "4px" }}
+                      />
+                  </div>
               }
-              className="mr-2"
-            />
-            <Button
-              icon="pi pi-check"
-              className="p-button-rounded p-button-success p-mr-2"
-              onClick={() => handleWordEditComplete(node)}
-              style={{ marginLeft: "10px" }}
-            />
-            <Button
-              icon="pi pi-times"
-              className="p-button-rounded p-button-danger"
-              onClick={() => cancelWordEdit(node)}
-              style={{ marginLeft: "4px" }}
-            />
-          </div>
+          >
+              {/* Dialog içeriği burada */}
+              <p>Düzenlemek istediğiniz kelimeyi giriniz.</p>
+          </Dialog>
+
+      </>
         );
       }
       return (

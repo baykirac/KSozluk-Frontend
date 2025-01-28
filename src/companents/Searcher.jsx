@@ -5,18 +5,11 @@ import "../styles/Searcher.css";
 import wordApi from "../api/wordApi";
 import _, { filter } from "lodash";
 
-function Searcher({
-  isSearched,
-  forModal,
-  searchedWordF,
-  searchedWordIdF,
-  word,
-  setTheWordF,
-  forAdmin,
-  isDisabled,
+// eslint-disable-next-line react/prop-types
+function Searcher({isSearched, forModal, searchedWordF, searchedWordIdF, word, setTheWordF, forAdmin, isDisabled,
 }) {
   const [value, setValue] = useState(word);
-  const [filteredItems, setfilteredItems] = useState([]);
+  const [, setfilteredItems] = useState([]);
   const [words, setWords] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
@@ -24,7 +17,12 @@ function Searcher({
     if (!e.query.trim()) return; 
     
     setfilteredItems(
-      words.filter((item) => item.toLowerCase().includes(e.query.toLowerCase()))
+      filter(words, (item) => {
+        if (typeof item === 'string') {
+          return item.toLowerCase().includes(e.query.toLowerCase());
+        }
+        return false;
+      })
     );
   };
 
