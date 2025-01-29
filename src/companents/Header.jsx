@@ -233,7 +233,7 @@ function Header({ onSearch }) {
         <div key={index} className="timeline-item">
           <div className="timeline-word">{item.wordContent}</div>
           <div className="timeline-description">{item.descriptionContent}</div>
-          <div className={`step-parent status-${item.status}`}>
+          <div className={`step-parent status-${item.status}`} style={{marginBottom: 5}}>
             <div className="step-container">             
               <div className="line"></div>
               <div className="circle">!</div>

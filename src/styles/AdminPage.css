@@ -360,3 +360,12 @@ body.dark .pi.pi-plus.floating-button.p-button.p-component{ /*iconun rengi pembe
 .tooltip-word-delete{
     position:left !important;
 }
+
+.row-color-1 {
+    background-color: #f0f8ff;
+  
+}
+  
+.row-color-2 {
+    background-color: #ffe4e1; 
+}

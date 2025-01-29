@@ -36,7 +36,8 @@ function AdminPage() {
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openWordModal, setOpenWordModal] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const [visibleDeleteDescription, setVisibleDeleteDescription] = useState(false);
+  const [visibleDeleteDescription, setVisibleDeleteDescription] =
+    useState(false);
   const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
   const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
   const [wordId, setWordId] = useState("");
@@ -46,7 +47,8 @@ function AdminPage() {
   const toast = useRef(null);
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] =
+    useState(false);
   const [showCustomReasonModal, setShowCustomReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [nextStatus, setNextStatus] = useState(null);
@@ -55,7 +57,8 @@ function AdminPage() {
   const [customRejectionReason, setCustomReasonReason] = useState("");
   const [needOrderUpdate, setNeedOrderUpdate] = useState(false);
   const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
-  
+  const [selectedContent, setSelectedContent] = useState(""); 
+  const [showContentDialog, setShowContentDialog] = useState(false);
 
   const rejectionReasons = [
     { name: "Uygunsuz", value: 1 },
@@ -203,7 +206,7 @@ function AdminPage() {
         life: 3000,
       });
 
-      setNeedOrderUpdate(true);//flag
+      setNeedOrderUpdate(true); //flag
       fetchData();
     }
   };
@@ -378,8 +381,8 @@ function AdminPage() {
           summary: "Başarılı",
           detail: response.message,
         });
-        setWordsArray(prevWords => 
-          prevWords.map(word => {
+        setWordsArray((prevWords) =>
+          prevWords.map((word) => {
             if (word.wordId === wordId) {
               return { ...word, wordContent: wordContent };
             }
@@ -387,7 +390,6 @@ function AdminPage() {
           })
         );
         return true;
-        
       }
       return false;
     } catch (error) {
@@ -523,6 +525,15 @@ function AdminPage() {
   const deleteWordHandler = () => {
     setVisibleDeleteWord(true);
   };
+   
+  const handleContentClick = (content) => {
+    setSelectedContent(content); // Tıklanan içeriği ayarlayın
+    setShowContentDialog(true); 
+  }
+
+  const getRowClassName = (index) => {
+    return index % 2 === 0 ? 'row-color-1' : 'row-color-2'; // İki farklı renk sınıfı
+  };
 
   const items2 = [
     {
@@ -534,7 +545,6 @@ function AdminPage() {
       },
     },
   ];
-
 
   useEffect(() => {
     if (wordAddedSuccessfully) {
@@ -746,7 +756,7 @@ function AdminPage() {
                       setOpenWordModal={setOpenWordModal}
                       setOpenDescriptionModal={setOpenDescriptionModal}
                       setVisibleDeleteDescription={setVisibleDeleteDescription}
-                      deletedDescriptionId={deletedDescriptionId}                  
+                      deletedDescriptionId={deletedDescriptionId}
                       setDeletedDescriptionId={setDeletedDescriptionId}
                       needOrderUpdate={needOrderUpdate}
                       setNeedOrderUpdate={setNeedOrderUpdate}
@@ -785,6 +795,7 @@ function AdminPage() {
                         "recommender",
                       ]}
                       emptyMessage="Kelime bulunamadı."
+                      rowClassName={getRowClassName}
                     >
                       <Column
                         field="wordContent"
@@ -792,20 +803,26 @@ function AdminPage() {
                         filter
                         editor={(options) => textEditor(options)}
                         filterPlaceholder="Kelimeye göre ara"
-                        style={{ minWidth: "10rem", borderTopLeftRadius: 15 }}
-                        bodyStyle={{ padding: 25 }}
+                        style={{ minWidth: "17rem", borderTopLeftRadius: 15 }}
+                        bodyStyle={{ padding: 40 }}
                       />
                       <Column
                         header="Anlam"
                         field="descriptionContent"
                         filterField="descriptionContent"
-                        style={{ minWidth: "20rem" }}
+                        style={{ minWidth: "17rem", cursor: "pointer" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Anlama göre ara"
-                        body= {(rowData)=> {
+                        body={(rowData) => {
                           const content = rowData.descriptionContent;
-                          return content && content.length > 25 ? content.substring(0, 25) + "..." : content || " ";   
+                          return (
+                            <span onClick={() => handleContentClick(content)}>
+                              {content && content.length > 25
+                                ? content.substring(0, 25) + "..."
+                                : content || ""}
+                            </span>
+                          );
                         }}
                       />
                       <Column
@@ -813,23 +830,29 @@ function AdminPage() {
                         field="previousDescription.descriptionContent"
                         filterField="previousDescription.descriptionContent"
                         body={(rowData) => {
-                          const content = rowData.previousDescription.descriptionContent
+                          const content = rowData.previousDescription
+                            .descriptionContent
                             ? rowData.previousDescription.descriptionContent
                             : " ";
-                          
-                          return content && content.length > 25 ? content.substring(0, 25) + "..." : content || " ";                     
-                        }                     
-                        }
-                        style={{ minWidth: "20rem" }}
+
+                          return (
+                            <span onClick={() => handleContentClick(content)}>
+                              {content && content.length > 25
+                                ? content.substring(0, 25) + "..."
+                                : content || " "}
+                            </span>
+                          );
+                        }}
+                        style={{ minWidth: "17rem", cursor: "pointer" }}
                         editor={(options) => textEditor(options)}
                         filter
-                        filterPlaceholder="Önceki anlama göre ara"
+                        filterPlaceholder="Önceki anlama göre"
                       />
                       <Column
                         header="Öneren"
                         field="recommender"
                         filterField="recommender"
-                        style={{ minWidth: "10rem" }}
+                        style={{ minWidth: "17rem" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Önerene göre ara"
@@ -838,14 +861,22 @@ function AdminPage() {
                         header="Durum"
                         field="status"
                         filterField="status"
-                        style={{ minWidth: "10rem" }}
+                        style={{ minWidth: "17rem" }}
                         body={statusBodyTemplate}
                         showFilterMenu={false}
-                        filterMenuStyle={{ width: "8rem" }}
+                        filterMenuStyle={{ width: "17rem" }}
                         filter
                         filterElement={statusRowFilterTemplate}
                       />
                     </DataTable>
+                    <Dialog
+                      header="Tam İçerik"
+                      visible={showContentDialog}
+                      style={{ width: "50vw" }}
+                      onHide={() => setShowContentDialog(false)}
+                    >
+                      <p>{selectedContent}</p>
+                    </Dialog>
                   </p>
                 </TabPanel>
               </TabView>
