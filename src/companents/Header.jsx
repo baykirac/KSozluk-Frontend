@@ -4,7 +4,7 @@ import { OverlayPanel } from "primereact/overlaypanel";
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { Dialog } from "primereact/dialog";
-import { signOut } from "../services/userService";
+import { outUserData } from "../services/userService";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
@@ -14,7 +14,7 @@ import "../styles/Header.css";
 
 // eslint-disable-next-line react/prop-types
 function Header({ onSearch }) {
-  const { isAuthenticated, user, revoke } = useAuth();
+  const { isAuthenticated, user, isInputDisabled } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const op = useRef(null);
@@ -22,22 +22,21 @@ function Header({ onSearch }) {
   const [openModal, setOpenModal] = useState(false);
   const [timelineModal, setTimelineModal] = useState(false);
   const [timelineData, setTimelineData] = useState([]);
-  
+  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
+  const [selectedRejectionReason, setSelectedRejectionReason] = useState("");
 
   const isAdminPage = location.pathname === "/AdminPage";
 
-  const isLoginPage = location.pathname === "/SignIn";
-
+  const isLoginPage = location.pathname === "/LoginPage";
 
   useEffect(() => {
     document.body.classList.add("dark");
-    getTimeline();
   }, [isLoginPage]);
 
   const getTimeline = async () => {
     try {
       const response = await descriptionApi.DescriptionTimeline();
-      if (response.isSuccess) {
+      if (response.success) {
         setTimelineData(response.body);
       }
     } catch (error) {
@@ -46,9 +45,8 @@ function Header({ onSearch }) {
   };
 
   function handleSignOut() {
-    revoke();
-    signOut();
-    navigate("/SignIn");
+    outUserData();
+    navigate("/LoginPage");
   }
 
   function handleGoToAdmin() {
@@ -56,7 +54,7 @@ function Header({ onSearch }) {
   }
 
   function handleLogin() {
-    navigate("/SignIn");
+    navigate("/LoginPage");
   }
 
   const handleSearch = () => {
@@ -67,6 +65,26 @@ function Header({ onSearch }) {
 
   const closingModalF = () => {
     setOpenModal(false);
+  };
+
+  const rejectionReason = [
+    { name: "Uygunsuz", value: 1 },
+    { name: "Zaten Mevcut", value: 2 },
+    { name: "Eksik Açıklama", value: 3 },
+    { name: "Yanlış Tanım", value: 4 },
+    { name: "Karmaşık veya Anlaşılmaz İfade", value: 5 },
+    { name: "Birden Fazla Anlam", value: 6 },
+    { name: "Diğer", value: 7 },
+  ];
+
+  const handleOpenRejectionDialog = (reasonValue, customReason) => {
+    if (reasonValue === 7 && customReason) {
+      setSelectedRejectionReason(customReason);
+    } else {
+      const foundReason = rejectionReason.find((r) => r.value === reasonValue);
+      setSelectedRejectionReason(foundReason ? foundReason.name : "");
+    }
+    setShowRejectionDialog(true);
   };
 
   const infoModalContent = (
@@ -135,15 +153,18 @@ function Header({ onSearch }) {
               tooltip="Bilgi"
               tooltipOptions={{ position: "left" }}
             />
-            <Button
-              tooltip="Önerilerim"
-              tooltipOptions={{ showDelay: 250, position: "left" }}
-              icon="pi pi-calendar"
-              className="floating-button"
-              onClick={() => {
-                setTimelineModal(true);
-              }}
-            />
+            {!isAdminPage && (
+              <Button
+                tooltip="Önerilerim"
+                tooltipOptions={{ showDelay: 250, position: "left" }}
+                icon="pi pi-calendar"
+                className="floating-button"
+                onClick={() => {
+                  setTimelineModal(true);
+                  getTimeline();
+                }}
+              />
+            )}
           </>
         )}
         {isAuthenticated ? (
@@ -160,16 +181,16 @@ function Header({ onSearch }) {
               <Card title="Kullanıcı Bilgileri">
                 <Avatar icon="pi pi-user" size="large" shape="circle" />
                 <p>
-                  <strong>Ad Soyad:</strong> {user.name}
+                  <strong>Ad Soyad:</strong> {user.username}
                 </p>
-                <p>
+                {/* <p>
                   <strong>E-posta:</strong> {user.email}
                 </p>
                 <p>
                   <strong>Yetki:</strong>{" "}
-                  {user.role === "2" ? "Admin" : "Kullanıcı"}
-                </p>
-                {user.role === "2" ? (
+                  {!isInputDisabled}
+                </p> */}
+                {!isInputDisabled ? (
                   <Button
                     label="Admin Paneli"
                     icon="pi pi-cog"
@@ -221,50 +242,83 @@ function Header({ onSearch }) {
         {infoModalContent}
       </Dialog>
       <Dialog
-    visible={timelineModal}
-    style={{ width: "50vw" }}
-    onHide={() => setTimelineModal(false)}
-    dismissableMask={true}
-    closeOnEscape={true}
-    header="Önerilerim"
-  >
-    <div className="timeline-container">
-      {timelineData.map((item, index) => (
-        <div key={index} className="timeline-item">
-          <div className="timeline-word">{item.wordContent}</div>
-          <div className="timeline-description">{item.descriptionContent}</div>
-          <div className={`step-parent status-${item.status}`} style={{marginBottom: 5}}>
-            <div className="step-container">             
-              <div className="line"></div>
-              <div className="circle">!</div>
-              <div className="line"></div>
-              <div className="name">Önerildi</div>
-            </div>
-            <div className="step-container">          
-              <div className="line"></div>
-              <div className="circle">?</div>
-              <div className="line"></div>
-              <div className="name">Değerlendiriliyor</div>
-            </div>
-            <div className="step-container">        
-              <div className="line"></div>
-              <div className="circle">
-              {item.status === 1 ? '✓' : 
-              item.status === 3 ? 'X' : '?'}
+        visible={timelineModal}
+        style={{ width: "50vw" }}
+        onHide={() => setTimelineModal(false)}
+        dismissableMask={true}
+        closeOnEscape={true}
+        header="Önerilerim"
+      >
+        <div className="timeline-container">
+          {timelineData.map((item, index) => (
+            <div key={index} className="timeline-item">
+              <div className="timeline-word">{item.wordContent}</div>
+              {item.rejectionReasons && (
+                <Button
+                  icon="pi pi-bookmark"
+                  severity="warning"
+                  aria-label="Notification"
+                  className="cool-button"
+                  onClick={() =>
+                    handleOpenRejectionDialog(
+                      item.rejectionReasons,
+                      item.customRejectionReason
+                    )
+                  }
+                />
+              )}
+              <div className="timeline-description">
+                {item.descriptionContent}
               </div>
-              <div className="line"></div>
-              <div className="name">
-                {item.status === 1 ? 'Onaylandı' : 
-                 item.status === 3 ? 'Reddedildi' : 'Bekliyor'}
+              <div
+                className={`step-parent status-${item.status}`}
+                style={{ marginBottom: 5 }}
+              >
+                <div className="step-container">
+                  <div className="line"></div>
+                  <div className="circle">!</div>
+                  <div className="line"></div>
+                  <div className="name">Önerildi</div>
+                </div>
+                <div className="step-container">
+                  <div className="line"></div>
+                  <div className="circle">?</div>
+                  <div className="line"></div>
+                  <div className="name">Değerlendiriliyor</div>
+                </div>
+                <div className="step-container">
+                  <div className="line"></div>
+                  <div className="circle">
+                    {item.status === 1 ? "✓" : item.status === 3 ? "X" : "?"}
+                  </div>
+                  <div className="line"></div>
+                  <div className="name">
+                    {item.status === 1
+                      ? "Onaylandı"
+                      : item.status === 3
+                      ? "Reddedildi"
+                      : "Bekliyor"}
+                  </div>
+                </div>
+              </div>
+              <div style={{ clear: "both" }}></div>
             </div>
-            </div>
-          </div>
-          <div style={{ clear: 'both' }}></div>
+          ))}
         </div>
-      ))}
-    </div>
-  </Dialog>
-
+      </Dialog>
+      {/* Reddedildi Dialog */}
+      <Dialog
+        visible={showRejectionDialog}
+        style={{ width: "30vw" }}
+        onHide={() => setShowRejectionDialog(false)}
+        dismissableMask={true}
+        closeOnEscape={true}
+        header="Öneriniz Reddedildi"
+      >
+        <p>
+          Red Sebebi <strong>{selectedRejectionReason}</strong> .
+        </p>
+      </Dialog>
       <WordOperationMeaning
         visible={openModal}
         closingModal={closingModalF}

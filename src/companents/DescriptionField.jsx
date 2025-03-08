@@ -5,6 +5,7 @@ import WordOperationMeaning from "./WordOperationMeaning";
 import { RibbonContainer, Ribbon } from "react-ribbons";
 import descriptionApi from "../api/descriptionApi";
 import { useDispatch } from "react-redux";
+import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 import {
   setRecommendMode,
   setSelectedDescription,
@@ -19,14 +20,15 @@ import wordApi from "../api/wordApi";
 import { Toast } from "primereact/toast";
 
 // eslint-disable-next-line react/prop-types
-function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= "", isSearched, searchedWordF, searchedWordIdF}) 
-{
+function DescriptionField({isSelected = false,searchedWord = "",searchedWordId = "",isSearched,searchedWordF,searchedWordIdF,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState([]);
   const [descriptionArray, setDescriptionArray] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWordLike, setIsWordLike] = useState(false);
   const [topWords, setTopWords] = useState([]);
+  const [timeWords, setTimeWords] = useState([]);
   const [favoriteWords, setFavoriteWords] = useState([]);
   const dispatch = useDispatch();
   const toast = useRef(null);
@@ -34,7 +36,7 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
       const _response = await descriptionApi.LikeDescription(descriptionId);
-      if (_response.isSuccess) {
+      if (_response.success) {
         const tempArray = descriptionArray.map((x) => {
           if (x.id == descriptionId) {
             return { ...x, isLike: !x.isLike };
@@ -51,14 +53,14 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
   const handleWordLikeClick = async () => {
     try {
       const _response = await wordApi.LikeWord(searchedWordId);
-      if (_response.isSuccess) {
+      if (_response.success) {
         setIsWordLike(!isWordLike);
         await GetTopList();
       } else {
         toast.current.show({
           severity: "error",
           summary: "Hata",
-          detail: _response.data.header.message,
+          detail: _response.data.message,
         });
       }
     } catch (error) {
@@ -75,14 +77,14 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
     try {
       const response = await descriptionApi.FavouriteWord(wordId);
 
-      if (response.data.header.isSuccess) {
+      if (response.success) {
         setIsFavorite(!isFavorite);
         await FavouriteWordsOnScreen();
       } else {
         toast.current.show({
           severity: "error",
           summary: "Hata",
-          detail: response.data.header.message,
+          detail: response.data.message,
         });
       }
     } catch (error) {
@@ -97,7 +99,6 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
     }
   };
 
- 
   const closingModalF = () => {
     setOpenModal(false);
   };
@@ -112,12 +113,29 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
     GetTopList();
     fetchDescription();
     FavouriteWordsOnScreen();
+    fetchAllWords();
   }, [searchedWord, searchedWordId]);
 
   const GetTopList = async () => {
     try {
       const response = await wordApi.GetTopList();
-      setTopWords(response.body.responseTopWordListDtos);
+      setTopWords(response.body);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchAllWords = async () => {
+    try {
+      const response = await wordApi.GetAllWords();
+      const wordsWithDates = response.body.map((word) => ({
+        ...word,
+        operationDate: new Date(word.operationDate), // Ensure operationDate is a Date object
+      }));
+      const sortedWords = wordsWithDates.sort(
+        (a, b) => b.operationDate - a.operationDate
+      );
+      setTimeWords(sortedWords.slice(0, 10)); // Get the last 10 words
     } catch (e) {
       console.error(e);
     }
@@ -126,7 +144,7 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
   const FavouriteWordsOnScreen = async () => {
     try {
       const response = await descriptionApi.FavouriteWordsOnScreen();
-      setFavoriteWords(response.body.responseFavouriteWordsDtos);
+      setFavoriteWords(response.body);
     } catch (e) {
       console.error(e);
     }
@@ -136,7 +154,7 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
     if (searchedWordId) {
       const response = await GetDescriptionContent(searchedWordId);
       setDescriptionArray(
-        response.body.body.map((descriptions) => ({
+        response.body.map((descriptions) => ({
           id: descriptions.id,
           descriptionContent: descriptions.descriptionContent,
           isLike: descriptions.isLike,
@@ -322,13 +340,6 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
                 Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
                 katkıda bulunabilirsiniz. Her katkınız değerlidir!
               </p>
-              <span>İletişim için: </span>
-              <a
-                href="ik@basarsoft.com.tr"
-                style={{ color: "aqua", textDecoration: "underline" }}
-              >
-                ik@basarsoft.com.tr
-              </a>
 
               <WordOperationMeaning
                 visible={openModal}
@@ -342,20 +353,26 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
                 className="top-list d-flex flex-column"
                 style={{ gap: "0.6rem" }}
               >
-                {topWords.map((word, index) => (
-                  <div
-                    key={index}
-                    className="d-flex align-items-center"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleTopWordClick(word)}
-                  >
-                    <div className="number-box">{index + 1}</div>
-                    <div className="word-info">
-                      <span className="word-name">{word.word}</span>
-                      <span className="word-details">{word.count} Kelime</span>
+                {topWords?.length > 0 ? (
+                  topWords.map((word, index) => (
+                    <div
+                      key={index}
+                      className="d-flex align-items-center"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleTopWordClick(word)}
+                    >
+                      <div className="number-box">{index + 1}</div>
+                      <div className="word-info">
+                        <span className="word-name">{word.word}</span>
+                        <span className="word-details">
+                          {word.count} Kelime
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p>Henüz popüler kelime yok.</p>
+                )}
               </div>
             </Card>
 
@@ -386,12 +403,84 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
               className="card-sss"
               style={{ color: "white" }}
             >
-              {/* <Steps model={timeline} /> */}
               <p>
                 Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
                 ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
                 kontrol etmeyi unutmayın!
               </p>
+              <div
+                className="top-list words-item d-flex flex-wrap align-items-center"
+                style={{ gap: "0.6rem", flexDirection: "row" }}
+              >
+                {timeWords
+                  .filter((word) => word.status === 1)
+                  .map((word, index) => (
+                    <div
+                      key={index}
+                      className="d-flex align-items-center"
+                      style={{
+                        minWidth: "120px",
+                      }}
+                    >
+                      <div className="words-info">
+                        <span className="words-name">{word.wordContent}</span>{" "}
+                        <span className="words-date">
+                          {new Date(word.operationDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </Card>
+
+            <Card className="card-sss">
+              <span>
+                © Başarsoft Bilgi Teknolojileri A.Ş. 1997 - 2024 | Tüm hakları
+                saklıdır.
+              </span>
+              <div className="social-container">
+                <div>
+                  <br></br>
+                  <span>İletişime Geçmek İçin </span>
+                  <a
+                    href="mailto:ik@basarsoft.com.tr" // Gmail web arayüzünde yeni e-posta oluşturma
+                    target="_blank" // Yeni sekmede açılması için eklendi
+                    style={{ color: "aqua", textDecoration: "underline" }}
+                  >
+                    ik@basarsoft.com.tr
+                  </a>
+                </div>
+                <div className="social-icons">
+                  <a
+                    href="https://www.facebook.com/basarsoft/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaFacebook />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/basarsofttr/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaInstagram />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/basarsoft/posts/?feedView=all"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaLinkedin />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/user/basarsoftcbs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaYoutube />
+                  </a>
+                </div>
+              </div>
             </Card>
           </div>
         )}
@@ -405,22 +494,26 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
                 className="top-list d-flex flex-column"
                 style={{ gap: "0.6rem" }}
               >
-                {topWords.map((word, index) => (
-                  <div
-                    key={index}
-                    className="d-flex align-items-center"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => {
-                      handleTopWordClick(word);
-                    }}
-                  >
-                    <div className="number-box">{index + 1}</div>
-                    <div className="word-info">
-                      <span className="word-name">{word.word}</span>
-                      <span className="word-details">{word.count} Kelime</span>
+                {topWords?.length > 0 ? (
+                  topWords.map((word, index) => (
+                    <div
+                      key={index}
+                      className="d-flex align-items-center"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleTopWordClick(word)}
+                    >
+                      <div className="number-box">{index + 1}</div>
+                      <div className="word-info">
+                        <span className="word-name">{word.word}</span>
+                        <span className="word-details">
+                          {word.count} Kelime
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p>Henüz popüler kelime yok.</p>
+                )}
               </div>
             </Card>
 
@@ -444,36 +537,6 @@ function DescriptionField({isSelected= false, searchedWord= "", searchedWordId= 
                   ))}
                 </div>
               )}
-            </Card>
-
-            <Card
-              title="Öneriler"
-              className="card-sss"
-              style={{ color: "white" }}
-            >
-              <p>
-                Eksik gördüğünüz kavramları bildirerek sözlüğümüzün gelişimine
-                katkıda bulunabilirsiniz. Her katkınız değerlidir!
-              </p>
-              <span>İletişim için: </span>
-              <a
-                href="mailto: ik@basarsoft.com.tr"
-                style={{ color: "aqua", textDecoration: "underline" }}
-              >
-                ik@basarsoft.com.tr
-              </a>
-            </Card>
-
-            <Card
-              title="Güncellemeler"
-              className="card-sss"
-              style={{ color: "white" }}
-            >
-              <p>
-                Sözlüğümüz sürekli güncellenmektedir. En son eklenen kavramları
-                ve yapılan güncellemeleri burada görebilirsiniz. Düzenli olarak
-                kontrol etmeyi unutmayın!
-              </p>
             </Card>
           </div>
         )}

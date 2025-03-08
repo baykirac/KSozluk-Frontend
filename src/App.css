@@ -114,3 +114,8 @@
 .flex-column{
     flex-direction: column;
 }
+/*! LDAP CSS */
+
+.bs-login.center .bs-login-side .bs-login-form {
+    background-color: rgba(206, 204, 204, 0.9) !important;
+}

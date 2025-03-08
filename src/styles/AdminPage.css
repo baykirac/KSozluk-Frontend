@@ -246,6 +246,20 @@ body.dark tr.p-row-odd{
     text-align: center;
 }
 
+.p-column-filter-menu-button{
+    background-color: #363638 !important;
+}
+
+.p-column-filter-overlay{
+    background-color: #1f1f1f !important;
+}
+.p-column-filter-overlay .p-highlight{
+    background-color: #494848 !important;
+    color: white;
+}
+.p-column-filter-overlay .p-highlight :hover{
+    background-color: #1f1f1f !important;
+}
 
 .ps-menuitem-root.sidebar-menu-item.hovered .notification-badge {
     position: absolute;

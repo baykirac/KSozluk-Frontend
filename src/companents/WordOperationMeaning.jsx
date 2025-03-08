@@ -176,7 +176,7 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
 
         const response = await wordApi.RecommendWord(_obj);
 
-        if (!response.isSuccess) {
+        if (!response.success) {
           toast.current.show({
             severity: "error",
             summary: "Hata",
@@ -200,7 +200,7 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
           );
         }
 
-        if (response.isSuccess) {
+        if (response.success) {
           showToaster({ message: "Öneri başarıyla eklendi." });
           setWord("");
           setDescription("");
@@ -393,9 +393,9 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
                     disabled={descriptions.length === 1}
                   />
                 </div>
-                <span className="text-sm text-gray-500">
+                {/* <span className="text-sm text-gray-500">
                   {desc.text.length}/2000
-                </span>
+                </span> */}
               </div>
             ))
           ) : (
@@ -411,9 +411,9 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
                 rows={7}
                 cols={52}
               />
-              <span className="text-sm text-gray-500">
+              {/* <span className="text-sm text-gray-500">
                 {description.length}/2000
-              </span>
+              </span> */}
             </div>
           )}
         </div>

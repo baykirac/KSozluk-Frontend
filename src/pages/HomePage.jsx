@@ -90,7 +90,7 @@ function HomePage() {
           />
         </div>
       ) : (
-        <>{!isAuthenticated && <Navigate to="/SignIn" />}</>
+        <>{!isAuthenticated && <Navigate to="/" />}</>
       )}
     </>
   );

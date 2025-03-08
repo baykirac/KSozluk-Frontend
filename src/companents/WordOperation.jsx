@@ -108,7 +108,7 @@ const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessf
 
     try {
       const response = await wordApi.AddWord(_obj);
-      if (response.isSuccess) {
+      if (response.success) {
         const message = existingWord
           ? "Yeni anlamlar başarıyla eklendi."
           : "Kelime ve anlamlar başarıyla eklendi.";
@@ -286,9 +286,9 @@ const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessf
                   disabled={descriptions.length === 1 || isInputDisabled}
                 />
               </div>
-              <span className="text-sm text-gray-500">
+              {/* <div className="text-sm text-gray-500">
                 {desc.text.length}/2000
-              </span>
+              </div> */}
             </div>
           ))}
         </div>

@@ -1,6 +1,6 @@
-import api from "./api";
+// import api from "./api";
 
-const userApi = {
-    signIn: async (email, password) => await api.post("User/SignIn", {email,password}),
-}
-export default userApi;
+// const userApi = {
+//     signIn: async (username, password) => await api.post("", {email,password}),
+// }
+// export default userApi;

@@ -28,6 +28,7 @@ import wordApi from "../api/wordApi";
 import descriptionApi from "../api/descriptionApi";
 import WordTree from "../companents/WordTree";
 
+
 function AdminPage() {
   const [page, setPage] = useState(0);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
@@ -36,19 +37,17 @@ function AdminPage() {
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openWordModal, setOpenWordModal] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const [visibleDeleteDescription, setVisibleDeleteDescription] =
-    useState(false);
+  const [visibleDeleteDescription, setVisibleDeleteDescription] = useState(false);
   const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
   const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
   const [wordId, setWordId] = useState("");
   const [descriptionId, setDescriptionId] = useState("");
   const [wordAddedSuccessfully, setWordAddedSuccessfully] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isInputDisabled } = useAuth();
   const toast = useRef(null);
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showRejectionReasonModal, setShowRejectionReasonModal] =
-    useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
   const [showCustomReasonModal, setShowCustomReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [nextStatus, setNextStatus] = useState(null);
@@ -70,6 +69,16 @@ function AdminPage() {
     { name: "Diğer", value: 7 },
   ];
 
+  const filterOptions = [
+    { label: "İle Başlayan", value: FilterMatchMode.STARTS_WITH },
+    { label: "İçeren", value: FilterMatchMode.CONTAINS },
+    { label: "İçermeyen", value: FilterMatchMode.NOT_CONTAINS },
+    { label: "İle Biten", value: FilterMatchMode.ENDS_WITH },
+    { label: "Eşit", value: FilterMatchMode.EQUALS },
+    { label: "Eşit Değil", value: FilterMatchMode.NOT_EQUALS },
+    { label: "Filtre Yok", value: FilterMatchMode.NO_FILTER },
+  ];
+
   const handleRejectionReasonSubmit = async () => {
     if (rejectionReason) {
       if (rejectionReason === 7) {
@@ -83,7 +92,7 @@ function AdminPage() {
         rejectionReason
       );
 
-      if (response.isSuccess) {
+      if (response.success) {
         toastForNotification.current.show({
           severity: "success",
           summary: "Başarılı",
@@ -122,7 +131,7 @@ function AdminPage() {
       customRejectionReason
     );
 
-    if (response.isSuccess) {
+    if (response.success) {
       toastForNotification.current.show({
         severity: "success",
         summary: "Başarılı",
@@ -149,22 +158,20 @@ function AdminPage() {
 
       case "Bekliyor":
         return "info";
-
-      // case "Önerildi":
-      //   return "info";
     }
   };
 
   const toastForNotification = useRef(null);
 
-  const cm = useRef(null); // context menu için
-  const cm2 = useRef(null); // context menu2 için
+  const cm = useRef(null); 
+  const cm2 = useRef(null);
 
   const statusFilter = (status) => {
     const statusMap = {
       1: "Onaylı",
       2: "Bekliyor",
       3: "Reddedildi",
+      4: "Bekliyor",
     };
 
     return statusMap[status];
@@ -178,14 +185,14 @@ function AdminPage() {
     },
     wordContent: { value: null, matchMode: FilterMatchMode.CONTAINS },
     lastEditedDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    recommender: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    userId: { value: null, matchMode: FilterMatchMode.CONTAINS },
     "previousDescription.descriptionContent": {
       value: null,
       matchMode: FilterMatchMode.CONTAINS,
     },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
-
+  
   const textEditor = (options) => {
     return (
       <InputText
@@ -198,7 +205,7 @@ function AdminPage() {
 
   const acceptDeleteDescription = async () => {
     var response = await descriptionApi.DeleteDescription(deletedDescriptionId);
-    if (response.isSuccess) {
+    if (response.success) {
       toast.current.show({
         severity: "success",
         summary: "Başarılı",
@@ -224,13 +231,7 @@ function AdminPage() {
 
   const fetchData = async () => {
     const response = await wordApi.GetAllWords();
-    if (response.isSuccess) {
-      toastForNotification.current.show({
-        life: 750,
-        severity: "info",
-        summary: "Info",
-        detail: response.message,
-      });
+    if (response.success) {
       const { body } = response;
       setWordsArray(body);
       const pendingCount = body.filter((item) => item.status === 2).length;
@@ -241,6 +242,7 @@ function AdminPage() {
   const WordAddedHandle = (status) => {
     setWordAddedSuccessfully(status);
   };
+
 
   const renderHeader = () => {
     return (
@@ -286,8 +288,7 @@ function AdminPage() {
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        recommender:
-          desc.recommender !== null ? desc.recommender.fullName : "Boş",
+        fullname: item.user.name + " " + item.user.surname,
         lastEditedDate: desc.lastEditedDate,
         order: desc.order,
         status: statusFilter(desc.status),
@@ -319,8 +320,7 @@ function AdminPage() {
           index: index,
           descriptionId: desc.id,
           descriptionContent: desc.descriptionContent,
-          recommender:
-            desc.recommender !== null ? desc.recommender.fullName : "Boş",
+          fullname: item.user.name + " " + item.user.surname,
           lastEditedDate:
             item.lastEditedDate !== null
               ? item.lastEditedDate.split("T")[0]
@@ -355,7 +355,7 @@ function AdminPage() {
         newData.descriptionContent
       );
 
-      if (response.isSuccess) {
+      if (response.success) {
         toastForNotification.current.show({
           severity: "success",
           summary: "Başarılı",
@@ -375,7 +375,7 @@ function AdminPage() {
   const handleWordEdit = async (wordId, wordContent) => {
     try {
       const response = await wordApi.UpdateWordById(wordId, wordContent);
-      if (response.isSuccess) {
+      if (response.success) {
         toastForNotification.current.show({
           severity: "success",
           summary: "Başarılı",
@@ -407,7 +407,7 @@ function AdminPage() {
         reasonToSend
       );
 
-      if (response.isSuccess) {
+      if (response.success) {
         toastForNotification.current.show({
           severity: "success",
           summary: "Başarılı",
@@ -439,7 +439,7 @@ function AdminPage() {
   const acceptDeleteWord = async () => {
     const response = await wordApi.DeleteWord(wordId);
 
-    if (response.isSuccess) {
+    if (response.success) {
       toastForNotification.current.show({
         severity: "success",
         summary: "Başarılı",
@@ -460,7 +460,7 @@ function AdminPage() {
         placeholder="Duruma göre ara"
         className="p-column-filter"
         showClear
-        style={{ minWidth: "10rem" }}
+        style={{ minWidth: "8rem" }}
       />
     );
   };
@@ -581,7 +581,7 @@ function AdminPage() {
 
   return (
     <>
-      {isAuthenticated && user.role === "2" ? (
+      {isAuthenticated && !isInputDisabled ? (
         <>
           <Toast ref={toastForNotification} />
           <Toast ref={toast} />
@@ -768,7 +768,7 @@ function AdminPage() {
                         "wordContent",
                         "descriptionContent",
                         "lastEditedDate",
-                        "recommender",
+                        "userId",
                       ]}
                       statusBodyTemplate={statusBodyTemplate}
                       statusRowFilterTemplate={statusRowFilterTemplate}
@@ -792,25 +792,27 @@ function AdminPage() {
                         "descriptionContent",
                         "status",
                         "previousDescription.descriptionContent",
-                        "recommender",
+                        "userId",
                       ]}
-                      emptyMessage="Kelime bulunamadı."
+                      emptyMessage="Sonuç bulunamadı."
                       rowClassName={getRowClassName}
                     >
                       <Column
                         field="wordContent"
                         header="Kelimeler"
                         filter
+                        filterMatchModeOptions={filterOptions}
                         editor={(options) => textEditor(options)}
                         filterPlaceholder="Kelimeye göre ara"
-                        style={{ minWidth: "17rem", borderTopLeftRadius: 15 }}
+                        style={{ minWidth: "12rem", borderTopLeftRadius: 15 }}
                         bodyStyle={{ padding: 40 }}
                       />
                       <Column
                         header="Anlam"
                         field="descriptionContent"
                         filterField="descriptionContent"
-                        style={{ minWidth: "17rem", cursor: "pointer" }}
+                        filterMatchModeOptions={filterOptions}
+                        style={{ minWidth: "15rem", cursor: "pointer" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Anlama göre ara"
@@ -824,10 +826,12 @@ function AdminPage() {
                             </span>
                           );
                         }}
+                       
                       />
                       <Column
                         header="Önceki Anlam"
                         field="previousDescription.descriptionContent"
+                        filterMatchModeOptions={filterOptions}
                         filterField="previousDescription.descriptionContent"
                         body={(rowData) => {
                           const content = rowData.previousDescription
@@ -843,16 +847,17 @@ function AdminPage() {
                             </span>
                           );
                         }}
-                        style={{ minWidth: "17rem", cursor: "pointer" }}
+                        style={{ minWidth: "15rem", cursor: "pointer" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Önceki anlama göre"
                       />
                       <Column
                         header="Öneren"
-                        field="recommender"
-                        filterField="recommender"
-                        style={{ minWidth: "17rem" }}
+                        field="fullname"
+                        filterMatchModeOptions={filterOptions}
+                        filterField="userId"
+                        style={{ minWidth: "15rem" }}
                         editor={(options) => textEditor(options)}
                         filter
                         filterPlaceholder="Önerene göre ara"
@@ -861,10 +866,10 @@ function AdminPage() {
                         header="Durum"
                         field="status"
                         filterField="status"
-                        style={{ minWidth: "17rem" }}
+                        style={{ minWidth: "8rem" }}
                         body={statusBodyTemplate}
                         showFilterMenu={false}
-                        filterMenuStyle={{ width: "17rem" }}
+                        filterMenuStyle={{ width: "8rem" }}
                         filter
                         filterElement={statusRowFilterTemplate}
                       />
@@ -884,7 +889,7 @@ function AdminPage() {
           </div>
         </>
       ) : (
-        <Navigate to="/SignIn" />
+        <Navigate to="/LoginPage" />
       )}
     </>
   );

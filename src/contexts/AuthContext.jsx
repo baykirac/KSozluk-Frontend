@@ -1,6 +1,5 @@
-import { jwtDecode } from "jwt-decode";
-import { createContext, useContext, useState } from "react";
-
+import { createContext, useContext, useState, useEffect } from "react";
+import { EnumPermissions } from "../data/userSlice"; 
 export const AuthContext = createContext();
 
 export function useAuth() {
@@ -9,48 +8,34 @@ export function useAuth() {
 
 // eslint-disable-next-line react/prop-types
 export default function AuthProvider({ children }) {
-  function isTokenValid() {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      return false;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isInputDisabled, setIsInputDisabled] = useState(true); 
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const oztToken = localStorage.getItem("oztToken");
+
+    if (storedUser && oztToken) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+      const userRoles = window.Object.checkPermissions([
+        EnumPermissions.admin,
+    ]);
+      
+      setIsInputDisabled(!userRoles);
+    }else {
+      setIsAuthenticated(false);
     }
-    return jwtDecode(accessToken).exp > new Date() / 1000;
-  }
+  }, []); 
 
-  function getUserFromToken() {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      return {};
-    }
-    const { sub, name, email, role } = jwtDecode(accessToken);
-    return {
-      id: sub,
-      name: name,
-      email: email,
-      role: role
-    };
-  }
-
-  const [isAuthenticated, setIsAuthenticated] = useState(() => isTokenValid());
-  const [user, setUser] = useState(() => getUserFromToken());
-
-  function authenticate() {
-    setIsAuthenticated(isTokenValid());
-    setUser(getUserFromToken());
-  }
-
-  function revoke() {
-    setIsAuthenticated(false);
-    setUser({});
-  }
 
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated: isAuthenticated,
-        user: user,
-        authenticate: authenticate,
-        revoke: revoke,
+        isAuthenticated,
+        user,
+        isInputDisabled,
       }}
     >
       {children}

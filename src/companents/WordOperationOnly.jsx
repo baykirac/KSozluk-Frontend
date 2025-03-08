@@ -46,7 +46,7 @@ const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
     const trimmedWord = newWord.trim();
     
     const response = await wordApi.AddWords(trimmedWord);
-    if (response.isSuccess) {
+    if (response.success) {
       showToaster(response);
       setWord("");
       if (isSuccessfull) {

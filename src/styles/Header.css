@@ -438,3 +438,31 @@ body.dark .p-accordion-header-link {
   margin-left: 250px; /* Adjust based on your sidebar width */
   width: calc(100% - 250px);
 }
+
+@keyframes hareket {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px #f62d00; }
+  50% { box-shadow: 0 0 20px #000000; }
+  100% { box-shadow: 0 0 5px #000000; }
+}
+
+.cool-button {
+  margin-left: 10px;
+  padding: 10px 10px;
+  color: #ff0000;
+  border: none;
+  background-color: #00000000;
+  border-radius:50%;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  animation: hareket 1s infinite ease-in-out, glow 1.5s infinite alternate;
+}
+
+.cool-button:hover {
+  transform: scale(1.1);
+  animation-play-state: paused;
+}

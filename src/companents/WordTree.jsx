@@ -48,8 +48,8 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
           wordContent: word.wordContent,
           descriptionContent: "",
           lastEditedDate: "",
-          recommender: "",
           status: "",
+          fullname: "",
         },
         children: word.descriptions
           .filter((desc) => desc.status === "Onaylı")
@@ -60,7 +60,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
               wordContent: word.wordContent,
               descriptionContent: desc.descriptionContent,
               lastEditedDate: desc.lastEditedDate,
-              recommender: desc.recommender,
+              fullname: desc.fullname,
               status: desc.status,
               descriptionId: desc.descriptionId,
               order: desc.order,
@@ -279,7 +279,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
         ),
       ]);
 
-      if (moveResponse.isSuccess && siblingResponse.isSuccess) {
+      if (moveResponse.success && siblingResponse.success) {
         const updatedArray = [...wordsArray];
         updatedArray.forEach((word) => {
           word.descriptions.forEach((desc) => {
@@ -585,7 +585,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
             </div>
             <div className="info-item">
               <strong>Anlamı Öneren:</strong>
-              <p>{currentNode.data.recommender}</p>
+              <p>{currentNode.data.fullname}</p>
             </div>
           </div>
         )}
@@ -621,7 +621,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
     }));
   };
 
-  const handleWordEditComplete = (node) => {
+  const handleWordEditComplete = () => {
     setVisibleWordEditConfirm(true);
   };
 
@@ -786,7 +786,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
         onFilter={onColumnFilterChange}
         globalFilterFields={globalFilterFields}
         header={headerTemplate}
-        emptyMessage="Kelime bulunamadı."
+        emptyMessage="Sonuç bulunamadı."
         expandedKeys={expandedKeys}
         onToggle={(e) => setExpandedKeys(e.value)}
         globalFilter={globalFilterValue}
@@ -852,7 +852,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
         />
         <Column
           header="Anlamı Öneren"
-          field="recommender"
+          field="fullname"
           filter
           filterMatchMode="contains"
           filterPlaceholder="Öneren Ara"

@@ -1,145 +1,153 @@
-import { useState, useEffect, useRef } from "react";
-import { InputText } from "primereact/inputtext";
-import { Button } from "primereact/button";
-import { Password } from "primereact/password";
-import {
-  faMap,
-  faMapMarkerAlt,
-  faBook,
-  faPen,
-} from "@fortawesome/free-solid-svg-icons";
+// import { useState, useEffect, useRef } from "react";
+// import { InputText } from "primereact/inputtext";
+// import { Button } from "primereact/button";
+// import { Password } from "primereact/password";
+// import {
+//   faMap,
+//   faMapMarkerAlt,
+//   faBook,
+//   faPen,
+// } from "@fortawesome/free-solid-svg-icons";
 
-import { signIn } from "../services/userService";
-import { useAuth } from "../contexts/AuthContext";
-import { Toast } from "primereact/toast";
-import "../styles/SignInPage.css";
-import { useNavigate, Navigate } from "react-router-dom";
+// import { signIn } from "../services/userService";
+// import { useAuth } from "../contexts/AuthContext";
+// import { Toast } from "primereact/toast";
+// import "../styles/SignInPage.css";
+// import { useNavigate, Navigate } from "react-router-dom";
 
-function SignInPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+// function SignInPage() {
+//   const [username, setUsername] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [elements, setElements] = useState(null);
+//   const [loading, setLoading] = useState(false);
 
-  const [elements, setElements] = useState(null);
-  const [loading, setLoading] = useState(false);
+//   const { isAuthenticated, authenticate } = useAuth();
+//   const navigate = useNavigate();
+//   const toast = useRef(null);
 
-  const { isAuthenticated, authenticate } = useAuth();
+//   async function handleLogin(e) {
+//     e.preventDefault();
+//     setLoading(true);
+    
+//     try {
+//       const response = await signIn(username, password);
+      
+//       if (response.isSuccess) {
+//         // Token ve kullanıcı bilgileri userService'de kaydedildi
+//         setLoading(false);
+//         authenticate(); // Auth context'i güncelle
+//         navigate("/");
+//       } else {
+//         toast.current.show({
+//           severity: "error",
+//           summary: "Hata",
+//           detail: response.message,
+//           life: 3000,
+//         });
+//         setLoading(false);
+//       }
+//     } catch (error) {
+//       toast.current.show({
+//         severity: "error",
+//         summary: "Hata",
+//         detail: "Giriş sırasında bir hata oluştu",
+//         life: 3000,
+//       });
+//       setLoading(false);
+//     }
+//   }
 
-  const navigate = useNavigate();
+//   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+//   const icons = [faMap, faMapMarkerAlt, faBook, faPen];
 
-  const toast = useRef(null);
+//   const gridRows = 10;
+//   const gridCols = 20;
 
-  async function handleLogin(e) {
-    e.preventDefault();
-    setLoading(true);
-    const response = await signIn(username, password);
-    if (response.isSuccess) {
-      setLoading(false);
-      navigate("/");
-      authenticate();
-    } else {
-      toast.current.show({
-        severity: "error",
-        summary: "Hata",
-        detail: response.message,
-        life: 3000,
-      });
-      setLoading(false);
-    }
-  }
+//   const generateElements = () => {
+//     const elements = [];
+//     const usedPositions = new Set();
 
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const icons = [faMap, faMapMarkerAlt, faBook, faPen];
+//     for (let i = 0; i < gridRows * gridCols; i++) {
+//       const isLetter = Math.random() > 0.75;
+//       const content = isLetter
+//         ? alphabet[Math.floor(Math.random() * alphabet.length)]
+//         : icons[Math.floor(Math.random() * icons.length)];
 
-  const gridRows = 10;
-  const gridCols = 20;
+//       let row, col;
+//       do {
+//         row = Math.floor(Math.random() * gridRows);
+//         col = Math.floor(Math.random() * gridCols);
+//       } while (usedPositions.has(`${row}-${col}`));
 
-  const generateElements = () => {
-    const elements = [];
-    const usedPositions = new Set();
+//       usedPositions.add(`${row}-${col}`);
+//     }
+//     setElements(elements);
+//   };
 
-    for (let i = 0; i < gridRows * gridCols; i++) {
-      const isLetter = Math.random() > 0.75;
-      // eslint-disable-next-line no-unused-vars
-      const content = isLetter
-        ? alphabet[Math.floor(Math.random() * alphabet.length)]
-        : icons[Math.floor(Math.random() * icons.length)];
+//   useEffect(() => {
+//     generateElements();
+//   }, []);
 
-      let row, col;
-      do {
-        row = Math.floor(Math.random() * gridRows);
-        col = Math.floor(Math.random() * gridCols);
-      } while (usedPositions.has(`${row}-${col}`));
+//   return (
+//     <div className="content-signin-div">
+//       <Toast ref={toast} />
+//       <div className="signin-background">{elements}</div>
+//       <div className="login-page">
+//         <div className="login-card animate__animated animate__fadeInLeft">
+//           <div className="left-section">
+//             <div>
+//               <img
+//                 src="basarsoft-logo-beyaz.png"
+//                 style={{ width: "20rem", paddingRight: "2rem" }}
+//                 alt="Basarsoft Logo"
+//               />
+//               <div style={{ paddingRight: "1rem", color: "white" }}>
+//                 <h2>Kavramlar Sözlüğü</h2>
+//                 <h2>Giriş Ekranı</h2>
+//               </div>
+//             </div>
+//           </div>
+//           <div className="right-section">
+//             <form className="signin-form" onSubmit={handleLogin}>
+//               <div className="p-field" style={{ color: "white" }}>
+//                 <label htmlFor="email" className="p-d-block">
+//                   Email
+//                 </label>
+//                 <InputText
+//                   style={{ width: "17rem" }}
+//                   id="email"
+//                   type="email"
+//                   value={username}
+//                   onChange={(e) => setUsername(e.target.value)}
+//                 />
+//               </div>
+//               <div className="p-field" style={{ color: "white" }}>
+//                 <label htmlFor="password" className="p-d-block">
+//                   Password
+//                 </label>
+//                 <Password
+//                   toggleMask
+//                   id="password"
+//                   feedback={false}
+//                   value={password}
+//                   onChange={(e) => setPassword(e.target.value)}
+//                 />
+//               </div>
+//               <div className="p-field">
+//                 <Button
+//                   label="Giriş Yap"
+//                   loading={loading}
+//                   className="p-mt-2"
+//                   onClick={handleLogin}
+//                 />
+//               </div>
+//             </form>
+//           </div>
+//         </div>
+//       </div>
+//       {isAuthenticated && <Navigate to="/" />}
+//     </div>
+//   );
+// }
 
-      usedPositions.add(`${row}-${col}`);
-
-    }
-    setElements(elements);
-  };
-
-  useEffect(() => {
-    generateElements();
-  }, []);
-
-  return (
-    <div className="content-signin-div">
-      <Toast ref={toast} />
-      {/* <Header /> */}
-      <div className="signin-background">{elements}</div>
-      <div className="login-page">
-        <div className="login-card animate__animated animate__fadeInLeft">
-          <div className="left-section">
-            <div>
-              <img
-                src="basarsoft-logo-beyaz.png"
-                style={{ width: "20rem", paddingRight: "2rem" }}
-              />
-              <div style={{ paddingRight: "1rem", color: "white" }}>
-                <h2>Kavramlar Sözlüğü</h2>
-                <h2>Giriş Ekranı</h2>
-              </div>
-            </div>
-          </div>
-          <div className="right-section">
-            <form className="signin-form" onSubmit={handleLogin}>
-              <div className="p-field" style={{ color: "white" }}>
-                <label htmlFor="email" className="p-d-block">
-                  Email
-                </label>
-
-                <InputText
-                  style={{ width: "17rem" }}
-                  id="email"
-                  type="email"
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div className="p-field" style={{ color: "white" }}>
-                <label htmlFor="password" className="p-d-block">
-                  Password
-                </label>
-
-                <Password
-                  toggleMask
-                  id="password"
-                  feedback={false}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="p-field">
-                <Button
-                  label="Giriş Yap"
-                  loading={loading}
-                  className="p-mt-2"
-                  onClick={handleLogin}
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      {isAuthenticated && <Navigate to="/" />}
-    </div>
-  );
-}
-
-export default SignInPage;
+// export default SignInPage;

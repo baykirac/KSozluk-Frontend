@@ -29,7 +29,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
   const loadWords = async (letter, page) => {
     setLoading(true);
     const response = await wordApi.GetWordsByLetter(letter, page, 5);
-    if (response.isSuccess) {
+    if (response.success) {
       const { body } = response;
       const newWordContents = body.map((wordObj) => ({
         id: wordObj.id,
