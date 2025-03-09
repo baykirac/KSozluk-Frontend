@@ -76,7 +76,6 @@ function AdminPage() {
     { label: "İle Biten", value: FilterMatchMode.ENDS_WITH },
     { label: "Eşit", value: FilterMatchMode.EQUALS },
     { label: "Eşit Değil", value: FilterMatchMode.NOT_EQUALS },
-    { label: "Filtre Yok", value: FilterMatchMode.NO_FILTER },
   ];
 
   const handleRejectionReasonSubmit = async () => {

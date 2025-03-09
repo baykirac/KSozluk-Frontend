@@ -12,7 +12,7 @@
 
   .admin-content {
     flex-grow: 1;
-    padding: 0 80px; /*padding değişebilir*/
+    padding: 0 80px; 
   }
   
   .datatable-for-edit{

@@ -12,16 +12,12 @@
   width: 100px;
 }
 
-/* .p-inputtext {
-  margin-left: 10px;
-} */
 
 .existing-descriptions {
   width: 100%;
   margin-top: 20px;
   border-radius: 15px;
   max-height: 300px;
-  /* margin-left:20px; */
   border-color: #06b6d4;
 }
 
@@ -104,7 +100,6 @@ body.dark .p-confirm-dialog-accept {
   border-radius: 20px;
   margin-top: 15px;
   border: 1px solid #06b6d4;
-  /* width:280px !important; */
 }
 
 .modal-dialog.p-dialog.p-component.p-dialog-default.p-ripple-disabled.p-dialog-enter-done {
@@ -116,9 +111,6 @@ body.dark .p-confirm-dialog-accept {
   margin-top: -30px;
 }
 
-/* .p-autocomplete-input {
-  margin-left:20px;
-} */
 
 .p-field {
   display: flex;

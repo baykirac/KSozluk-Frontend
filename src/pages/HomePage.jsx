@@ -16,7 +16,6 @@ function HomePage() {
   const [searchedWord, setSearchedWord] = useState(""); //poi yaz
   const [searchedWordId, setSearchedWordId] = useState("");
   const { isAuthenticated } = useAuth();
-  //const dispatch = useDispatch();
 
   useEffect(() => {
     initParticlesEngine(async (engine) => {

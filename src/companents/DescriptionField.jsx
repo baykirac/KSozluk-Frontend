@@ -20,7 +20,7 @@ import wordApi from "../api/wordApi";
 import { Toast } from "primereact/toast";
 
 // eslint-disable-next-line react/prop-types
-function DescriptionField({isSelected = false,searchedWord = "",searchedWordId = "",isSearched,searchedWordF,searchedWordIdF,
+function DescriptionField({isSelected = false, searchedWord = "",searchedWordId = "",isSearched,searchedWordF,searchedWordIdF,
 }) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState([]);
@@ -68,7 +68,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
       toast.current.show({
         severity: "error",
         summary: "Hata",
-        detail: "Beğenme işlemi sırasında bir hata oluştu",
+        detail: "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
       });
     }
   };
@@ -92,7 +92,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
       toast.current.show({
         severity: "error",
         summary: "Hata",
-        detail: "Favori işlemi sırasında bir hata oluştu",
+        detail: "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
       });
 
       return;
@@ -113,7 +113,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
     GetTopList();
     fetchDescription();
     fetchAllLastEdit();
-    FavouriteWordsOnScreen()
+    FavouriteWordsOnScreen();
   }, [searchedWord, searchedWordId]);
 
   const GetTopList = async () => {
@@ -243,7 +243,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
                   {searchedWord} kelimesi için öneride bulun
                 </span>
               </Button>
-              {descriptionArray.map((descriptions, index) => (
+              {descriptionArray && descriptionArray.map((descriptions, index) => (
                 <div key={descriptions.id}>
                   <RibbonContainer>
                     <Ribbon
@@ -350,7 +350,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
                 className="top-list d-flex flex-column"
                 style={{ gap: "0.6rem" }}
               >
-                {topWords?.length > 0 ? (
+                {topWords && topWords?.length > 0 ? (
                   topWords.map((word, index) => (
                     <div
                       key={index}
@@ -374,7 +374,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
             </Card>
 
             <Card title="Favori Kelimelerim" className="card-sss">
-              {favoriteWords.length > 0 && (
+              {favoriteWords && favoriteWords.length > 0 && (
                 <div className="favorite-words-list">
                   {favoriteWords.map((word, index) => (
                     <div
@@ -390,7 +390,9 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
                         <span className="word-name">{word.wordContent}</span>
                       </div>
                     </div>
-                  ))}
+                  )
+                  )
+                  }
                 </div>
               )}
             </Card>
@@ -491,7 +493,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
                 className="top-list d-flex flex-column"
                 style={{ gap: "0.6rem" }}
               >
-                {topWords?.length > 0 ? (
+                {topWords && topWords?.length > 0 ? (
                   topWords.map((word, index) => (
                     <div
                       key={index}
@@ -515,9 +517,9 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
             </Card>
 
             <Card title="Favori Kelimelerim" className="card-sss">
-              {favoriteWords.length > 0 && (
+              {favoriteWords && favoriteWords.length > 0 ? (
                 <div className="favorite-words-list">
-                  {favoriteWords.map((word, index) => (
+                  {favoriteWords && favoriteWords.map((word, index) => (
                     <div
                       key={index}
                       className="d-flex align-items-center"
@@ -533,6 +535,8 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
                     </div>
                   ))}
                 </div>
+              ) : (
+                <p>Favori kelimeniz bulunmamaktadır.</p>
               )}
             </Card>
           </div>

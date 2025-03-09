@@ -360,7 +360,7 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
 
         <div className="p-field">
           {recommendMode === 3 || recommendMode === 1 ? (
-            descriptions.map((desc) => (
+             descriptions.map((desc) => (
               <div key={desc.id} className="flex align-items-center gap-2 mb-2">
                 <div className="input-text-area-container">
                   <InputTextarea
@@ -392,10 +392,10 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
                     onClick={() => handleRemoveDescription(desc.id)}
                     disabled={descriptions.length === 1}
                   />
-                </div>
-                {/* <span className="text-sm text-gray-500">
+                   <span className="text-sm text-gray-500">
                   {desc.text.length}/2000
-                </span> */}
+                </span>
+                </div>
               </div>
             ))
           ) : (
@@ -411,9 +411,9 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
                 rows={7}
                 cols={52}
               />
-              {/* <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500">
                 {description.length}/2000
-              </span> */}
+              </span>
             </div>
           )}
         </div>

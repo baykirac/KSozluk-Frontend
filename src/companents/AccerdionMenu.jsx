@@ -78,7 +78,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
   return (
     <div className="sidebar">
       <div className="alphabet-column">
-        {alphabet.map((letter) => (
+        {alphabet && alphabet.map((letter) => (
           <div key={letter}>
             <div
               className={`letter ${selectedLetter === letter ? 'selected' : ''}`}
