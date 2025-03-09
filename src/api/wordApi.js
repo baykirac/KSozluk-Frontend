@@ -18,6 +18,8 @@ const wordApi = {
 
   GetAllWords: async () => await api.get("Word/GetAllWords"),
 
+  GetLastEdit: async () => await api.get("Word/GetLastEdit"),
+
   GetApprovedWordsPaginated: async (pageNumber, pageSize) =>
     await api.get("Word/GetApprovedWordsPaginated", { pageNumber, pageSize }),
 

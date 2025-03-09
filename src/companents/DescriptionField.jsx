@@ -112,8 +112,8 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
     dispatch(setSelectedWordId(searchedWordId));
     GetTopList();
     fetchDescription();
-    FavouriteWordsOnScreen();
-    fetchAllWords();
+    fetchAllLastEdit();
+    FavouriteWordsOnScreen()
   }, [searchedWord, searchedWordId]);
 
   const GetTopList = async () => {
@@ -125,17 +125,14 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
     }
   };
 
-  const fetchAllWords = async () => {
+  const fetchAllLastEdit = async () => {
     try {
-      const response = await wordApi.GetAllWords();
+      const response = await wordApi.GetLastEdit();
       const wordsWithDates = response.body.map((word) => ({
         ...word,
-        operationDate: new Date(word.operationDate), // Ensure operationDate is a Date object
+        lastEditedDate: new Date(word.lastEditedDate), // Ensure operationDate is a Date object
       }));
-      const sortedWords = wordsWithDates.sort(
-        (a, b) => b.operationDate - a.operationDate
-      );
-      setTimeWords(sortedWords.slice(0, 10)); // Get the last 10 words
+      setTimeWords(wordsWithDates); // Get the last 10 words
     } catch (e) {
       console.error(e);
     }
@@ -425,7 +422,7 @@ function DescriptionField({isSelected = false,searchedWord = "",searchedWordId =
                       <div className="words-info">
                         <span className="words-name">{word.wordContent}</span>{" "}
                         <span className="words-date">
-                          {new Date(word.operationDate).toLocaleDateString()}
+                          {new Date(word.lastEditedDate).toLocaleDateString()}
                         </span>
                       </div>
                     </div>

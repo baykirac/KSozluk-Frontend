@@ -183,13 +183,6 @@ function Header({ onSearch }) {
                 <p>
                   <strong>Ad Soyad:</strong> {user.username}
                 </p>
-                {/* <p>
-                  <strong>E-posta:</strong> {user.email}
-                </p>
-                <p>
-                  <strong>Yetki:</strong>{" "}
-                  {!isInputDisabled}
-                </p> */}
                 {!isInputDisabled ? (
                   <Button
                     label="Admin Paneli"
@@ -255,9 +248,9 @@ function Header({ onSearch }) {
               <div className="timeline-word">{item.wordContent}</div>
               {item.rejectionReasons && (
                 <Button
-                  icon="pi pi-bookmark"
-                  severity="warning"
-                  aria-label="Notification"
+                  icon="pi pi-info"
+                  severity="Info"
+                  aria-label="Info"
                   className="cool-button"
                   onClick={() =>
                     handleOpenRejectionDialog(
