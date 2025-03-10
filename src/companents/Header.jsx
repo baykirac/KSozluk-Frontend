@@ -255,7 +255,8 @@ function Header({ onSearch }) {
                   onClick={() =>
                     handleOpenRejectionDialog(
                       item.rejectionReasons,
-                      item.customRejectionReason
+                      item.customRejectionReason,
+                      index
                     )
                   }
                 />
@@ -309,7 +310,7 @@ function Header({ onSearch }) {
         header="Öneriniz Reddedildi"
       >
         <p>
-          Red Sebebi <strong>{selectedRejectionReason}</strong> .
+          Red Sebebi <strong>{selectedRejectionReason}</strong>.
         </p>
       </Dialog>
       <WordOperationMeaning

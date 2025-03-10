@@ -285,9 +285,9 @@ const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessf
                   onClick={() => handleRemoveDescription(desc.id)}
                   disabled={descriptions.length === 1 || isInputDisabled}
                 />
-              </div>
-              <div className="text-sm text-gray-500">
+               <div className="text-sm text-gray-500">
                 {desc.text.length}/2000
+              </div>
               </div>
             </div>
           ))}

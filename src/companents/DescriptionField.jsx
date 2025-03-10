@@ -30,13 +30,14 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
   const [topWords, setTopWords] = useState([]);
   const [timeWords, setTimeWords] = useState([]);
   const [favoriteWords, setFavoriteWords] = useState([]);
+  const [isDisabled, setIsDisabled] = useState(false);
   const dispatch = useDispatch();
   const toast = useRef(null);
 
   const handleDescriptionLikeClick = async (descriptionId) => {
     try {
-      const _response = await descriptionApi.LikeDescription(descriptionId);
-      if (_response.success) {
+      const response = await descriptionApi.LikeDescription(descriptionId);
+      if (response.success) {
         const tempArray = descriptionArray.map((x) => {
           if (x.id == descriptionId) {
             return { ...x, isLike: !x.isLike };
@@ -51,16 +52,19 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
   };
 
   const handleWordLikeClick = async () => {
+    if (isDisabled) return; 
+  
+    setIsDisabled(true); 
     try {
-      const _response = await wordApi.LikeWord(searchedWordId);
-      if (_response.success) {
+      const response = await wordApi.LikeWord(searchedWordId);
+      if (response.success) {
         setIsWordLike(!isWordLike);
         await GetTopList();
       } else {
         toast.current.show({
           severity: "error",
           summary: "Hata",
-          detail: _response.data.message,
+          detail: response.data.message,
         });
       }
     } catch (error) {
@@ -70,10 +74,15 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
         summary: "Hata",
         detail: "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
       });
+    } finally {
+      setTimeout(() => setIsDisabled(false), 2000);
     }
   };
 
   const handleFavoriteClick = async (wordId) => {
+    if (isDisabled) return; 
+  
+    setIsDisabled(true); 
     try {
       const response = await descriptionApi.FavouriteWord(wordId);
 
@@ -94,8 +103,9 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
         summary: "Hata",
         detail: "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
       });
-
-      return;
+    }
+    finally {
+      setTimeout(() => setIsDisabled(false), 2000); 
     }
   };
 
@@ -130,9 +140,9 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
       const response = await wordApi.GetLastEdit();
       const wordsWithDates = response.body.map((word) => ({
         ...word,
-        lastEditedDate: new Date(word.lastEditedDate), // Ensure operationDate is a Date object
+        lastEditedDate: new Date(word.lastEditedDate),
       }));
-      setTimeWords(wordsWithDates); // Get the last 10 words
+      setTimeWords(wordsWithDates);
     } catch (e) {
       console.error(e);
     }

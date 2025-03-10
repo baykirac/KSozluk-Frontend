@@ -341,7 +341,7 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
         header="Öneride Bulun"
         visible={visible}
         maximizable
-        style={{ width: "40vw", padding: 3 }}
+        style={{ padding: 3 }}
         onHide={() => {
           if (!visible) return;
           closingModal();
