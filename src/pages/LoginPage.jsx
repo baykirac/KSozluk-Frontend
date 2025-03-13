@@ -1,14 +1,18 @@
 import { Login } from "@bs/login";
-import { saveUserData } from "../services/userService";
 import { useNavigate } from "react-router-dom"; 
 import '../App.css';
+import { useAuth } from "../contexts/AuthContext";
 
 function LoginPage() {
   const navigate = useNavigate(); 
-
+  const {login} = useAuth();
   const handleSuccess = (data) => {
-    saveUserData(data);
-    navigate("/"); 
+    localStorage.setItem("oztToken", data.token);
+    if (data.user) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
+    navigate("/");
+    login();
     return data;
   };
 

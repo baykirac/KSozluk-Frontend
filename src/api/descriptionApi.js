@@ -10,14 +10,18 @@ const descriptionApi = {
   UpdateOrder: async (descriptionId, order) =>
     await api.post("Description/UpdateOrder", { descriptionId, order }),
 
-  UpdateStatus: async (descriptionId, status, rejectionReasons, customRejectionReason, user) =>
+  UpdateStatus: async (descriptionId, status, rejectionReasons, customRejectionReason, user, isActive) =>
     await api.post("Description/UpdateStatus", {
       descriptionId,
       status,
       rejectionReasons,
       customRejectionReason,
       user,
+      isActive
     }),
+    
+  UpdateIsActive: async (descriptionId, isActive) =>
+      await api.post("Description/UpdateIsActive", { descriptionId, isActive }),
 
   RecommendDescription: async (wordId, previousDescriptionId, content) =>
     await api.post("Description/RecommendDescription", {

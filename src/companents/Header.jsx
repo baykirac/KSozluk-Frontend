@@ -4,17 +4,17 @@ import { OverlayPanel } from "primereact/overlaypanel";
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { Dialog } from "primereact/dialog";
-import { outUserData } from "../services/userService";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
 import WordOperationMeaning from "./WordOperationMeaning";
 import descriptionApi from "../api/descriptionApi";
 import "../styles/Header.css";
+import { Toast } from "primereact/toast";
 
 // eslint-disable-next-line react/prop-types
 function Header({ onSearch }) {
-  const { isAuthenticated, user, isInputDisabled } = useAuth();
+  const { isAuthenticated, isInputDisabled, handleSignOut} = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const op = useRef(null);
@@ -24,10 +24,13 @@ function Header({ onSearch }) {
   const [timelineData, setTimelineData] = useState([]);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
   const [selectedRejectionReason, setSelectedRejectionReason] = useState("");
+  const toast = useRef(null);
 
   const isAdminPage = location.pathname === "/AdminPage";
 
   const isLoginPage = location.pathname === "/LoginPage";
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     document.body.classList.add("dark");
@@ -44,11 +47,6 @@ function Header({ onSearch }) {
     }
   };
 
-  function handleSignOut() {
-    outUserData();
-    navigate("/LoginPage");
-  }
-
   function handleGoToAdmin() {
     navigate("/AdminPage");
   }
@@ -62,6 +60,7 @@ function Header({ onSearch }) {
       onSearch(true);
     }
   };
+
 
   const closingModalF = () => {
     setOpenModal(false);
@@ -77,15 +76,38 @@ function Header({ onSearch }) {
     { name: "Diğer", value: 7 },
   ];
 
-  const handleOpenRejectionDialog = (reasonValue, customReason) => {
+  const handleOpenRejectionDialog = async (reasonValue, customReason, descriptionId, isActive, index) => {
     if (reasonValue === 7 && customReason) {
       setSelectedRejectionReason(customReason);
     } else {
       const foundReason = rejectionReason.find((r) => r.value === reasonValue);
       setSelectedRejectionReason(foundReason ? foundReason.name : "");
     }
+  
+    const newStatus = !isActive; // Yeni değeri tersine çevir
+  
+    setTimelineData((prevData) =>
+      prevData.map((item, i) =>
+        i === index ? { ...item, isActive: newStatus } : item
+      )
+    );
+  
+    try {
+      // API isteğini gönder
+      const response = await descriptionApi.UpdateIsActive(
+        descriptionId,
+        isActive = newStatus);
+  
+      if (!response.success) {
+        console.error("Güncelleme hatası:", response.message);
+      }
+    } catch (error) {
+      console.error("API isteği başarısız:", error);
+    }
+  
     setShowRejectionDialog(true);
   };
+  
 
   const infoModalContent = (
     <div>
@@ -107,6 +129,7 @@ function Header({ onSearch }) {
 
   return (
     <header className="custom-header">
+     <Toast ref={toast} />
       <div className="header-left">
         <a href="/">
           <img
@@ -251,11 +274,13 @@ function Header({ onSearch }) {
                   icon="pi pi-info"
                   severity="Info"
                   aria-label="Info"
-                  className="cool-button"
+                  className= {item.isActive ? "nob-button" : "cool-button"}
                   onClick={() =>
                     handleOpenRejectionDialog(
                       item.rejectionReasons,
                       item.customRejectionReason,
+                      item.id,
+                      item.isActive,
                       index
                     )
                   }
