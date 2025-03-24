@@ -31,7 +31,7 @@ function AccerdionMenu({ isSearched, searchedWordF, searchedWordIdF }) {
     const response = await wordApi.GetWordsByLetter(letter, page, 5);
     if (response.success) {
       const { body } = response;
-      const newWordContents = body.map((wordObj) => ({
+      const newWordContents = body.wordResults.map((wordObj) => ({
         id: wordObj.id,
         wordContent: wordObj.wordContent,
       }));

@@ -28,7 +28,6 @@ import wordApi from "../api/wordApi";
 import descriptionApi from "../api/descriptionApi";
 import WordTree from "../companents/WordTree";
 
-
 function AdminPage() {
   const [page, setPage] = useState(0);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
@@ -37,7 +36,8 @@ function AdminPage() {
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openWordModal, setOpenWordModal] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const [visibleDeleteDescription, setVisibleDeleteDescription] = useState(false);
+  const [visibleDeleteDescription, setVisibleDeleteDescription] =
+    useState(false);
   const [visibleDeleteWord, setVisibleDeleteWord] = useState(false);
   const [statuses] = useState(["Onaylı", "Bekliyor", "Reddedildi"]);
   const [wordId, setWordId] = useState("");
@@ -47,7 +47,8 @@ function AdminPage() {
   const toast = useRef(null);
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] =
+    useState(false);
   const [showCustomReasonModal, setShowCustomReasonModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [nextStatus, setNextStatus] = useState(null);
@@ -56,7 +57,7 @@ function AdminPage() {
   const [customRejectionReason, setCustomReasonReason] = useState("");
   const [needOrderUpdate, setNeedOrderUpdate] = useState(false);
   const [deletedDescriptionId, setDeletedDescriptionId] = useState("");
-  const [selectedContent, setSelectedContent] = useState(""); 
+  const [selectedContent, setSelectedContent] = useState("");
   const [showContentDialog, setShowContentDialog] = useState(false);
 
   const rejectionReasons = [
@@ -162,7 +163,7 @@ function AdminPage() {
 
   const toastForNotification = useRef(null);
 
-  const cm = useRef(null); 
+  const cm = useRef(null);
   const cm2 = useRef(null);
 
   const statusFilter = (status) => {
@@ -191,7 +192,7 @@ function AdminPage() {
     },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
-  
+
   const textEditor = (options) => {
     return (
       <InputText
@@ -241,7 +242,6 @@ function AdminPage() {
   const WordAddedHandle = (status) => {
     setWordAddedSuccessfully(status);
   };
-
 
   const renderHeader = () => {
     return (
@@ -524,14 +524,14 @@ function AdminPage() {
   const deleteWordHandler = () => {
     setVisibleDeleteWord(true);
   };
-   
+
   const handleContentClick = (content) => {
     setSelectedContent(content); // Tıklanan içeriği ayarlayın
-    setShowContentDialog(true); 
-  }
+    setShowContentDialog(true);
+  };
 
   const getRowClassName = (index) => {
-    return index % 2 === 0 ? 'row-color-1' : 'row-color-2'; // İki farklı renk sınıfı
+    return index % 2 === 0 ? "row-color-1" : "row-color-2"; // İki farklı renk sınıfı
   };
 
   const items2 = [
@@ -735,11 +735,11 @@ function AdminPage() {
           />
           <div className="admin-page-container">
             <div className="admin-menu">
-              <TabMenu
-                model={menuItems}
-                activeIndex={page}
-                onTabChange={(e) => setPage(e.index)}
-              />
+            <TabMenu
+                 model={menuItems}
+                 activeIndex={page}
+                 onTabChange={(e) => setPage(e.index)}
+               />
             </div>
             <div className="admin-content">
               <TabView activeIndex={page} onTabChange={(e) => setPage(e.index)}>
@@ -747,22 +747,22 @@ function AdminPage() {
                   <div className="datatable-for-edit">
                     <WordTree
                       wordsArray={expandedWordsArray}
-                      onWordEditComplete={handleWordEdit}
-                      onRowEditComplete={onRowEditComplete}
-                      filters={filters}
-                      header={header}
-                      textEditor={textEditor}
-                      setOpenWordModal={setOpenWordModal}
-                      setOpenDescriptionModal={setOpenDescriptionModal}
-                      setVisibleDeleteDescription={setVisibleDeleteDescription}
-                      deletedDescriptionId={deletedDescriptionId}
-                      setDeletedDescriptionId={setDeletedDescriptionId}
-                      needOrderUpdate={needOrderUpdate}
-                      setNeedOrderUpdate={setNeedOrderUpdate}
-                      setVisibleDeleteWord={setVisibleDeleteWord}
-                      deleteWordHandler={deleteWordHandler}
-                      setWordId={setWordId}
-                      cm2={cm2}
+                       onWordEditComplete={handleWordEdit}
+                       onRowEditComplete={onRowEditComplete}
+                       filters={filters}
+                       header={header}
+                       textEditor={textEditor}
+                       setOpenWordModal={setOpenWordModal}
+                       setOpenDescriptionModal={setOpenDescriptionModal}
+                       setVisibleDeleteDescription={setVisibleDeleteDescription}
+                       deletedDescriptionId={deletedDescriptionId}
+                       setDeletedDescriptionId={setDeletedDescriptionId}
+                       needOrderUpdate={needOrderUpdate}
+                       setNeedOrderUpdate={setNeedOrderUpdate}
+                       setVisibleDeleteWord={setVisibleDeleteWord}
+                       deleteWordHandler={deleteWordHandler}
+                       setWordId={setWordId}
+                       cm2={cm2}
                       globalFilterFields={[
                         "wordContent",
                         "descriptionContent",
@@ -825,7 +825,6 @@ function AdminPage() {
                             </span>
                           );
                         }}
-                       
                       />
                       <Column
                         header="Önceki Anlam"

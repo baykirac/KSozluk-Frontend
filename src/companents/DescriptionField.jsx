@@ -59,7 +59,7 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
       const response = await wordApi.LikeWord(searchedWordId);
       if (response.success) {
         setIsWordLike(!isWordLike);
-        await GetTopList();
+        await updateTopWords();
       } else {
         toast.current.show({
           severity: "error",
@@ -88,7 +88,7 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
 
       if (response.success) {
         setIsFavorite(!isFavorite);
-        await FavouriteWordsOnScreen();
+        await updateFavoriteWords();
       } else {
         toast.current.show({
           severity: "error",
@@ -120,48 +120,68 @@ function DescriptionField({isSelected = false, searchedWord = "",searchedWordId 
 
   useEffect(() => {
     dispatch(setSelectedWordId(searchedWordId));
-    GetTopList();
-    fetchDescription();
-    fetchAllLastEdit();
-    FavouriteWordsOnScreen();
+    fetchDescription(); 
   }, [searchedWord, searchedWordId]);
-
-  const GetTopList = async () => {
+  
+  const updateTopWords = async () => {
     try {
-      const response = await wordApi.GetTopList();
-      setTopWords(response.body);
-    } catch (e) {
-      console.error(e);
+      const topListResponse = await wordApi.GetTopList();
+      setTopWords(topListResponse.body);
+    } catch (error) {
+      console.error("Error updating top words:", error);
+    }
+  };
+  
+  const updateFavoriteWords = async () => {
+    try {
+      const favoriteWordsResponse = await descriptionApi.FavouriteWordsOnScreen();
+      setFavoriteWords(favoriteWordsResponse.body);
+    } catch (error) {
+      console.error("Error updating favorite words:", error);
     }
   };
 
-  const fetchAllLastEdit = async () => {
-    try {
-      const response = await wordApi.GetLastEdit();
-      const wordsWithDates = response.body.map((word) => ({
-        ...word,
-        lastEditedDate: new Date(word.lastEditedDate),
-      }));
-      setTimeWords(wordsWithDates);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
-  const FavouriteWordsOnScreen = async () => {
-    try {
-      const response = await descriptionApi.FavouriteWordsOnScreen();
-      setFavoriteWords(response.body);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const topListResponse = await wordApi.GetTopList();
+        setTopWords(topListResponse.body);
+  
+        const favoriteWordsResponse = await descriptionApi.FavouriteWordsOnScreen();
+        setFavoriteWords(favoriteWordsResponse.body);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      }
+    };
+  
+    fetchInitialData();
+  }, []);
+
+
+
+  useEffect(() => {
+    const fetchAllLastEdit = async () => {
+      try {
+        const response = await wordApi.GetLastEdit();
+        const wordsWithDates = response.body.map((word) => ({
+          ...word,
+          lastEditedDate: new Date(word.lastEditedDate),
+        }));
+        setTimeWords(wordsWithDates);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchAllLastEdit();
+  }, [])
+
 
   const fetchDescription = async () => {
     if (searchedWordId) {
       const response = await GetDescriptionContent(searchedWordId);
       setDescriptionArray(
-        response.body.map((descriptions) => ({
+        response.body.body.map((descriptions) => ({
           id: descriptions.id,
           descriptionContent: descriptions.descriptionContent,
           isLike: descriptions.isLike,

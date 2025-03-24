@@ -225,8 +225,7 @@ const WordOperation = ({visible, closingModal, word = "", isDisabled, isSuccessf
             ? "Mevcut Kelimeye Anlam Ekle"
             : "Yeni Kelime ve Anlam Ekle"
         }
-        visible={visible}
-        maximizable
+        visible={visible}    
         style={{ width: "40vw", padding: 3 }}
         onHide={() => {
           if (!visible) return;

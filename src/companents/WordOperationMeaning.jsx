@@ -340,7 +340,6 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
         className="modal-dialog"
         header="Öneride Bulun"
         visible={visible}
-        maximizable
         style={{ padding: 3 }}
         onHide={() => {
           if (!visible) return;
@@ -354,7 +353,6 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
             setTheWordF={setTheWord}
             isDisabled={isDisabled}
           />
-          {errorMessage && <small className="p-error">{errorMessage}</small>}
           {renderRadioButtons()}
         </div>
 

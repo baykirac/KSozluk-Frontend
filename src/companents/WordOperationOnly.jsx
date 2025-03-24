@@ -11,13 +11,11 @@ import "../styles/WordOperation.css";
 const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
   const [loading, setLoading] = useState(false);
   const [newWord, setWord] = useState(word);
-  const [errorMessage, setErrorMessage] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const toast = useRef(null);
 
   const setTheWord = (wordParam) => {
     setWord(wordParam);
-    setErrorMessage("");
   };
 
   const showToaster = (response) => {
@@ -34,7 +32,6 @@ const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
     const trimmedWord = newWord.trim();
 
     if (trimmedWord === "") {
-      setErrorMessage("Kelime boş olamaz.");
       return;
     }
 
@@ -82,8 +79,7 @@ const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
       <Dialog
         className="modal-dialog"
         header="Yeni Kelime Ekle"
-        visible={visible}
-        maximizable
+        visible={visible}        
         style={{ width: "40vw", padding: 3 }}
         onHide={() => {
           if (!visible) return;
@@ -97,7 +93,6 @@ const WordOperationOnly = ({ visible, closingModal, word, isSuccessfull }) => {
             setTheWordF={setTheWord}
             isDisabled={false}
           />
-          {errorMessage && <small className="p-error">{errorMessage}</small>}
         </div>
         <div className="p-field position-right">
           <Button
