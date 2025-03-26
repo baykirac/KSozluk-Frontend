@@ -886,7 +886,7 @@ function AdminPage() {
           </div>
         </>
       ) : (
-        <Navigate to="/LoginPage" />
+        <>{!isAuthenticated && <Navigate to="/AdminPage" />}</>
       )}
     </>
   );
