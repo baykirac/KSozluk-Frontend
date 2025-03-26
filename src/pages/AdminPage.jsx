@@ -231,10 +231,10 @@ function AdminPage() {
 
   const fetchData = async () => {
     const response = await wordApi.GetAllWords();
-    if (response.success) {
+    if(response.success) {
       const { body } = response;
       setWordsArray(body);
-      const pendingCount = body.filter((item) => item.status === 2).length;
+      const pendingCount = body.filter((items) => items.status === 2).length;
       setPendingCount(pendingCount);
     }
   };
@@ -287,7 +287,7 @@ function AdminPage() {
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        fullname: item.user.name + " " + item.user.surname,
+        fullname: item.users.name + " " + item.users.surname,
         lastEditedDate: desc.lastEditedDate,
         order: desc.order,
         status: statusFilter(desc.status),
@@ -319,7 +319,7 @@ function AdminPage() {
           index: index,
           descriptionId: desc.id,
           descriptionContent: desc.descriptionContent,
-          fullname: item.user.name + " " + item.user.surname,
+          fullname: item.users.name + " " + item.users.surname,
           lastEditedDate:
             item.lastEditedDate !== null
               ? item.lastEditedDate.split("T")[0]
@@ -832,9 +832,8 @@ function AdminPage() {
                         filterMatchModeOptions={filterOptions}
                         filterField="previousDescription.descriptionContent"
                         body={(rowData) => {
-                          const content = rowData.previousDescription
-                            .descriptionContent
-                            ? rowData.previousDescription.descriptionContent
+                          const content = rowData.previousDescriptionContent
+                            ? rowData.previousDescriptionContent
                             : " ";
 
                           return (
