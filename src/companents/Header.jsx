@@ -266,7 +266,7 @@ function Header({ onSearch }) {
         header="Önerilerim"
       >
         <div className="timeline-container">
-          {timelineData.map((item, index) => (
+          {timelineData && timelineData.map((item, index) => (
             <div key={index} className="timeline-item">
               <div className="timeline-word">{item.wordContent}</div>
               {item.rejectionReasons && (
