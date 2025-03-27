@@ -131,15 +131,15 @@ function Header({ onSearch }) {
     <header className="custom-header">
      <Toast ref={toast} />
       <div className="header-left">
-        <a href="/">
+        <a href="/HomePage">
           <img
             src="basarsoft-logo-beyaz.png"
             alt="Logo"
             className="header-logo"
           />
         </a>
-        <a href="/" className="no-underline"></a>
-        <a href="/" style={{ textDecoration: "none" }}>
+        <a href="/HomePage" className="no-underline"></a>
+        <a href="/HomePage" style={{ textDecoration: "none" }}>
           <h2>Kavramlar Sözlüğü</h2>
         </a>
       </div>

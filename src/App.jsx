@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate} from "react-router-dom";
 import "./App.css";
 import HomePage from "./pages/HomePage";
 import AdminPage from "./pages/AdminPage";
@@ -19,9 +19,10 @@ import CryptoJS from "crypto-js";
         <PrimeReactProvider>
           <Provider store={store}>
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/AdminPage" element={<AdminPage />} />
+              <Route path="/" element={<Navigate to="/LoginPage" replace />} />
               <Route path="/LoginPage" element={<LoginPage/>} />
+              <Route path="/HomePage" element={<HomePage />} />
+              <Route path="/AdminPage" element={<AdminPage />} />
             </Routes>
           </Provider>
         </PrimeReactProvider>

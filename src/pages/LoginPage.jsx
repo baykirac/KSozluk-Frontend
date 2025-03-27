@@ -11,7 +11,7 @@ function LoginPage() {
     if (data.user) {
       localStorage.setItem("user", JSON.stringify(data.user));
     }
-    navigate("/");
+    navigate("/HomePage");
     login();
     return data;
   };
@@ -19,7 +19,7 @@ function LoginPage() {
   return (
     <div>
       <Login 
-        url="http://localhost:5173"
+        url="http://localhost:5175"
         theme="center"
         image="../../public/tech.gif"
         logo="../../public/logo.png"
