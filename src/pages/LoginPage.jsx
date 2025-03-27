@@ -19,7 +19,7 @@ function LoginPage() {
   return (
     <div>
       <Login 
-        url="http://localhost:5175"
+        url={import.meta.env.VITE_API_URL_LOGIN}
         theme="center"
         image="../../public/tech.gif"
         logo="../../public/logo.png"
