@@ -216,7 +216,6 @@ body.dark {
 
 body.dark .p-card {
   background-color: #07080bce !important;
-  backdrop-filter: blur(4px);
 }
 
 body.dark .sidebar-menu-item,

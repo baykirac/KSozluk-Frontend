@@ -234,7 +234,9 @@ function AdminPage() {
     if(response.success) {
       const { body } = response;
       setWordsArray(body);
-      const pendingCount = body.filter((items) => items.status === 2).length;
+      const pendingCount = body.filter((items) => 
+        items.descriptions.some((item) => item.status === 4)
+    ).length;
       setPendingCount(pendingCount);
     }
   };
@@ -279,7 +281,7 @@ function AdminPage() {
   }, []);
 
   useEffect(() => {
-    // Anlam sıralarını değiştir ve önerileri değerlendir sayfaları için
+    // önerileri değerlendir sayfaları için
     const flatArray = wordsArray.flatMap((item) =>
       item.descriptions.map((desc, index) => ({
         index: index,
@@ -287,12 +289,11 @@ function AdminPage() {
         descriptionId: desc.id,
         wordContent: item.wordContent,
         descriptionContent: desc.descriptionContent,
-        fullname: item.users.name + " " + item.users.surname,
+        fullname: desc.user.name + " " + desc.user.surname,
         lastEditedDate: desc.lastEditedDate,
         order: desc.order,
         status: statusFilter(desc.status),
-        previousDescription:
-          desc.previousDescription !== null ? desc.previousDescription : "Boş",
+        previousDescriptionContent: desc.previousDescriptionContent
       }))
     );
 
@@ -319,7 +320,7 @@ function AdminPage() {
           index: index,
           descriptionId: desc.id,
           descriptionContent: desc.descriptionContent,
-          fullname: item.users.name + " " + item.users.surname,
+          fullname: desc.user.name + " " + desc.user.surname,
           lastEditedDate:
             item.lastEditedDate !== null
               ? item.lastEditedDate.split("T")[0]
