@@ -63,6 +63,7 @@ const config = {
       logo: {
         alt: 'My Site Logo',
         src: 'img/logo.png',
+        href: '/docs/Kullanim-Klavuzu/Kelime-Sozlugu-Basligi',
       },
       items: [
         {
