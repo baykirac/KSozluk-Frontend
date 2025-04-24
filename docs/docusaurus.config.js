@@ -63,16 +63,9 @@ const config = {
       logo: {
         alt: 'My Site Logo',
         src: 'img/logo.png',
+        srcDark: 'img/basarsoft-logo-beyaz.png',
         href: '/docs/Kullanim-Klavuzu/Kelime-Sozlugu-Basligi',
       },
-      items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Kullanım Kılavuzu',
-        },
-      ],
     },
     algolia: {
       appId: 'ALGOLIA_APP_ID',
