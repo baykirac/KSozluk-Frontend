@@ -13,8 +13,8 @@ import "../styles/Header.css";
 import { Toast } from "primereact/toast";
 
 // eslint-disable-next-line react/prop-types
-function Header({ onSearch }) {
-  const { isAuthenticated, isInputDisabled, handleSignOut} = useAuth();
+function Header({ onSearch,isPosisitonFixed }) {
+  const { isAuthenticated, isInputDisabled, handleSignOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const op = useRef(null);
@@ -27,6 +27,8 @@ function Header({ onSearch }) {
   const toast = useRef(null);
 
   const isAdminPage = location.pathname === "/AdminPage";
+
+  const isHomePage = location.pathname === "/HomePage";
 
   const isLoginPage = location.pathname === "/LoginPage";
 
@@ -55,12 +57,15 @@ function Header({ onSearch }) {
     navigate("/LoginPage");
   }
 
+  function handleDocumentation() {
+    navigate("/Documentation");
+  }
+
   const handleSearch = () => {
     if (onSearch) {
       onSearch(true);
     }
   };
-
 
   const closingModalF = () => {
     setOpenModal(false);
@@ -76,38 +81,44 @@ function Header({ onSearch }) {
     { name: "Diğer", value: 7 },
   ];
 
-  const handleOpenRejectionDialog = async (reasonValue, customReason, descriptionId, isActive, index) => {
+  const handleOpenRejectionDialog = async (
+    reasonValue,
+    customReason,
+    descriptionId,
+    isActive,
+    index
+  ) => {
     if (reasonValue === 7 && customReason) {
       setSelectedRejectionReason(customReason);
     } else {
       const foundReason = rejectionReason.find((r) => r.value === reasonValue);
       setSelectedRejectionReason(foundReason ? foundReason.name : "");
     }
-  
+
     const newStatus = !isActive; // Yeni değeri tersine çevir
-  
+
     setTimelineData((prevData) =>
       prevData.map((item, i) =>
         i === index ? { ...item, isActive: newStatus } : item
       )
     );
-  
+
     try {
       // API isteğini gönder
       const response = await descriptionApi.UpdateIsActive(
         descriptionId,
-        isActive = newStatus);
-  
+        (isActive = newStatus)
+      );
+
       if (!response.success) {
         console.error("Güncelleme hatası:", response.message);
       }
     } catch (error) {
       console.error("API isteği başarısız:", error);
     }
-  
+
     setShowRejectionDialog(true);
   };
-  
 
   const infoModalContent = (
     <div>
@@ -128,8 +139,8 @@ function Header({ onSearch }) {
   );
 
   return (
-    <header className="custom-header">
-     <Toast ref={toast} />
+    <header className= {`custom-header ${isPosisitonFixed ? "position-fixed" : ""}`}>
+      <Toast ref={toast} />
       <div className="header-left">
         <a href="/HomePage">
           <img
@@ -147,46 +158,47 @@ function Header({ onSearch }) {
       <div className="header-right">
         {!isLoginPage && (
           <>
-            {!isAdminPage && (
-              <Searcher
-                isSearched={handleSearch}
-                forModal={false}
-                searchedWordF={(word) => onSearch && onSearch(true, word)}
-                searchedWordIdF={(id) =>
-                  onSearch && onSearch(true, undefined, id)
-                }
-                word=""
-                setTheWordF={() => {}}
-                forAdmin={false}
-                isDisabled={false}
-              />
-            )}
-            {/* <div className="theme-toggle">
-              <InputSwitch
-                checked={isDarkMode}
-                onChange={toggleTheme}
-                tooltip={isDarkMode ? "Açık Tema" : "Koyu Tema"}
+            {isAdminPage && (
+              <Button
+                icon="pi pi-spin pi-cog"
+                className="p-button-rounded p-button-text info-button"
+                onClick={() => handleDocumentation()}
+                tooltip="Dökümantasyon"
                 tooltipOptions={{ position: "left" }}
               />
-            </div> */}
-            <Button
-              icon="pi pi-question"
-              className="p-button-rounded p-button-text info-button"
-              onClick={() => setInfoModalVisible(true)}
-              tooltip="Bilgi"
-              tooltipOptions={{ position: "left" }}
-            />
-            {!isAdminPage && (
-              <Button
-                tooltip="Önerilerim"
-                tooltipOptions={{ showDelay: 250, position: "left" }}
-                icon="pi pi-calendar"
-                className="floating-button"
-                onClick={() => {
-                  setTimelineModal(true);
-                  getTimeline();
-                }}
-              />
+            )}
+            {isHomePage && (
+              <>
+                <Searcher
+                  isSearched={handleSearch}
+                  forModal={false}
+                  searchedWordF={(word) => onSearch && onSearch(true, word)}
+                  searchedWordIdF={(id) =>
+                    onSearch && onSearch(true, undefined, id)
+                  }
+                  word=""
+                  setTheWordF={() => {}}
+                  forAdmin={false}
+                  isDisabled={false}
+                />
+                <Button
+                  icon="pi pi-question"
+                  className="p-button-rounded p-button-text info-button"
+                  onClick={() => setInfoModalVisible(true)}
+                  tooltip="Bilgi"
+                  tooltipOptions={{ position: "left" }}
+                />
+                <Button
+                  tooltip="Önerilerim"
+                  tooltipOptions={{ showDelay: 250, position: "left" }}
+                  icon="pi pi-calendar"
+                  className="floating-button"
+                  onClick={() => {
+                    setTimelineModal(true);
+                    getTimeline();
+                  }}
+                />
+              </>
             )}
           </>
         )}
@@ -266,63 +278,64 @@ function Header({ onSearch }) {
         header="Önerilerim"
       >
         <div className="timeline-container">
-          {timelineData && timelineData.map((item, index) => (
-            <div key={index} className="timeline-item">
-              <div className="timeline-word">{item.wordContent}</div>
-              {item.rejectionReasons && (
-                <Button
-                  icon="pi pi-info"
-                  severity="Info"
-                  aria-label="Info"
-                  className= {item.isActive ? "nob-button" : "cool-button"}
-                  onClick={() =>
-                    handleOpenRejectionDialog(
-                      item.rejectionReasons,
-                      item.customRejectionReason,
-                      item.id,
-                      item.isActive,
-                      index
-                    )
-                  }
-                />
-              )}
-              <div className="timeline-description">
-                {item.descriptionContent}
-              </div>
-              <div
-                className={`step-parent status-${item.status}`}
-                style={{ marginBottom: 5 }}
-              >
-                <div className="step-container">
-                  <div className="line"></div>
-                  <div className="circle">!</div>
-                  <div className="line"></div>
-                  <div className="name">Önerildi</div>
+          {timelineData &&
+            timelineData.map((item, index) => (
+              <div key={index} className="timeline-item">
+                <div className="timeline-word">{item.wordContent}</div>
+                {item.rejectionReasons && (
+                  <Button
+                    icon="pi pi-info"
+                    severity="Info"
+                    aria-label="Info"
+                    className={item.isActive ? "nob-button" : "cool-button"}
+                    onClick={() =>
+                      handleOpenRejectionDialog(
+                        item.rejectionReasons,
+                        item.customRejectionReason,
+                        item.id,
+                        item.isActive,
+                        index
+                      )
+                    }
+                  />
+                )}
+                <div className="timeline-description">
+                  {item.descriptionContent}
                 </div>
-                <div className="step-container">
-                  <div className="line"></div>
-                  <div className="circle">?</div>
-                  <div className="line"></div>
-                  <div className="name">Değerlendiriliyor</div>
-                </div>
-                <div className="step-container">
-                  <div className="line"></div>
-                  <div className="circle">
-                    {item.status === 1 ? "✓" : item.status === 3 ? "X" : "?"}
+                <div
+                  className={`step-parent status-${item.status}`}
+                  style={{ marginBottom: 5 }}
+                >
+                  <div className="step-container">
+                    <div className="line"></div>
+                    <div className="circle">!</div>
+                    <div className="line"></div>
+                    <div className="name">Önerildi</div>
                   </div>
-                  <div className="line"></div>
-                  <div className="name">
-                    {item.status === 1
-                      ? "Onaylandı"
-                      : item.status === 3
-                      ? "Reddedildi"
-                      : "Bekliyor"}
+                  <div className="step-container">
+                    <div className="line"></div>
+                    <div className="circle">?</div>
+                    <div className="line"></div>
+                    <div className="name">Değerlendiriliyor</div>
+                  </div>
+                  <div className="step-container">
+                    <div className="line"></div>
+                    <div className="circle">
+                      {item.status === 1 ? "✓" : item.status === 3 ? "X" : "?"}
+                    </div>
+                    <div className="line"></div>
+                    <div className="name">
+                      {item.status === 1
+                        ? "Onaylandı"
+                        : item.status === 3
+                        ? "Reddedildi"
+                        : "Bekliyor"}
+                    </div>
                   </div>
                 </div>
+                <div style={{ clear: "both" }}></div>
               </div>
-              <div style={{ clear: "both" }}></div>
-            </div>
-          ))}
+            ))}
         </div>
       </Dialog>
       {/* Reddedildi Dialog */}

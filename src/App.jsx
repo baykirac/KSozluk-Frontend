@@ -3,6 +3,7 @@ import "./App.css";
 import HomePage from "./pages/HomePage";
 import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
+import Documentation from "./pages/Documantation"; 
 import { PrimeReactProvider } from "primereact/api";
 import AuthProvider from "./contexts/AuthContext";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
@@ -12,6 +13,7 @@ import "animate.css";
 import { Provider } from "react-redux";
 import { store } from "./data/store";
 import CryptoJS from "crypto-js";
+import UserDoc from "./pages/UserDoc";
 
   function App() {
     return (
@@ -23,6 +25,8 @@ import CryptoJS from "crypto-js";
               <Route path="/LoginPage" element={<LoginPage/>} />
               <Route path="/HomePage" element={<HomePage />} />
               <Route path="/AdminPage" element={<AdminPage />} />
+              <Route path="/Documentation" element={<Documentation />} />
+              <Route path="/UserDocumantation" element={<UserDoc />} />
             </Routes>
           </Provider>
         </PrimeReactProvider>
