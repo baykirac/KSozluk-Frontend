@@ -57,10 +57,6 @@ function Header({ onSearch,isPosisitonFixed }) {
     navigate("/LoginPage");
   }
 
-  function handleDocumentation() {
-    navigate("/Documentation");
-  }
-
   const handleSearch = () => {
     if (onSearch) {
       onSearch(true);
@@ -162,7 +158,7 @@ function Header({ onSearch,isPosisitonFixed }) {
               <Button
                 icon="pi pi-spin pi-cog"
                 className="p-button-rounded p-button-text info-button"
-                onClick={() => handleDocumentation()}
+                onClick={() => ""}
                 tooltip="Dökümantasyon"
                 tooltipOptions={{ position: "left" }}
               />
