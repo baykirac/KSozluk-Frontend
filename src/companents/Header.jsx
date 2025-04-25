@@ -56,7 +56,10 @@ function Header({ onSearch,isPosisitonFixed }) {
   function handleLogin() {
     navigate("/LoginPage");
   }
-
+  
+  function handleAdminDoc(){
+    navigate("/docs/Admin-Sayfası/Oneri-Degerlendir-Sayfasi");
+  }
   const handleSearch = () => {
     if (onSearch) {
       onSearch(true);
@@ -158,7 +161,7 @@ function Header({ onSearch,isPosisitonFixed }) {
               <Button
                 icon="pi pi-spin pi-cog"
                 className="p-button-rounded p-button-text info-button"
-                onClick={() => ""}
+                onClick={() => handleAdminDoc()}
                 tooltip="Dökümantasyon"
                 tooltipOptions={{ position: "left" }}
               />
