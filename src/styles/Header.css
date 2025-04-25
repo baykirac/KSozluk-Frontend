@@ -76,12 +76,16 @@ main {
 
 .custom-header {
   color: #ffffff;
-  
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0 0 20px;
+  padding: 15px  0 20px;
   width: 100%;
+}
+
+.position-fixed {
+  position: fixed;
+
 }
 
 body.dark .custom-header {
@@ -216,7 +220,6 @@ body.dark {
 
 body.dark .p-card {
   background-color: #07080bce !important;
-  backdrop-filter: blur(4px);
 }
 
 body.dark .sidebar-menu-item,

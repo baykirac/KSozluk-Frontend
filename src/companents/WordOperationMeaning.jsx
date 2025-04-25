@@ -162,15 +162,17 @@ const WordOperationMeaning = ({visible, closingModal, word = "", isDisabled, isS
   const confirmAdd = async () => {
     setLoading(true);
     const trimmedWord = formatWord(newWord);
+    const assignedWord = formatWord(word);
 
     try {
       if (recommendMode === 1 || recommendMode === 3) {
+        const contentWord = assignedWord || trimmedWord;
         const validDescriptions = descriptions
           .map((desc) => desc.text.trim())
           .filter((text) => text !== "");
 
         let _obj = {
-          WordContent: trimmedWord,
+          WordContent: contentWord,
           DescriptionContent: validDescriptions,
         };
 
