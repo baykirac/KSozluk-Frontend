@@ -397,7 +397,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
     }
     return null;
   };
-
+  
   const actionTemplate = (node) => {
     if (!node.children) {
       return (
@@ -640,7 +640,7 @@ const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setD
         const newEditingWordRows = { ...editingWordRows };
         delete newEditingWordRows[editingWordNode.key];
         setEditingWordRows(newEditingWordRows);
-
+        
         const newNodes = nodes.map((node) => {
           if (node.key === editingWordNode.key) {
             return {

@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { OverlayPanel } from "primereact/overlaypanel";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Dropdown } from "primereact/dropdown";
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { Dialog } from "primereact/dialog";
@@ -9,12 +12,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Searcher from "./Searcher";
 import WordOperationMeaning from "./WordOperationMeaning";
 import descriptionApi from "../api/descriptionApi";
+import userApi from "../api/userApi";
 import "../styles/Header.css";
 import { Toast } from "primereact/toast";
 
 // eslint-disable-next-line react/prop-types
-function Header({ onSearch,isPosisitonFixed }) {
-  const { isAuthenticated, isInputDisabled, handleSignOut } = useAuth();
+function Header({ onSearch, isPosisitonFixed }) {
+  const { isAuthenticated, isInputDisabled, handleSignOut, isSuperAdmin } =
+    useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const op = useRef(null);
@@ -22,8 +27,16 @@ function Header({ onSearch,isPosisitonFixed }) {
   const [openModal, setOpenModal] = useState(false);
   const [timelineModal, setTimelineModal] = useState(false);
   const [timelineData, setTimelineData] = useState([]);
+  const [superAdminData, setSuperAdminData] = useState({ items: []});
+  const [superAdminTotalCount, setSuperAdminTotalCount] = useState({ totalCount: 0 });
+  const [superAdminModal, setSuperAdminModal] = useState(false);
+  const [superAdminTimesModal, setSuperAdminTimesModal] = useState(false);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
+  const [superAdminChecked, setSuperAdminChecked] = useState(false);
   const [selectedRejectionReason, setSelectedRejectionReason] = useState("");
+  const [pendingRoleChange, setPendingRoleChange] = useState(null);
+  const [superAdminPagination, setSuperAdminPagination] = useState({ pageNumber: 1, pageSize: 10 });
+
   const toast = useRef(null);
 
   const isAdminPage = location.pathname === "/AdminPage";
@@ -33,6 +46,71 @@ function Header({ onSearch,isPosisitonFixed }) {
   const isLoginPage = location.pathname === "/LoginPage";
 
   const user = JSON.parse(localStorage.getItem("user"));
+
+  const getRoleLabel = (roleId, permissionId) => {
+    if (roleId === 1 && permissionId === 1) return "Admin";
+    if (roleId === 2 && permissionId === 2) return "Kullanıcı";
+    if (roleId === 3 && permissionId === 3) return "Süper Admin";
+    return "Atanmamış";
+  };
+
+
+  useEffect(() => {
+    if (superAdminChecked === true && pendingRoleChange !== null) {
+      const { userId, roleId, permissionId } = pendingRoleChange;
+
+      const updatedData = superAdminData.items.map((user) =>
+        user.id === userId
+          ? { ...user, roleId: roleId, permissionId: permissionId }
+          : user
+      );
+      setSuperAdminData({ items: updatedData });
+  
+      updateUserRole(userId, roleId, permissionId);
+  
+      // Temizle
+      setPendingRoleChange(null);
+      setSuperAdminChecked(false);
+    }
+  }, [superAdminChecked]);
+  
+
+  const updateUserRole = async (userId, roleId, permissionId) => {
+    try {
+      let newRoleAndPermissionId;
+
+      if (roleId === permissionId) {
+        newRoleAndPermissionId = roleId;
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: "Rol bilgisi doğrulanmadı.",
+        });
+        return;
+      }
+
+      const response = await userApi.UpdateUserRole(
+        userId,
+        newRoleAndPermissionId
+      );
+      if (response.success) {
+        toast.current.show({
+          severity: "success",
+          summary: "Başarılı",
+          detail: response.message,
+        });
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Hata",
+          detail: "Değişiklik kaydedilemedi.",
+        });
+      }
+    } catch (error) {
+      console.error("API isteği başarısız:", error);
+    }
+  };
 
   useEffect(() => {
     document.body.classList.add("dark");
@@ -49,6 +127,36 @@ function Header({ onSearch,isPosisitonFixed }) {
     }
   };
 
+  const getSuperAdminTimeline = async (pageNumber, pageSize) => {
+    try {
+      const response = await userApi.GetUserAll(pageNumber, pageSize);
+      if (response.success) {
+        const { body } = response;
+        setSuperAdminData({
+          items: body.items,
+        });
+        setSuperAdminTotalCount({
+          totalCount: body.totalCount
+        });
+      }
+    } catch (error) {
+      console.error("Timeline fetch error:", error);
+    }
+  };
+
+  const onPageChange = (e) => {
+    const newPageNumber = e.page + 1;
+    const newPageSize = e.rows;
+  
+    getSuperAdminTimeline(newPageNumber, newPageSize);
+
+    setSuperAdminPagination({
+      pageNumber: newPageNumber,
+      pageSize: newPageSize,
+    });
+  };
+  
+
   function handleGoToAdmin() {
     navigate("/AdminPage");
   }
@@ -56,8 +164,8 @@ function Header({ onSearch,isPosisitonFixed }) {
   function handleLogin() {
     navigate("/LoginPage");
   }
-  
-  function handleAdminDoc(){
+
+  function handleAdminDoc() {
     navigate("/docs/Admin-Sayfası/Oneri-Degerlendir-Sayfasi");
   }
   const handleSearch = () => {
@@ -138,7 +246,9 @@ function Header({ onSearch,isPosisitonFixed }) {
   );
 
   return (
-    <header className= {`custom-header ${isPosisitonFixed ? "position-fixed" : ""}`}>
+    <header
+      className={`custom-header ${isPosisitonFixed ? "position-fixed" : ""}`}
+    >
       <Toast ref={toast} />
       <div className="header-left">
         <a href="/HomePage">
@@ -158,13 +268,27 @@ function Header({ onSearch,isPosisitonFixed }) {
         {!isLoginPage && (
           <>
             {isAdminPage && (
-              <Button
-                icon="pi pi-spin pi-cog"
-                className="p-button-rounded p-button-text info-button"
-                onClick={() => handleAdminDoc()}
-                tooltip="Dökümantasyon"
-                tooltipOptions={{ position: "left" }}
-              />
+              <>
+                <Button
+                  icon="pi pi-spin pi-cog"
+                  className="p-button-rounded p-button-text info-button"
+                  onClick={() => handleAdminDoc()}
+                  tooltip="Dökümantasyon"
+                  tooltipOptions={{ position: "left" }}
+                />
+                {!isSuperAdmin && (
+                  <Button
+                    tooltip="Admin Atama"
+                    tooltipOptions={{ showDelay: 250, position: "left" }}
+                    icon="pi pi-shield"
+                    className="floating-button"
+                    onClick={() => {
+                      setSuperAdminModal(true);
+                      getSuperAdminTimeline(superAdminPagination.pageNumber = 1, superAdminPagination.pageSize = 10);
+                    }}
+                  />
+                )}
+              </>
             )}
             {isHomePage && (
               <>
@@ -337,6 +461,111 @@ function Header({ onSearch,isPosisitonFixed }) {
             ))}
         </div>
       </Dialog>
+      {/* Süper Admin Modal */}
+      <Dialog
+        visible={superAdminModal}
+        style={{ width: "80%", maxHeight: "80%" }}
+        onHide={() => setSuperAdminModal(false)}
+        dismissableMask={true}
+        closeOnEscape={true}
+        blockScroll={true}
+        header="Yetki Atama Paneli"
+      >
+        <DataTable
+          value={superAdminData.items}
+          paginator
+          className="p-datatable-customers"
+          rows={superAdminPagination.pageSize}
+          totalRecords={superAdminTotalCount.totalCount || 0}
+          first={(superAdminPagination.pageNumber - 1) * superAdminPagination.pageSize}
+          dataKey="id"
+          filterDisplay="row"
+          globalFilterFields={["username", "name", "surname", "email"]}
+          emptyMessage="Kullanıcı Bulunamadı"
+          onPage={onPageChange}
+          lazy
+        >
+          <Column
+            header="Kullanıcı Adı"
+            filterField="username"
+            style={{ minWidth: "20%" }}
+            field="username"
+            filter
+            bodyStyle={{ padding: 40 }}
+            filterPlaceholder="Kullanıcı Ara"
+          />
+          <Column
+            header="İsim"
+            filterField="name"
+            style={{ minWidth: "20%" }}
+            field="name"
+            filter
+            filterPlaceholder="İsim Ara"
+          />
+          <Column
+            header="Soyisim"
+            filterField="surname"
+            style={{ minWidth: "20%" }}
+            field="surname"
+            filter
+            filterPlaceholder="Soyisim Ara"
+          />
+          <Column
+            header="Email"
+            filterField="email"
+            style={{ minWidth: "20%" }}
+            field="email"
+            filter
+            filterPlaceholder="Email Ara"
+          />
+          <Column
+            header="Kullanıcı Rolü"
+            filter
+            filterPlaceholder="Rol Ara"
+            style={{ minWidth: "20%" }}
+            body={(rowData) => {
+              const currentLabel = getRoleLabel(
+                rowData.roleId,
+                rowData.permissionId
+              );
+
+              const roleOptions = [
+                { label: "Admin", value: { roleId: 1, permissionId: 1 } },
+                { label: "Kullanıcı", value: { roleId: 2, permissionId: 2 } },
+                { label: "Süper Admin", value: { roleId: 3, permissionId: 3 } },
+              ];
+
+              const currentValue = roleOptions.find(
+                (opt) =>
+                  opt.value.roleId === rowData.roleId &&
+                  opt.value.permissionId === rowData.permissionId
+              );
+
+              return (
+                <Dropdown
+                  options={roleOptions}
+                  optionLabel="label"
+                  value={currentValue?.value}
+                  placeholder={currentLabel}
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#1111",
+                    border: "none",
+                  }}
+                  onChange={(e) => {
+                    setPendingRoleChange({
+                      userId: rowData.id,
+                      roleId: e.value.roleId,
+                      permissionId: e.value.permissionId,
+                    });
+                    setSuperAdminTimesModal(true);
+                  }}
+                />
+              );
+            }}
+          />
+        </DataTable>
+      </Dialog>
       {/* Reddedildi Dialog */}
       <Dialog
         visible={showRejectionDialog}
@@ -349,6 +578,53 @@ function Header({ onSearch,isPosisitonFixed }) {
         <p>
           Red Sebebi <strong>{selectedRejectionReason}</strong>.
         </p>
+      </Dialog>
+      {/* Süper Admin Modal Onaylandı */}
+      <Dialog
+        visible={superAdminTimesModal}
+        style={{ width: "25%", maxHeight: "25%" }}
+        onHide={() => {
+          setSuperAdminTimesModal(false);
+          setSuperAdminChecked(false);
+
+          toast.current.show({
+            severity: "error",
+            summary: "hata",
+            detail: "Değişiklik onaylanmadı.",
+          });
+        }}
+        dismissableMask={true}
+        closeOnEscape={true}
+        closeIcon={true}
+
+        blockScroll={true}
+        header="Değişikliği Onaylamak İstediğinize Emin Misiniz?"
+      >
+        <Button
+          label="İptal Et"
+          icon="pi pi-times"
+          className="p-button-danger"
+          onClick={() => {
+            setSuperAdminTimesModal(false);
+            setSuperAdminChecked(false);
+            toast.current.show({
+              severity: "error",
+              summary: "hata",
+              detail: "Değişiklik onaylanmadı.",
+            });
+          }}
+          style={{ marginTop: "1rem", marginRight: "1rem" }}
+        />
+        <Button
+          label="Onayla"
+          icon="pi pi-check"
+          className="p-button-success"
+          onClick={() => {
+            setSuperAdminChecked(true);
+            setSuperAdminTimesModal(false);
+          }}
+          style={{ marginTop: "1rem", marginLeft: "1rem"}}
+        />
       </Dialog>
       <WordOperationMeaning
         visible={openModal}

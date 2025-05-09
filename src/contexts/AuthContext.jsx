@@ -12,6 +12,7 @@ export default function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isInputDisabled, setIsInputDisabled] = useState(true); 
+  const [isSuperAdmin, setIsASuperAdmin] = useState(true);
   const navigate = useNavigate();
 
   const login = (() => {
@@ -23,8 +24,13 @@ export default function AuthProvider({ children }) {
       setIsAuthenticated(true);
       const userRoles = window.Object.checkPermissions([
         EnumPermissions.admin,
-      ]);     
+        EnumPermissions.superadmin
+      ]); 
+      const userSuperAdmin = window.Object.checkPermissions([
+        EnumPermissions.superadmin
+      ]);    
       setIsInputDisabled(!userRoles);
+      setIsASuperAdmin(!userSuperAdmin);
     }else {
       setIsAuthenticated(false);
     }
@@ -48,6 +54,7 @@ export default function AuthProvider({ children }) {
         isAuthenticated,
         user,
         isInputDisabled,
+        isSuperAdmin,
         handleSignOut,
         login
       }}

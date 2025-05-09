@@ -478,3 +478,20 @@ body.dark .p-accordion-header-link {
   transform: scale(1.1);
   animation-play-state: paused;
 } 
+
+.timeline-description {
+  color: #f2f2f2f2;
+  margin-bottom: 20px;
+}
+
+#pr_id_22{
+  text-align: center;
+}
+
+#pr_id_22 .p-dialog-header-icons {
+  display: none;
+}
+
+:root {
+  --maskbg: rgba(0, 0, 0, 0.9) !important;
+}
