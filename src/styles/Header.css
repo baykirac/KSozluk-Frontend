@@ -484,6 +484,14 @@ body.dark .p-accordion-header-link {
   margin-bottom: 20px;
 }
 
+#pr_id_106{
+  text-align: center;
+}
+
+#pr_id_106 .p-dialog-header-icons {
+  display: none;
+}
+
 #pr_id_22{
   text-align: center;
 }
@@ -491,6 +499,7 @@ body.dark .p-accordion-header-link {
 #pr_id_22 .p-dialog-header-icons {
   display: none;
 }
+
 
 :root {
   --maskbg: rgba(0, 0, 0, 0.9) !important;

@@ -43,7 +43,7 @@ function AdminPage() {
   const [wordId, setWordId] = useState("");
   const [descriptionId, setDescriptionId] = useState("");
   const [wordAddedSuccessfully, setWordAddedSuccessfully] = useState(false);
-  const { isAuthenticated, isInputDisabled } = useAuth();
+  const { isAuthenticated, isAdminController } = useAuth();
   const toast = useRef(null);
   const [expandedWordsArray, setExpandedWordsArray] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -581,7 +581,7 @@ function AdminPage() {
 
   return (
     <>
-      {isAuthenticated && !isInputDisabled ? (
+      {isAuthenticated && isAdminController ? (
         <>
           <Toast ref={toastForNotification} />
           <Toast ref={toast} />
