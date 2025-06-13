@@ -184,7 +184,10 @@ function Header({ onSearch, isPosisitonFixed }) {
   }
 
   function handleAdminDoc() {
-    navigate("/docs/Admin-Sayfası/Oneri-Degerlendir-Sayfasi");
+    window.open(
+      "https://kavramlarsozlugu.basarsoft.com.tr/user_manual/",
+      "_blank"
+    );
   }
   const handleSearch = () => {
     if (onSearch) {

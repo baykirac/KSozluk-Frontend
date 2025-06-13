@@ -12,9 +12,9 @@ import descriptionApi from "../api/descriptionApi";
 import { InputTextarea } from "primereact/inputtextarea";
 
 // eslint-disable-next-line react/prop-types
-const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setDeletedDescriptionId,setWordId,setVisibleDeleteWord,
+const WordTree = ({wordsArray,onRowEditComplete,setVisibleDeleteDescription,setDeletedDescriptionId,setWordId,setVisibleDeleteWord,globalFilterFields
   // eslint-disable-next-line react/prop-types
-  globalFilterFields,setOpenDescriptionModal,setIsWordOnly,needOrderUpdate,setNeedOrderUpdate,deletedDescriptionId,onWordEditComplete,
+  ,setOpenDescriptionModal,setIsWordOnly,needOrderUpdate,setNeedOrderUpdate,deletedDescriptionId,onWordEditComplete,
 }) => {
   const [nodes, setNodes] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState({});

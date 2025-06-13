@@ -769,6 +769,7 @@ function AdminPage() {
                         "descriptionContent",
                         "lastEditedDate",
                         "userId",
+                        "roleId"
                       ]}
                       statusBodyTemplate={statusBodyTemplate}
                       statusRowFilterTemplate={statusRowFilterTemplate}
